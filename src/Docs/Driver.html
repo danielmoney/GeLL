@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>GeLL Driver</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <script type="text/javascript" src="script.js"></script>
+    </head>
+    <body>
+        <div style="width: 800px; margin: 0px auto">
+            <H1>GeLL Driver</H1>
+            <p>GeLL comes with a driver that should be capable of doing many
+            basic analyses.  The usage of the driver and the format of associated
+            files is described here.</p>
+            
+            <div class="collapsetop">Usage
+                <span class="show" onclick="show('use')" id="useS">Show</span>
+                <span class="hide" onclick="hide('use')" id="useH">Hide</span>
+            </div>
+            <div class="collapseinner" id="use" style="display:block">
+                <ul>
+                    <li><code>java -jar GePul.jar <i>settings {var1 var2 var3 ...}</i></code></li>
+                </ul>
+                <p>where <code><i>settings</i></code> is the name of a settings file.
+                <code>var1</code> etc are variables that can be "passed" to the setting
+                file.  A <code>$</code> followed by a number in the settings file will
+                be replaced by the corresponding command line arguement.  The format of
+                the settings file is described below.</p>
+                <br/>
+            </div>
+
+            <div class="collapsetop">Settings File
+                <span class="show" onclick="show('settings')" id="settingsS">Show</span>
+                <span class="hide" onclick="hide('settings')" id="settingsH">Hide</span>
+            </div>
+            <div class="collapseinner" id="settings">
+                <p>A run of the of the driver is controlled by the settings file.
+                The settings file has four options sections.  The start of each of
+                these sections should begin with the sections name in square brackets,
+                e.g. <code>[Control]</code>.  Each section is optional.  The
+                control sectgion contains general control sections while the
+                likelihood section controls lieklihood optimization.  The ancestral
+                and simulation sections control the expected processes.  Although
+                each section is optional if a section it may have settings that
+                must be set.  These are shown by the darker background.</p>
+                <p><i>Control section</i></p>
+                <table class="options">
+                    <tr>
+                        <th>DebugLevel</th>
+                        <td>
+                            The amount of debug information that is displayed when
+                            an error occurs.  Valid values are:
+                            <ul>
+                                <li><code>1&nbsp;-&nbsp;</code> <i>Default.</i> Just an
+                                error message is logged.</li>
+                                <li><code>2&nbsp;-&nbsp;</code> An error message and stack
+                                trace is logged.</li>
+                                <li><code>3&nbsp;-&nbsp;</code>An error message and stack
+                                trace is logged along with the messgae and trace
+                                of any underlying exception.
+                            </ul>
+                        </td> 
+                    </tr>
+                    <tr>
+                        <th>DebugFile</th>
+                        <td>
+                            File to log debug information to.  If no file is given
+                            debug information is printed to screen.
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Distributions</th>
+                        <td>
+                            How stationary and quasi-stationary distributions are
+                            calculated.  Valid values are:
+                            <ul>
+                                <li><code>Repeat&nbsp;-&nbsp;</code> <i>Default.</i>
+                                Distributions are calculated by repeated application
+                                of a P-matrix to a distribution.</li>
+                                <li><code>Eigen&nbsp;&nbsp;-&nbsp;</code> Distirbutions
+                                are calculated using Eigendecompositions.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>MatrixExponentation</th>
+                        <td>
+                            How matrix exponentations are calculated.  Valid values
+                            are:
+                            <ul>
+                                <li><code>Taylor&nbsp;-&nbsp;</code> <i>Default.</i>
+                                Exponentations are calculated by a Taylor expansion.</li>
+                                <li><code>Eigen&nbsp;&nbsp;-&nbsp;</code> Exponentations
+                                are claculated using Eigendecompositions.</li>                                
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>ForceSquare</th>
+                        <td>The minimum number of repeated suaring steps to use when
+                        calculating matrix exponentations using the Taylor method.
+                        Defaults to 0.
+                    </tr>
+                </table>
+                <p><i>Likelihood section</i></p>
+                <table class="options">
+                    <tr class="needed">
+                        <th>AlignmentType</th>
+                        <td>The type of alignment input.  See alignment files below
+                            for a description of the file formats. Valid values are:
+                            <ul>
+                                <li><code>Sequence&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;</code>
+                                The "alignment" is in sequence format.</li>
+                                <li><code>Duplication&nbsp;-&nbsp;</code> 
+                                The "alignment" is in duplication format.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr class="needed">
+                        <th>Alignment</th>
+                        <td>Path to the alignment file.</td>
+                    </tr>
+                    <tr class="needed">
+                        <th>TreeInput</th>
+                        <td>Path to the input tree file.  This file should contain
+                        one line containing a tree in Newick format.</td>
+                    </tr>
+                    <tr class="needed">
+                        <th>Model</th>
+                        <td>Path to the model file.  See the Model
+                        file description below for format.</td>
+                    </tr>
+                    <tr>
+                        <th>ParameterInput</th>
+                        <td>Required unless <code>Restart</code> is used.
+                        Path to the parameters input file.  See the Parameter
+                        file description below for format.</td>
+                    </tr>
+                    <tr>
+                        <th>Ambig</th>
+                        <td>Path to a file describing any ambiguous states in
+                        the alignment.</td>
+                    </tr>
+                    <tr>
+                        <th>Misisng</th>
+                        <td>Path to an alignment that gives the unobserved
+                        data.  In the same format as the alignment.</td>
+                    </tr>
+                    <tr>
+                        <th>MisisngAmbig</th>
+                        <td>Path to a file describing any ambiguous states in
+                        the misisng alignment.</td>
+                    </tr>
+                    <tr>
+                        <th>Optimizer</th>
+                        <td>The optimizer to use. Valid values are:
+                            <ul>
+                                <li><code>GoldenSection&nbsp;-&nbsp;</code>
+                                Golden section search.</li>
+                                <li><code>NelderMead&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;</code> 
+                                Neader-Mead opimization.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Checkpoint</th>
+                        <td>File to write checkpoints to.  This allows the optimization
+                        to be restarted using the <code>Restart</code> setting should
+                        it be interrupted.</td>
+                    </tr>
+                    <tr>
+                        <th>CheckpointFreq</th>
+                        <td>How often (in minutes) the checkpoint file should be
+                        written.</td>
+                    </tr>
+                    <tr>
+                        <th>Restart</th>
+                        <td>Checkpoint file to restart optimization from.</td>
+                    </tr> 
+                    <tr>
+                        <th>TreeOutput</th>
+                        <td>File to output the estimated tree to.  If this option
+                        is not given then no output is written.</td>
+                    </tr>                    
+                    <tr>
+                        <th>ParameterOutput</th>
+                        <td>File to output the estimated parameters to.  If this option
+                        is not given then no output is written.</td>
+                    </tr>
+                </table>
+                <p><i>Ancestral section</i></p>
+                <table class="options">
+                    <tr>
+                        <th>AlignmentType</th>
+                        <td>Required if no Likelihood section.  Same meaning as
+                        in Likelihood section.</td>
+                    </tr>
+                    <tr>
+                        <th>Alignment</th>
+                        <td>Required if no Likelihood section.  Same meaning as
+                        in Likelihood section.</td>
+                    </tr>
+                    <tr>
+                        <th>Tree</th>
+                        <td>Required if no Likelihood section.  Same meaning as
+                        <code>TreeInput</code> in Likelihood section.</td>
+                    </tr>
+                    <tr>
+                        <th>Model</th>
+                        <td>Required if no Likelihood section.  Same meaning as
+                        in Likelihood section.</td>
+                    </tr>
+                    <tr>
+                        <th>Parameters</th>
+                        <td>Required if no Likelihood section.  Same meaning as
+                        <code>ParameterInput</code> in Likelihood section.</td>
+                    </tr>
+                    <tr>
+                        <th>Type</th>
+                        <td>The type of reconstruction to do. Valid values are:
+                            <ul>
+                                <li><code>Joint&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;</code>
+                                    <i>Default.</i> Joint reconstruction.</li>
+                                <li><code>Marginal&nbsp;-&nbsp;</code> 
+                                Marginal reconstruction.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr class="needed">
+                        <th>Output</th>
+                        <td>File to write the reconstructed alignment to.</td>
+                    </tr>
+                </table>
+                <p><i>Simulation section</i></p>
+                <table class="options">
+                    <tr>
+                        <th>AlignmentType</th>
+                        <td>Required if no Likelihood section.  Same meaning as
+                        in Likelihood section.</td>
+                    </tr>
+                    <tr>
+                        <th>Tree</th>
+                        <td>Required if no Likelihood section.  Same meaning as
+                        <code>TreeInput</code> in Likelihood section.</td>
+                    </tr>
+                    <tr>
+                        <th>Model</th>
+                        <td>Required if no Likelihood section.  Same meaning as
+                        in Likelihood section.</td>
+                    </tr>
+                    <tr>
+                        <th>Parameters</th>
+                        <td>Required if no Likelihood section.  Same meaning as
+                        <code>ParameterInput</code> in Likelihood section.</td>
+                    </tr>
+                    <tr class="needed">
+                        <th>Length</th>
+                        <td>The length of the simulate alignment.</td>
+                    </tr>
+                    <tr class="needed">
+                        <th>Output</th>
+                        <td>File to write the reconstructed alignment to.</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="collapsetop">Alignment Files
+                <span class="show" onclick="show('align')" id="alignS">Show</span>
+                <span class="hide" onclick="hide('align')" id="alignH">Hide</span>
+            </div>
+            <div class="collapseinner" id="align">
+                <p>Alignment files can be in one of two different formats:</p>
+                <ul>
+                    <li><b>Sequence</b>&nbsp;-&nbsp; File should be in a format similar
+                    to Phylip.  The first non-blank line, which normally gives the number and length
+                    of the sequence, is ignored.  Further non-blank lines represent each sequence, one
+                    per line.  Anything from the start of the line to the first white space is
+                    considered the taxa's name.  Anything after the first whitespace is the sequence.
+                    Whitespace in the sequence is ignored.</li>
+                    <li><b>Duplication</b>&nbsp;-&nbsp; File is tab seperated.
+                    First row is a header file.  First field is ignored while subsequent fields
+                    are the name of the species.  Each additional row represents a family.
+                    The first field is an ID for the family while subsequent fields are the
+                    size of the family in the appropiate species.</li>
+                </ul>
+            </div>
+            
+            <div class="collapsetop">Parameters File
+                <span class="show" onclick="show('param')" id="paramS">Show</span>
+                <span class="hide" onclick="hide('param')" id="paramH">Hide</span>
+            </div>
+            <div class="collapseinner" id="param">
+                <p> Each line represents a single parameter.  Lines are tab seperated.  
+                The first field is the type of the parameter and the second is the name
+                of the parameter.  Subsquent fields depend on the parameter type.
+                Type values are:</p>
+                <ul>
+                    <li><code>EB&nbsp;&nbsp;-&nbsp;</code>Estimated bound parameter that is in a rate matrix.  3rd field is 
+                    the lower bound, 4th the upper.</li>
+                    <li><code>EBN&nbsp;-&nbsp;</code>Estimated bound parameter that is not in a rate matrix.  3rd field
+                    is the lower bound, 4th the upper.</li>
+                    <li><code>EP&nbsp;&nbsp;-&nbsp;</code>Estimated positive parameter that is in a rate matrix.</li>
+                    <li><code>EPN&nbsp;-&nbsp;</code>Estimate positive parameter that is not in a rate matrix.</li>
+                    <li><code>E&nbsp;&nbsp;&nbsp;-&nbsp;</code>Estimated (unbounded) paramater that is in a rate matrix.</li>
+                    <li><code>EN&nbsp;&nbsp;-&nbsp;</code>Estimated (unbounded) parameter that is not in a rate matrix.</li>
+                    <li><code>F&nbsp;&nbsp;&nbsp;-&nbsp;</code>Fixed parameter.  3rd field is the value.</li>
+                </ul>
+            </div>
+            
+            <div class="collapsetop">Model File
+                <span class="show" onclick="show('model')" id="modelS">Show</span>
+                <span class="hide" onclick="hide('model')" id="modelH">Hide</span>
+            </div>
+            <div class="collapseinner" id="model">
+                <p>The first line controls the type of model.
+                Possible types and the subsquent format of the rest of the file are:</p>
+                <ul>
+                <li><i>Gamma distributed rate categories</i>
+                    <ul>
+                    <li>First line should start <code>**G</code> followed by a tab,
+                    followed by the parameter name the alpha value is to be called by.
+                    This should be followed a tab and the number of categories desired.</li>
+                    <li>Second line should contain a file path to the RateCategory file that
+                    describes the basic model.</li>
+                    </ul>                    
+                </li>
+                <li><i>Equally likely rate categories</i>
+                    <ul>
+                    <li>First line should contain <code>**E</code></li>
+                    <li>Subsquent lines should each contain a file path to a RateCategory file
+                    </ul>                    
+                </li>
+                <li><i>Given frequency rate categories</i>
+                    <ul>
+                    <li>First line should contain <code>**F</code></li>
+                    <li>Subsquent lines should each contain an equation describing the frequency
+                    of that ratecategory (see Equation Format below for the format of this
+                    equation) followed by a tab followed by a file path to a RateCategoy file.
+                    </ul>                    
+                </li>
+                </ul>
+            </div>
+            
+            <div class="collapsetop">Rate Category File
+                <span class="show" onclick="show('rate')" id="rateS">Show</span>
+                <span class="hide" onclick="hide('rate')" id="rateH">Hide</span>
+            </div>
+            <div class="collapseinner" id="rate">
+                <p> The file format is described below.  See Equation Format below
+                for a description of the format of the equations that can be in the rate
+                matrix and root distribution.</p>
+                <ul>
+                    <li>First line contains the number of states the RateCategory has</li>
+                    <li>Second line is blank</li>
+                    <li>Third line is a list of states in the order they appear in the rate matrix,
+                    tab-seprated</li>
+                    <li>Forth line is blank</li>
+                    <li>Fifth and subsquent lines contain the rate matrix, one row per line.  Columns
+                    in a row are serated by tabs.  Each entry can be an equation.</li>
+                    <li>The rate matrix is followed by a blank line</li>
+                    <li>Finally thee is a line giivng the base frequencies.  Three different
+                    values are allowed:
+                    <ol>
+                        <li><i>Model frequencies</i> - This line contains an equation for the frequency
+                        of each state, in the same order as the rate matrix and tab-seperated
+                        <li><i>Stationary distribution</i> - Line contains just <code>**S</code>
+                        <li><i>Quasi-stationary distribution</i> - Line contains just <code>**Q</code>
+                    </ol>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="collapsetop">Ambiguous File
+                <span class="show" onclick="show('ambig')" id="ambigS">Show</span>
+                <span class="hide" onclick="hide('ambig')" id="ambigH">Hide</span>
+            </div>
+            <div class="collapseinner" id="ambig">
+                <p>File should be a tab
+                delimited file with one ambiguous character per line.  The first field
+                on each line is the ambiguous character while also subsquent field
+                represents a character that could be represented by it</p>
+            </div>
+            <div class="collapsetop">Equation Format
+                <span class="show" onclick="show('eq')" id="eqS">Show</span>
+                <span class="hide" onclick="hide('eq')" id="eqH">Hide</span>
+            </div>
+            <div class="collapseinner" id="eq">
+                <p>Variables are represented by a letter followed by any number of alphanumeric
+                characters.  Multiply (represented by <code>*</code> should be stated explicitly, e.g. 
+                <code>a * b</code> NOT <code>a b</code> or <code>ab</code>
+                (the later of which would be parsed as a single variable).
+                Functions should be represented by <code>f[a,b,...]</code> where
+                <code>f</code> is the function name 
+                and <code>a</code>,<code>b</code> etc. are inputs.  Inputs cannot
+                contain other functions but can otherwise
+                contain an expression. The following functions are defined:</p>
+                <ul>
+                    <li><code>ln[a]</code> - The natural logarithm</li>
+                    <li><code>g[a,b,c]</code> - The rate modifier of the <code>b</code>th 
+                    class of <code>c</code> classes using a gamma
+                    distribution with alpha value of <code>a</code> as per Yang 1993.</li>
+                </ul>
+            </div>
+            
+            <div style="text-align:center; margin-top:10px"><a href="GeLL.html">Back to Top Level Documentation</a></div>
+        </div>
+        <script type="text/javascript">                
+             hide('settings'); hide('align'); hide('param'); hide('model');
+             hide('rate'); hide('ambig'); hide('eq');
+        </script>
+    </body>
+</html>

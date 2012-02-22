@@ -1,0 +1,51 @@
+
+seed used = 1015752721
+
+BASEML (in paml version 4, June 2007)  brown.nuc  REV 
+Frequencies..
+                                    T      C      A      G
+Human                          0.2570 0.3307 0.3050 0.1073
+Chimpanzee                     0.2648 0.3240 0.3106 0.1006
+Gorilla                        0.2581 0.3251 0.3117 0.1050
+Orangutan                      0.2369 0.3453 0.3151 0.1028
+Gibbon                         0.2492 0.3196 0.3173 0.1140
+
+Homogeneity statistic: X2 = 0.00429 G = 0.00428 
+
+Average                        0.253184 0.328939 0.311955 0.105922
+
+# constant sites:    613 (68.49%)
+ln Lmax (unconstrained) = -2476.965133
+
+Distances: TN93 (kappa)  (alpha set at 0.00)
+This matrix is not used in later m.l. analysis.
+
+Human            
+Chimpanzee         0.0977(34.6078)
+Gorilla            0.1155(25.1378)  0.1200(22.3829)
+Orangutan          0.1880( 8.0748)  0.2052( 8.9960)  0.1984( 9.3002)
+Gibbon             0.2150( 6.6308)  0.2281( 7.0641)  0.2277( 6.8880)  0.2278( 5.6603)
+
+TREE #  1:  (((1, 2), 3), 4, 5);  MP score: 357.00
+lnL(ntime:  7  np: 12):  -2658.221383   +0.000000
+   6..7     7..8     8..1     8..2     7..3     6..4     6..5  
+  0.05292  0.01647  0.04175  0.05331  0.05818  0.10008  0.13940  0.95031  0.08334  0.00208  0.15003  0.07897
+
+tree length =   0.46211
+
+(((Human, Chimpanzee), Gorilla), Orangutan, Gibbon);
+
+(((Human: 0.041755, Chimpanzee: 0.053312): 0.016472, Gorilla: 0.058177): 0.052919, Orangutan: 0.100079, Gibbon: 0.139397);
+
+Detailed output identifying parameters
+
+Parameters  in the rate matrix (REV) (Yang 1994 J Mol Evol 39:105-111):
+
+Rate parameters:    0.95031  0.08334  0.00208  0.15003  0.07897
+Base frequencies:   0.25318  0.32894  0.31196  0.10592
+Rate matrix Q, Average Ts/Tv =   4.5263
+   -1.236798    1.141084    0.094909    0.000804
+    0.878293   -1.079677    0.170850    0.030534
+    0.077029    0.180151   -0.643836    0.386656
+    0.001923    0.094823    1.138759   -1.235505
+

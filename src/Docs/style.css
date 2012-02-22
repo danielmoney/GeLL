@@ -1,0 +1,22 @@
+H1 { text-align:center}
+body { text-align:justify}
+sup { font-size:x-small}
+a { color: blue; text-decoration:none}
+.collapsetop { border-style:solid; border-color:aliceblue; background-color:lightskyblue;
+            font-weight:bold; font-size:large; padding:0pt 3pt}
+.collapsetop code { font-weight:normal}
+.show { float:right; font-size:medium; font-weight:normal; color: blue;
+        text-align:right; cursor: pointer; display:none}
+.hide { float:right; font-size:medium; font-weight:normal; color: blue;
+        display:none; cursor:pointer; display:none}
+.collapseinner {border-style:solid; border-color:aliceblue; background-color:aliceblue;
+        padding:0pt 10pt}
+.reldate { float:right}
+.options { border-collapse:collapse; width:95%; margin-left: auto; margin-right:5px}
+.options th { font-family:monospace; font-weight:normal; border-width:1px; border-style:solid;
+            border-color:lightskyblue; vertical-align:top; padding:5px; width:25%}
+.options td { border-width:1px; border-style:solid; padding:5px; width:75%;
+            border-color:lightskyblue}
+.options ul { margin-top:0px; margin-bottom:0px; padding-left:20px}
+.needed {background-color:lavender}
+

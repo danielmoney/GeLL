@@ -1,0 +1,58 @@
+<html>
+<body>
+<!-- What a faff to get lists to look right.  Got as far as finding out that
+for some reason lists in the footer section have special formatting from the
+css style sheet.  No idea how to overwrite ti in a more sensible way than
+adding a stle to each and every li element! -->
+This library provides classes to perform likelihood calculations on phylogenetic
+trees. <br /><br />
+It includes class that allow computation of the following:
+<ul style="margin-top: 5pt">
+    <li style="list-style-type: disc; font-size: 12.1667px">
+        <i>Likelihood</i> - Using the method of Felsenstein 1981<sup>[1]</sup>.  Unobserved
+        data can also be accounted for, per Felsenstein 1992<sup>[2]</sup>.  Confidence intervals
+        for a parameter can also be calculated as discussed in Felsenstein 2003<sup>[3]</sup>.
+    </li>
+    <li style="list-style-type: disc; font-size: 12.1667px">
+        <i>Ancestral Reconstruction</i>
+        <ul style="margin-top: 5pt">
+            <li style="list-style-type: disc; font-size: 12.1667px">
+                <i>Marginal Reconstruction</i> - Using the basic method of Yang, 
+                        Kurma and Nei 1995<sup>[4]</sup>.
+            </li>
+            <li style="list-style-type: disc; font-size: 12.1667px">
+                <i>Joint Reconstruction</i> - Using the methods of Pupko et al 2000<sup>[5]</sup> and
+                Pupko et al 2002<sup>[6]</sup>.
+            </li>
+        </ul>
+    </li>
+    <li style="list-style-type: disc; font-size: 12.1667px">
+        <i>Simulated data</i> - Using the standard methods as described, for example,
+        in Yang 2006<sup>[7]</sup>.
+    </li>
+</ul>
+<br>
+The {@code Executable} package contains two executable - a general purpose driver
+and some example code that shows how to do some simple computation.
+<br><br>
+References
+<small>
+    <ol>
+        <li>Felsenstein, J. 1981. Evolutionary trees from DNA sequences: A maximum likelihood
+            approach. <i>Journal of Molecular Evolution</i>, 17:368–376.</li>
+        <li>Felsenstein, J. 1992. Phylogenies from restriction sites: A Maximum-Likelihood
+            approach. <i>Evolution</i>, 46:159–173.</li>
+        <li>Felsenstein, J. 2003. <i>Inferring phylogenies</i>. Sinauer Associates Sunderland, Mass., USA.</li>
+        <li>Yang, Z., S. Kumar, and M. Nei. 1995. A new method of inference of ancestral nucleotide
+            and amino acid sequences. <i>Genetics</i>, 141:1641–1650.</li>
+        <li>Pupko, T., I. Pe, R. Shamir, and D. Graur. 2000. A fast algorithm for joint reconstruction
+            of ancestral amino acid sequences. <i>Molecular Biology and Evolution</i>, 17:890–896.</li>
+        <li>Pupko, T., I. Pe’er, M. Hasegawa, D. Graur, and N. Friedman. 2002. A branchand-
+            bound algorithm for the inference of ancestral amino-acid sequences when the
+            replacement rate varies among sites: Application to the evolution of five gene families.
+            <i>Bioinformatics</i>, 18:1116–1123.</li>
+        <li>Yang, Z. 2006. <i>Computational molecular evolution</i>. Oxford University Press, USA.</li>
+    </ol>
+</small>
+</body>
+</html>

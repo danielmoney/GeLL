@@ -1,0 +1,54 @@
+
+seed used = 1015640329
+
+BASEML (in paml version 4, June 2007)  brown.nuc  REV dGamma (ncatG=4)
+Frequencies..
+                                    T      C      A      G
+Human                          0.2570 0.3307 0.3050 0.1073
+Chimpanzee                     0.2648 0.3240 0.3106 0.1006
+Gorilla                        0.2581 0.3251 0.3117 0.1050
+Orangutan                      0.2369 0.3453 0.3151 0.1028
+Gibbon                         0.2492 0.3196 0.3173 0.1140
+
+Homogeneity statistic: X2 = 0.00429 G = 0.00428 
+
+Average                        0.253184 0.328939 0.311955 0.105922
+
+# constant sites:    613 (68.49%)
+ln Lmax (unconstrained) = -2476.965133
+
+Distances: TN93 (kappa)  (alpha set at 0.50)
+This matrix is not used in later m.l. analysis.
+
+Human            
+Chimpanzee         0.1214(42.4634)
+Gorilla            0.1485(31.9110)  0.1562(28.5860)
+Orangutan          0.2700(11.3980)  0.3101(13.1537)  0.2944(13.5463)
+Gibbon             0.3217( 9.5815)  0.3573(10.5068)  0.3544(10.2059)  0.3501( 8.2174)
+
+TREE #  1:  (((1, 2), 3), 4, 5);  MP score: 357.00
+lnL(ntime:  7  np: 16):  -2616.073763   +0.000000
+   6..7     7..8     8..1     8..2     7..3     6..4     6..5  
+  0.13139  0.03549  0.05799  0.07461  0.07435  0.35015  0.54460  0.86726  0.02648  0.00001  0.04929  0.01110  0.23500  0.34587  0.32300  0.19249
+
+tree length =   1.26858
+
+(((Human, Chimpanzee), Gorilla), Orangutan, Gibbon);
+
+(((Human: 0.057986, Chimpanzee: 0.074612): 0.035490, Gorilla: 0.074352): 0.131393, Orangutan: 0.350152, Gibbon: 0.544599);
+
+Detailed output identifying parameters
+kappa under REV:  0.86726  0.02648  0.00001  0.04929  0.01110
+base frequency parameters
+  0.23500  0.34587  0.32300  0.09613Rate parameters:    0.86726  0.02648  0.00001  0.04929  0.01110
+Base frequencies:   0.23500  0.34587  0.32300  0.09613
+Rate matrix Q, Average Ts/Tv =  12.8767
+   -1.409681    1.370596    0.039081    0.000004
+    0.931255   -1.008875    0.072745    0.004875
+    0.028434    0.077896   -0.545575    0.439245
+    0.000011    0.017541    1.475875   -1.493427
+
+alpha (gamma, K=4) =  0.19249
+rate:   0.00041  0.02956  0.36379  3.60625
+freq:   0.25000  0.25000  0.25000  0.25000
+

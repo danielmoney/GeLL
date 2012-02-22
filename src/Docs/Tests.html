@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>GeLL Test Cases</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <script type="text/javascript" src="script.js"></script>
+    </head>
+    <body>
+        <div style="width: 800px; margin: 0px auto">
+            <H1>GeLL Test Cases</H1>
+            <p>The GeLL test packages comes with some simple JUnit tests
+            that either a) compare GeLL results to <code>PAML</code> or b) test GePul by using
+            the <code>PAML</code>-tested code to test other parts of GeLL.  Thes tests are
+            designed to simply test each of the major capabilities of GeLL,
+            although they do not do so thoroughly.  The tests
+            are described below.</p>
+            
+            <div class="collapsetop"><code>Likelihood.LikelihoodTest</code>
+                <span class="show" onclick="show('like')" id="likeS">Show</span>
+                <span class="hide" onclick="hide('like')" id="likeH">Hide</span>
+            </div>
+            <div class="collapseinner" id="like" style="display:block">
+                <p>This tests the likelihood calculation for a fixed set of parameters
+                and compares the results to <code>PAML</code>.  The <code>PAML</code> run can be found in
+                <code>/tests/PAML/Likelihood</code>.  As <code>PAML</code> always optimizes 
+                parameters the parameter values from the <code>PAML</code> run were used.</p>
+                <p>There are two tests, one simly checks the calculated likelohood is
+                the same, while the other checks the two programs make the same
+                site to rate category assignments.</p>
+            </div>
+            
+            <div class="collapsetop"><code>Ancestral.JointDPTest</code>
+                <span class="show" onclick="show('dp')" id="dpS">Show</span>
+                <span class="hide" onclick="hide('dp')" id="dpH">Hide</span>
+            </div>
+            <div class="collapseinner" id="dp" style="display:block">
+                <p>This tests the dynamic programming part of the joint ancestral
+                reconstruction method for a fixed set of parameters
+                and compares the results to <code>PAML</code>.  The <code>PAML</code> run can be found in
+                <code>/tests/PAML/JointReconstruction</code>.  As <code>PAML</code> always optimizes 
+                parameters the parameter values from the <code>PAML</code> run were used.</p>
+                <p>There ais a single tests that checks the reconstructed alignments
+                from the two programs are the same.</p>
+            </div>
+            
+            <div class="collapsetop"><code>Ancestral.JointBBTest</code>
+                <span class="show" onclick="show('bb')" id="bbS">Show</span>
+                <span class="hide" onclick="hide('bb')" id="bbH">Hide</span>
+            </div>
+            <div class="collapseinner" id="bb" style="display:block">
+                <p>This tests the branch and bound programming part of the joint ancestral
+                reconstruction method for a fixed set of parameters.  First, the probability of
+                each possible assignment is exhautsively calculated (using the Lieklihood method), 
+                which is possible due to the small tree size.  Second we ensure that the branch 
+                and bound method is returning the most likely reconstruction. </p>
+            </div>
+            
+            <div class="collapsetop"><code>Ancestral.MarginalTest</code>
+                <span class="show" onclick="show('marginal')" id="marginalS">Show</span>
+                <span class="hide" onclick="hide('marginal')" id="marginalH">Hide</span>
+            </div>
+            <div class="collapseinner" id="marginal" style="display:block">
+                <p>This tests the marginal ancestral reconstruction method for a 
+                fixed set of parameters and compares the results to <code>PAML</code>.  The <code>PAML</code> 
+                run can be found in <code>/tests/PAML/JointReconstruction</code>. 
+                As <code>PAML</code> always optimizes parameters the parameter values from the 
+                <code>PAML</code> run were used.</p>
+                <p>There ais a single tests that checks the reconstructed alignments
+                from the two programs are the same.</p>
+            </div>
+            
+            <div class="collapsetop"><code>Simulations.SimulateTest</code>
+                <span class="show" onclick="show('sim')" id="simS">Show</span>
+                <span class="hide" onclick="hide('sim')" id="simH">Hide</span>
+            </div>
+            <div class="collapseinner" id="sim" style="display:block">
+                <p>This tests the simulation method.  First, the theoritical probability of
+                each possible assignment is exhautsively calculated (using the Likelihood
+                method), which is possible due to the small tree size.  Second we ensure that
+                the frequency with which the simulator generates each state agrees with
+                the theoritical result. </p>
+            </div>
+            
+            <div class="collapsetop"><code>Optimizers.GoldenSectionTest</code>
+                <span class="show" onclick="show('golden')" id="goldenS">Show</span>
+                <span class="hide" onclick="hide('golden')" id="goldenH">Hide</span>
+            </div>
+            <div class="collapseinner" id="golden" style="display:block">
+                <p>This is essentially the same as the Likelihood test except we
+                only test the likelihood and we don't fix the parametes but optimize
+                them first using the Golden Section method.</p>
+            </div>
+            
+            <div class="collapsetop"><code>Optimizers.NelderMeadTest</code>
+                <span class="show" onclick="show('nelder')" id="nelderS">Show</span>
+                <span class="hide" onclick="hide('nelder')" id="nelderH">Hide</span>
+            </div>
+            <div class="collapseinner" id="nelder" style="display:block">
+                <p>This is essentially the same as the Likelihood test except we
+                only test the likelihood and we don't fix the parametes but optimize
+                them first using the Nelder-Mead method.</p> 
+            </div>
+           
+            <div style="text-align:center; margin-top:10px"><a href="GeLL.html">Back to Top Level Documentation</a></div>
+        </div>
+        <script type="text/javascript">                
+             hide('like'); hide('dp'); hide('bb'); hide('marginal');
+             hide('sim'); hide('golden'); hide('nelder');
+        </script>
+    </body>
+</html>
+

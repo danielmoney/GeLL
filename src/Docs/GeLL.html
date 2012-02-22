@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>GeLL</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <script type="text/javascript" src="script.js"></script>
+    </head>
+    <body>
+        <div style="width: 800px; margin: 0px auto">
+            <H1>GeLL</H1>
+            <p>GeLL is a <b>Ge</b>neral <b>L</b>ikelihood <b>L</b>ibrary for 
+            use in phylogenetics.  It is intended to provide classes that facilitate
+            investigating new models and techniques.  It is not intended for everyday
+            use in phylogenetic studies as it is otpimised for easy use of new models
+            rather than speed.</p>
+
+            <p>GeLL achieves this versatility by allowing models to be defined using
+            an array of Strings where each string represents an equation.  This allows
+            new models to be defined quickly and easily.  The driver executable included
+            allows many different models to be run simply by changing the text file
+            defining the model. </p>
+            
+            <div class="collapsetop">Capabilities
+                <span class="show" onclick="show('cap')" id="capS">Show</span>
+                <span class="hide" onclick="hide('cap')" id="capH">Hide</span>
+            </div>
+            <div class="collapseinner" id="cap" style="display:block">
+                GeLL has the following capabilities:
+                <ul >
+                <li>
+                    <b>Likelihood</b> - Using the method of Felsenstein 1981<sup>[1]</sup>.  Unobserved
+                    data can also be accounted for, per Felsenstein 1992<sup>[2]</sup>.  Confidence intervals
+                    for a parameter can also be calculated as discussed in Felsenstein 2003<sup>[3]</sup>.
+                </li>
+                <li>
+                    <b>Ancestral Reconstruction</b>
+                    <ul>
+                        <li>
+                            <i>Marginal Reconstruction</i> - Using the basic method of Yang, 
+                                    Kurma and Nei 1995<sup>[4]</sup>.
+                        </li>
+                        <li>
+                            <i>Joint Reconstruction</i> - Using the methods of Pupko et al 2000<sup>[5]</sup> and
+                            Pupko et al 2002<sup>[6]</sup>.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <b>Simulated data</b> - Using the standard methods as described, for example,
+                    in Yang 2006<sup>[7]</sup>.
+                </li>
+            </ul>
+            </div>
+
+            <div class="collapsetop">Packages
+                <span class="show" onclick="show('release')" id="releaseS">Show</span>
+                <span class="hide" onclick="hide('release')" id="releaseH">Hide</span>
+            </div>
+            <div class="collapseinner" id="release">
+                <p>GeLL comes in three different packages:</p>
+                <ul>
+                    <li><b>Basic Package</b> - This includes just the JAR file
+                        and the javadoc documentation</li>
+                    <li><b>Source Package</b> - This additionally includes the
+                        source code</li>
+                    <li><b>Test Package</b> - This additionally includes both
+                        the source code and test classes
+                </ul>
+            </div>
+            
+            <div class="collapsetop">Documentation
+                <span class="show" onclick="show('doc')" id="docS">Show</span>
+                <span class="hide" onclick="hide('doc')" id="docH">Hide</span>
+            </div>
+            <div class="collapseinner" id="doc">
+                <p>GeLL comes with full javadoc documentation in the javadoc
+                directory <a href="javadoc/index.html">here</a>.</p>
+                
+                <p>GeLL includes a driver that should be capable of doing
+                most basic computations.  This is documented in the driver
+                documentation <a href="Driver.html">here</a>.</p>
+                
+                <p>A description of the test cases is included <a href="Tests.html">
+                here</a> in the test package.</p>
+            </div>
+            
+            <div class="collapsetop">Tips & Tricks
+                <span class="show" onclick="show('tips')" id="tipsS">Show</span>
+                <span class="hide" onclick="hide('tips')" id="tipsH">Hide</span>
+            </div>
+            <div class="collapseinner" id="tips">
+                <ul>
+                    <li><b>Gaps</b><br/>
+                        Gaps can be dealt with in two ways.  They can be treated
+                        as an extra state in which case the extra state should simply
+                        be added to the model.  To sum across all states, like many
+                        models do, simply define the gap character as being an ambiguos
+                        character that could be any one of the states.</li>
+                </ul>
+            </div>
+            
+            <div class="collapsetop">Citation
+                <span class="show" onclick="show('citation')" id="citationS">Show</span>
+                <span class="hide" onclick="hide('citation')" id="citationH">Hide</span>
+            </div>
+            <div class="collapseinner" id="citation">
+                Need to do!
+            </div>
+            
+            <div class="collapsetop">Known Issues
+                <span class="show" onclick="show('issues')" id="issuesS">Show</span>
+                <span class="hide" onclick="hide('issues')" id="issuesH">Hide</span>
+            </div>
+            <div class="collapseinner" id="issues">
+                <ul>
+                    <li><b>Eigendecomposition</b><br/>
+                    Eigendecompositions may not always converge and many not throw
+                    an error.  The eigendecomposition code is taken from
+                    <a href="http://math.nist.gov/javanumerics/jama/">JAMA</a> and
+                    has not been debugged.  This seems to especially be the case for
+                    gene family size models.</li>
+                    <li><b>Parameters</b><br/>
+                    The way branch lengths are treated as parameters is a little odd
+                    and could well cause confusion.  It is intended to overhaul
+                    this in a future version.
+                    <li><b>Exceptions</b><br/>
+                    Some excpetions are thrown in circumstances where it is known
+                    that the excpetion shouldn't occur, normally because we know
+                    that the calling class has already checked (either implcitly
+                    or explicitly) that the exception can't occur.  It is intended
+                    to fix this in a later release.</li>
+                    <li><b>Threaded Computation - Likelihood</b><br/>
+                    Currently threaded computation is always used for lieklihood
+                    computation.  It is known that this can be slower for small
+                    trees and small state-space models.  However, it has not been
+                    yet been determined under what conditions threaded calculation
+                    is slower so, for the moment, it is always used.</li>
+                    <li><b>Threaded Computation - Ancestral reconstruction</b><br/>
+                    At the moment ancestral reconstruction is not threaded.</li>
+                </ul>
+            </div>
+            
+            <div class="collapsetop">Release Notes
+                <span class="show" onclick="show('notes')" id="notesS">Show</span>
+                <span class="hide" onclick="hide('notes')" id="notesH">Hide</span>
+            </div>
+            <div class="collapseinner" id="notes">
+                <b>1.0</b> <span class="reldate">2 February 2012</span>
+                <ul>
+                    <li>First release</li>
+                </ul>
+            </div>
+            
+            <div class="collapsetop">License
+                <span class="show" onclick="show('license')" id="licenseS">Show</span>
+                <span class="hide" onclick="hide('license')" id="licenseH">Hide</span>
+            </div>
+            <div class="collapseinner" id="license">
+                <p>GeLL is avaliable under a need to decide!</p>
+                <p>The <code>EigenvalueDecomposition</code> and <code>LUDecomposition</code>
+                classes are from <a href="http://math.nist.gov/javanumerics/jama/">JAMA</a>
+                and as such are in the public domain.</p>
+            </div>
+            
+            <div class="collapsetop">Contact
+                <span class="show" onclick="show('contact')" id="contactS">Show</span>
+                <span class="hide" onclick="hide('contact')" id="contactH">Hide</span>
+            </div>
+            <div class="collapseinner" id="contact">
+                <p>GeLL is avaliable at <a href="">nowhere at the moment.</a></p>
+                <p>The author is contactable at <a href="mailto:daniel_money@ku.edu">
+                daniel_money@ku.edu</a>
+            </div>
+            
+            <div class="collapsetop">References
+                <span class="show" onclick="show('ref')" id="refS">Show</span>
+                <span class="hide" onclick="hide('ref')" id="refH">Hide</span>
+            </div>
+            <div class="collapseinner" id="ref">
+                <ol style="font-size:small">
+                    <li>Felsenstein, J. 1981. Evolutionary trees from DNA sequences: A maximum likelihood
+                        approach. <i>Journal of Molecular Evolution</i>, 17:368–376.</li>
+                    <li>Felsenstein, J. 1992. Phylogenies from restriction sites: A Maximum-Likelihood
+                        approach. <i>Evolution</i>, 46:159–173.</li>
+                    <li>Felsenstein, J. 2003. <i>Inferring phylogenies</i>. Sinauer Associates Sunderland, Mass., USA.</li>
+                    <li>Yang, Z., S. Kumar, and M. Nei. 1995. A new method of inference of ancestral nucleotide
+                        and amino acid sequences. <i>Genetics</i>, 141:1641–1650.</li>
+                    <li>Pupko, T., I. Pe, R. Shamir, and D. Graur. 2000. A fast algorithm for joint reconstruction
+                        of ancestral amino acid sequences. <i>Molecular Biology and Evolution</i>, 17:890–896.</li>
+                    <li>Pupko, T., I. Pe’er, M. Hasegawa, D. Graur, and N. Friedman. 2002. A branchand-
+                        bound algorithm for the inference of ancestral amino-acid sequences when the
+                        replacement rate varies among sites: Application to the evolution of five gene families.
+                        <i>Bioinformatics</i>, 18:1116–1123.</li>
+                    <li>Yang, Z. 2006. <i>Computational molecular evolution</i>. Oxford University Press, USA.</li>
+                </ol>
+            </div>
+        </div>
+        <script type="text/javascript">                
+             hide('release'); hide('doc'); hide('tips'); hide('citation'); hide('issues');
+             hide('notes'); hide('license'); hide('contact'); hide('ref');
+        </script>
+    </body>
+</html>
