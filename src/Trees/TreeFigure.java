@@ -9,8 +9,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Class for visualising trees.  Produces a SVG file.<br>
+ * <b>Note this class is still being developed.  It works but may not have all
+ * appropiate error checking nor have all needed methods been written.
+ * I make no guarantees that future versions will have the same methods.</b>
+ * @author Daniel Money
+ * @version 1.1
+ */
 public class TreeFigure
 {
+    /**
+     * Constructor
+     * @param t The tree to visualize
+     * @throws TreeException If the tree does not have branch lengths
+     */
     public TreeFigure(Tree t) throws TreeException
     {
         this.t = t;
@@ -60,6 +73,12 @@ public class TreeFigure
         branchColors.put(t.getRoot(),"black");
     }
     
+    /**
+     * Sets the color of branches.  Default is black, either if this method
+     * is not called at all or it is not bassed a color for a branch.  
+     * Colors should be defined as in a SVG file.
+     * @param colors Map from branch to color
+     */
     public void setBranchColors(Map<Branch, String> colors)
     {
         for (Branch b: colors.keySet())
@@ -68,26 +87,54 @@ public class TreeFigure
         }
     }
     
+    /**
+     * Sets the color of the leaf text.  Default is black, either if this method
+     * is not called at all or it is not bassed a color for a branch
+     * @param colors Map from leaf name to color.  Colors should be defined as
+     * in a SVG file.
+     */
     public void setLeafColor(Map<String,String> colors)
     {
         leafColors = colors;
     }
     
+    /**
+     * Sets the color of the root branch.  Defaults to black if this method is
+     * not called
+     * @param color The color of the branch.  Color should be defined as
+     * in a SVG file.
+     */
     public void setRootBranchColor(String color)
     {
         branchColors.put(t.getRoot(), color);
     }
     
-    public void setLeaveNames(Map<String, String> names)
+    /**
+     * Overwrites the default leaf text (the taxa names).
+     * @param names Map from taxa name to string where the string is the new text
+     * for each leaf.  Should include new text for every leaf.
+     */
+    public void setLeavesText(Map<String, String> names)
     {
         this.names = names;
     }
     
+    /**
+     * Sets the spacing (in co-ordinate terms) between the horizontal lines
+     * @param spacing The spacing to use
+     */
     public void setVerticalSpacing(int spacing)
     {
         vs = spacing;
     }
     
+    /**
+     * Prints the tree to the given file
+     * @param f The file to print to
+     * @param showLengths Display branch lengths on output
+     * @throws IOException Thrown if there is a problem writing the file
+     * @throws TreeException Thrown if there is a problem with the tree
+     */
     public void printSVG(File f, boolean showLengths) throws IOException, TreeException
     {
         next = 0;

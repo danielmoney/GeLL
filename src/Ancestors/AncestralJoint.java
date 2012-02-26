@@ -12,13 +12,14 @@ import Models.RateCategory.RateException;
 import Parameters.Parameters.ParameterException;
 import Trees.Tree;
 import Trees.TreeException;
+import java.util.Map;
 
 /**
  * Abstract class that the two different ways of doing ancestral reconstruction
  * extend.  By using the static method in tis class users can avoid worrying
  * about whether their model has a single rate category.
  * @author Daniel Money
- * @version 1.0
+ * @version 1.1
  */
 public abstract class AncestralJoint
 {
@@ -46,13 +47,41 @@ public abstract class AncestralJoint
      * Returns an object of this class that can be used for joint reconstruction.
      * If the model has a single rate category it returns an object that will do
      * reconstruction using the dynamic pogramming method of Pupko 2000, else
-     * an object that will use the branch and bound method of Pupoko 2002.     * 
+     * an object that will use the branch and bound method of Pupoko 2002.      
      * @param a The alignment
      * @param m The model
      * @param t The tree
      * @return An object that can be used for reconstruction
      */
     public static AncestralJoint newInstance(Model m, Alignment a, Tree t)
+    {
+        //First try Dynamic Programming method
+        try
+        {
+            return new AncestralJointDP(m,a,t);
+        }
+        //But if that can't work due to multiple rate categories use Branch
+        //and Bound method
+        catch (MultipleRatesException ex)
+        {
+            return new AncestralJointBB(m,a,t);
+        }
+    }
+    
+    /**
+     * Returns an object of this class that can be used for joint reconstruction.
+     * Sites can belong to different classes and so use different models.
+     * If all models have a single rate category it returns an object that will do
+     * reconstruction using the dynamic pogramming method of Pupko 2000, else
+     * an object that will use the branch and bound method of Pupoko 2002. 
+     * @param a The alignment
+     * @param m Map from site class to model
+     * @param t The tree
+     * @return An object that can be used for reconstruction
+     * @throws AlignmentException Thrown if a model and constrainer isn't given
+     * for each site class in the alignment  
+     */
+    public static AncestralJoint newInstance(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException
     {
         //First try Dynamic Programming method
         try

@@ -21,27 +21,53 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
  * Class to perform joint ancestral reconstrion using the method of Pupko 2000
  * @author Daniel Money
- * @version 1.0
+ * @version 1.1
  */
 public class AncestralJointDP extends AncestralJoint
 {
     AncestralJointDP(Model m, Alignment a, Tree t) throws MultipleRatesException
     {
 	this.a = a;
-	this.m = m; 
+        this.m = new HashMap<>();
+	this.m.put(null,m); 
 	this.t = t;
         if (!m.hasSingleRate())
         {
             throw new MultipleRatesException();
         }
+        r = new HashMap<>();
         for (RateCategory rc: m)
         {
-            this.r = rc;
+            r.put(null,rc);
+        }
+    }
+    
+    AncestralJointDP(Map<String,Model> m, Alignment a, Tree t) throws MultipleRatesException, AlignmentException
+    {
+        this.a = a;
+        this.m = m;
+        this.t = t;
+        for (Entry<String,Model> e: m.entrySet())
+        {
+            if (!e.getValue().hasSingleRate())
+            {
+                throw new MultipleRatesException();
+            }
+            r = new HashMap<>();
+            for (RateCategory rc: e.getValue())
+            {
+                r.put(e.getKey(),rc);
+            }
+        }
+        if (!a.check(m))
+        {
+            throw new AlignmentException("Alignment contains classes for which no model has been defined");
         }
     }
     
@@ -62,13 +88,17 @@ public class AncestralJointDP extends AncestralJoint
 	}
         
         //Calculate probabilities for this model, tree and set of parameters
-        Probabilities P = new Probabilities(m,t,params);
+        Map<String,Probabilities> P = new HashMap<>();
+        for (Entry<String,Model> e: m.entrySet())
+        {
+            P.put(e.getKey(),new Probabilities(e.getValue(),t,params));
+        }
  
         //Get unqiue sites in the alignment and calculator a reconstuction for each
         Map<Site,Site> ret = new HashMap<>();
         for (Site s: a.getUniqueSites())
 	{
-            ret.put(s,calculateSite(s,P));
+            ret.put(s,calculateSite(s,P.get(s.getSiteClass())));
 	}
 
         //Make a new alignment using the result for each unique site
@@ -105,7 +135,7 @@ public class AncestralJointDP extends AncestralJoint
                         //else throw an Exception.
                         String ch = SetUtils.getSingleElement(chs);
                         c.put(state,ch);
-                        l.put(state,P.getP(r, b, ch, state));
+                        l.put(state,P.getP(r.get(s.getSiteClass()), b, ch, state));
                     }
                     catch (SetHasMultipleElementsException e)
                     {
@@ -124,7 +154,7 @@ public class AncestralJointDP extends AncestralJoint
 		    {
 			//double cl = matrices[b].getPosition(j, i);
 			//double cl = P.getP(r, b, i, j);//matrices[b].getPosition(i, j);
-                        double cl = P.getP(r, b, j, i);
+                        double cl = P.getP(r.get(s.getSiteClass()), b, j, i);
 			//for (String ch: MapUtils.reverseLookupMulti(t.getBranches(), b+1))
                         for (Branch ch: t.getBranchesByParent(b.getChild()))
 			{
@@ -148,7 +178,7 @@ public class AncestralJointDP extends AncestralJoint
 	String maxC = null;
 	for (String j: P.getAllStates())
 	{
-	    double cl = P.getFreq(r, j);
+	    double cl = P.getFreq(r.get(s.getSiteClass()), j);
 	    for (Branch ch: t.getBranchesByParent(t.getRoot()))
 	    {
 		cl = cl * L.get(ch.getChild()).get(j);
@@ -183,9 +213,9 @@ public class AncestralJointDP extends AncestralJoint
     }
 
     private Alignment a;
-    private Model m;
+    private Map<String,Model> m;
     private Tree t;
-    private RateCategory r;
+    private Map<String,RateCategory> r;
     
     /**
      * Thrown if the model has multiple rate categories as this methodology

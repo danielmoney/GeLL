@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * Represents a sequence alignment
  * @author Daniel Money
- * @version 1.0
+ * @version 1.1
  */
 public class SequenceAlignment extends Alignment
 {
@@ -27,11 +27,12 @@ public class SequenceAlignment extends Alignment
      * of the sequence, is ignored.  Further non-blank lines represent each sequence, one
      * per line.  Anything from the start of the line to the first white space is
      * considered the taxa's name.  Anything after the first whitespace is the sequence.
-     * Whitespace in the sequence is ignored.
-     * 
+     * Whitespace in the sequence is ignored.  A taxa name of <code>*class*</code> is
+     * assumed not to be a taxa but rather gfives the class of each site (which can be any
+     * single character).
      * @param f The input file
      * @throws InputException Thrown if there is a problem reading the file
-     * @throws AlignmentException Thrown if there issomething wrong with the alignment, e.g.
+     * @throws Alignments.AlignmentException Thrown if there issomething wrong with the alignment, e.g.
      * different length sequences
      */
     public SequenceAlignment(File f) throws InputException, AlignmentException
@@ -45,13 +46,14 @@ public class SequenceAlignment extends Alignment
      * @param f The input file
      * @param ambig Desription o the ambiguous data
      * @throws InputException Thrown if there is a problem with the input file
-     * @throws AlignmentException Thrown if there issomething wrong with the alignment, e.g.
+     * @throws Alignments.AlignmentException Thrown if there issomething wrong with the alignment, e.g.
      * different length sequences
      */
     public SequenceAlignment(File f, Ambiguous ambig) throws InputException, AlignmentException
     {
 	// Create the hashmap to store the sequences (seq name =>  sequence)
         LinkedHashMap<String,String> seq = new LinkedHashMap<>();
+        String classLine = null;
 
 	BufferedReader in;
         try
@@ -87,14 +89,29 @@ public class SequenceAlignment extends Alignment
                     {
                         seqLength = sequence.length();
                     }
-                    seq.put(parts[0], sequence);
-                    if (!taxa.contains(parts[0]))
+                    if (!parts[0].equals("*Class*"))
                     {
-                        taxa.add(parts[0]);
+                        seq.put(parts[0], sequence);
+                        if (!taxa.contains(parts[0]))
+                        {
+                            taxa.add(parts[0]);
+                        }
+                        else
+                        {
+                            throw new AlignmentException("Taxa names", line, "Repeated taxa name",null);
+                        }
                     }
                     else
                     {
-                        throw new AlignmentException("Taxa names", line, "Repeated taxa name",null);
+                        if (classLine == null)
+                        {
+                            classLine = parts[1];
+                            hasClasses = true;
+                        }
+                        else
+                        {
+                            throw new AlignmentException("Taxa names", line, "Site class defined more than once",null);
+                        }
                     }
                 }
                 if (!line.equals("") && paramLine)
@@ -116,7 +133,12 @@ public class SequenceAlignment extends Alignment
                 {
                     col.put(e.getKey(),e.getValue().substring(i, i+1));
                 }
-                data.add(new Site(col,ambig));
+                String c = null;
+                if (classLine != null)
+                {
+                    c = classLine.substring(i, i+1);
+                }
+                data.add(new Site(col,ambig,c));
             }
         }
         catch (IOException e)
@@ -149,6 +171,18 @@ public class SequenceAlignment extends Alignment
                 }
                 out.println();
             }
+            
+            if (a.hasClasses)
+            {
+                out.println();
+                out.print("*Class*     ");
+                for (int j=0; j < a.getLength(); j++)
+                {
+                    out.print(a.getSite(j).getSiteClass());
+                }
+                out.println();
+            }
+            
             out.close();
         }
 	catch (FileNotFoundException e)

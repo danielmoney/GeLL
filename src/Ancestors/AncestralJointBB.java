@@ -27,19 +27,21 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Class to perform joint ancestral reconstrion using the method of Pupko 2002
  * slightly modified
  * @author Daniel Money
- * @version 1.0
+ * @version 1.1
  */
 public class AncestralJointBB extends AncestralJoint
 {   
     AncestralJointBB(Model m, Alignment a, Tree t)
     {
 	this.a = a;
-	this.m = m;
+        this.m = new HashMap<>();
+	this.m.put(null,m);
 	this.t = t;
         //Create a dynamic programming ancestral reconstructir for each rate
         //category.  Saves creating one for each site.  Used to choose a sensible
@@ -57,6 +59,37 @@ public class AncestralJointBB extends AncestralJoint
                 //rate category but just in case...
                 throw new UnexpectedError(ex);
             }
+        }
+    }
+    
+    AncestralJointBB(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException
+    {
+	this.a = a;
+        this.m = m;
+	this.t = t;
+        //Create a dynamic programming ancestral reconstructir for each rate
+        //category.  Saves creating one for each site.  Used to choose a sensible
+        //starting state for branch and bound search.
+        dps = new HashMap<>();
+        for (Model mo: m.values())
+        {
+            for (RateCategory r: mo)
+            {
+                try
+                {
+                    dps.put(r,new AncestralJointDP(new Model(r),a,t));
+                }
+                catch (MultipleRatesException ex)
+                {
+                    //Can't reach here as we know we only pass in models with a single
+                    //rate category but just in case...
+                    throw new UnexpectedError(ex);
+                }
+            }
+        }
+        if (!a.check(m))
+        {
+            throw new AlignmentException("Alignment contains classes for which no model has been defined");
         }
     }
 
@@ -77,7 +110,11 @@ public class AncestralJointBB extends AncestralJoint
 	}
         
         //Calculate probabilities for this model, tree and set of parameters
-        Probabilities P = new Probabilities(m,t,p);
+        Map<String,Probabilities> P = new HashMap<>();
+        for (Entry<String,Model> e: m.entrySet())
+        {
+            P.put(e.getKey(),new Probabilities(e.getValue(),t,p));
+        }
 
         //Get unqiue sites in the alignment and calculator a reconstuction for each
         Map<Site,Site> ret = new HashMap<>();
@@ -85,7 +122,7 @@ public class AncestralJointBB extends AncestralJoint
 	{
 	    try
 	    {
-		ret.put(s,calculateSite(s,P));
+		ret.put(s,calculateSite(s,P.get(s.getSiteClass())));
 	    }
 	    catch (AncestralException e)
 	    {
@@ -120,7 +157,7 @@ public class AncestralJointBB extends AncestralJoint
 	RateCategory br = null;
         //And then use this to find the rate category that contributes the most likelihood
 	double brs = -Double.MAX_VALUE;
-	for (RateCategory r: m)
+	for (RateCategory r: m.get(ca.getSiteClass()))
 	{
             double rs = 0.0;
             try
@@ -300,7 +337,7 @@ public class AncestralJointBB extends AncestralJoint
 
     private Alignment a;
 
-    private Model m;
+    private Map<String,Model> m;
 
     private Tree t;
     

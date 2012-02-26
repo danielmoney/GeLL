@@ -14,7 +14,7 @@ import java.util.Set;
  * {@link SequenceAlignment}.
  * 
  * @author Daniel Money
- * @version 1.0
+ * @version 1.1
  */
 public class Alignment implements Iterable<Site>
 {
@@ -30,17 +30,22 @@ public class Alignment implements Iterable<Site>
     /**
      * Creates an alignment
      * @param data  A list of sites in the alignment
-     * @throws AlignmentException Thrown if the sites passed have different taxa 
+     * @throws Alignments.AlignmentException Thrown if the sites passed have different taxa 
      */
     public Alignment(List<Site> data) throws AlignmentException
     {
 	this.data = data;
         this.taxa = data.get(0).getTaxa();
+        this.hasClasses = data.get(0).getSiteClass() != null;
         for (Site s: data)
         {
             if (!s.getTaxa().equals(taxa))
             {
                 throw new AlignmentException("Sites have different taxa");
+            }
+            if (hasClasses != (s.getSiteClass() != null))
+            {
+                throw new AlignmentException("Some sites have a class, some don't");
             }
         }
     }
@@ -118,6 +123,29 @@ public class Alignment implements Iterable<Site>
     }
     
     /**
+     * Checks whether the map contains an entry for every class in the alignment
+     * @param map The map
+     * @return Whether the map has an entry for every class
+     */
+    public boolean check(Map<String,?> map)
+    {
+        Set<String> aClass = new HashSet<>();
+        for (Site s: data)
+        {
+            aClass.add(s.getSiteClass());
+        }
+        
+        for (String c: aClass)
+        {
+            if (!map.containsKey(c))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+       
+    /**
      * Recodes the alignment and returns it
      * @param recode A map from original state to new state, e.g. to recode
      * DNA to RY it would contains A -> R, G -> R, C -> Y, T -> Y
@@ -144,4 +172,9 @@ public class Alignment implements Iterable<Site>
      * The list of taxa in the alignment
      */
     protected Set<String> taxa = new HashSet<>();
+    
+    /**
+     * Whether the sites in this alignment contain site information
+     */
+    protected boolean hasClasses = false;
 }

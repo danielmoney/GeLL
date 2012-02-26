@@ -2,6 +2,7 @@ package Likelihood;
 
 import Constraints.SiteConstraints;
 import Alignments.Alignment;
+import Alignments.AlignmentException;
 import Alignments.Site;
 import Constraints.Constrainer;
 import Constraints.NoConstraints;
@@ -21,10 +22,12 @@ import Trees.Branch;
 import Trees.Tree;
 import Trees.TreeException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -35,10 +38,10 @@ import java.util.concurrent.TimeUnit;
  * one case.  Uses the pruning technique of Felenstein 1981 and can account for
  * unobserved states using Felsenstein 1992.
  * @author Daniel Money
- * @version 1.0
+ * @version 1.1
  */
 public class Calculator
-{
+{  
     /**
      * Creates an object to calculate the likelihood for a given model, alignment,
      * tree.  Has no unobserved data or constraints
@@ -89,11 +92,111 @@ public class Calculator
      */
     public Calculator(Model m, Alignment a, Tree t, Alignment unobserved, Constrainer con)
     {
+        this.m = new HashMap<>();
+        this.m.put(null,m);
+        this.a = a;
+        this.t = t;
+        this.missing = unobserved;
+        this.con = new HashMap<>();
+        this.con.put(null,con);
+    }
+
+    /**
+     * Creates a class to calculate the likelihood for a given set of models, an alignment,
+     * and a tree.  There should be one model per site class in the alignment
+     * @param m Map from site class to model
+     * @param a The alignment
+     * @param t The tree
+     * @throws AlignmentException Thrown if a model isn't given for each site class
+     * in the alignment
+     */
+    public Calculator(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException
+    {
+        this.m = m;
+        this.a = a;
+        this.t = t;
+        missing = null;
+        con = new HashMap<>();
+        for (Entry<String,Model> e: m.entrySet())
+        {
+            con.put(e.getKey(),new NoConstraints(e.getValue().getStates()));
+        }
+        if (!a.check(m))
+        {
+            throw new AlignmentException("Alignment contains classes for which no model has been defined");
+        }
+    }
+
+    /**
+     * Creates a class to calculate the likelihood for a given set of models, an alignment,
+     * a tree, and unobserved data.  There should be one model per site class in the alignment
+     * @param m Map from site class to model
+     * @param a The alignment
+     * @param t The tree
+     * @param unobserved Unobserved data given as another alignment
+     * @throws AlignmentException Thrown if a model isn't given for each site class
+     * in the alignment 
+     */
+    public Calculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved) throws AlignmentException
+    {
+        this.m = m;
+        this.a = a;
+        this.t = t;
+        missing = unobserved;
+        con = new HashMap<>();
+        for (Entry<String,Model> e: m.entrySet())
+        {
+            con.put(e.getKey(),new NoConstraints(e.getValue().getStates()));
+        }
+        if (!a.check(m))
+        {
+            throw new AlignmentException("Alignment contains classes for which no model has been defined");
+        }
+    }
+
+    /**
+     * Creates a class to calculate the likelihood for a given set of models, an alignment,
+     * a tree and a set of constraints.  There should be one model and one
+     * constrainer per site class in the alignment
+     * @param m Map from site class to model
+     * @param a The alignment
+     * @param t The tree
+     * @param con Map from site class to constrainer
+     * @throws AlignmentException Thrown if a model and constrainer isn't given
+     * for each site class in the alignment 
+     */
+    public Calculator(Map<String,Model> m, Alignment a, Tree t, Map<String,Constrainer> con) throws AlignmentException
+    {
+        this(m,a,t,null,con);
+    }
+
+    /**
+     * Creates a class to calculate the likelihood for a given set of models, an alignment,
+     * a tree, unobserved data and a set of constraints.  There should be one model and one
+     * constrainer per site class in the alignment
+     * @param m Map from site class to model
+     * @param a The alignment
+     * @param t The tree
+     * @param unobserved Unobserved data given as another alignment
+     * @param con Map from site class to constrainer
+     * @throws AlignmentException Thrown if a model and constrainer isn't given
+     * for each site class in the alignment  
+     */
+    public Calculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved, Map<String,Constrainer> con) throws AlignmentException
+    {
         this.m = m;
         this.a = a;
         this.t = t;
         this.missing = unobserved;
         this.con = con;
+        if (!a.check(m))
+        {
+            throw new AlignmentException("Alignment contains classes for which no model has been defined");
+        }
+        if (!a.check(con))
+        {
+            throw new AlignmentException("Alignment contains classes for which no constrainer has been defined");
+        }
     }
     
     /**
@@ -150,7 +253,11 @@ public class Calculator
         {
             //Calculate all the probabilites associated with this model, tree and
             //set of parameters
-            Probabilities tp = new Probabilities(m,t,p);
+            Map<String,Probabilities> tp = new HashMap<>();
+            for (Entry<String,Model> e: m.entrySet())
+            {
+                tp.put(e.getKey(), new Probabilities(e.getValue(),t,p));
+            }
             
             //For each unique site in both the alignment and unobserved sites
             //create a callable object to calculate it and send it to
@@ -162,7 +269,9 @@ public class Calculator
             
             for (Site s: a.getUniqueSites())
             {
-                SiteCalculator temp = new SiteCalculator(s, t, con.getConstraints(t, s), tp);
+                SiteCalculator temp = new SiteCalculator(s, t, 
+                        con.get(s.getSiteClass()).getConstraints(t, s),
+                        tp.get(s.getSiteClass()));
                 sites.put(s, temp);
                 es.submit(temp);
             }
@@ -170,7 +279,9 @@ public class Calculator
             {
                 for (Site s: missing.getUniqueSites())
                 {
-                    SiteCalculator temp = new SiteCalculator(s, t, con.getConstraints(t, s), tp);
+                    SiteCalculator temp = new SiteCalculator(s, t,
+                            con.get(s.getSiteClass()).getConstraints(t, s), 
+                            tp.get(s.getSiteClass()));
                     miss.put(s, temp);
                     es.submit(temp);
                 }
@@ -237,11 +348,11 @@ public class Calculator
         noThreads = number;
     }
     
-    private Model m;
+    private Map<String,Model> m;
     private Alignment a;
     private Tree t;
     private Alignment missing;
-    private Constrainer con;
+    private Map<String,Constrainer> con;
     private static int noThreads = Runtime.getRuntime().availableProcessors();
     
     /**

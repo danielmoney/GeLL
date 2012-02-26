@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * Represents a "site" in an "alignment".  Both terms used generously.
  * @author Daniel Money
- * @version 1.0
+ * @version 1.1
  */
 public class Site implements Serializable
 {
@@ -19,18 +19,42 @@ public class Site implements Serializable
      */
     public Site(LinkedHashMap<String, String> sites)
     {
-        this(sites,new Ambiguous());
+        this(sites,new Ambiguous(), null);
     }
     
     /**
-     * 
-     * @param sites
-     * @param ambig
+     * Creates a site in a alignment with no ambiguous data and with the given
+     * class
+     * @param sites Map from taxa name to state
+     * @param siteClass The class of this site
+     */
+    public Site(LinkedHashMap<String,String> sites, String siteClass)
+    {
+        this(sites,new Ambiguous(), siteClass);
+    }
+    
+    /**
+     * Creates a site in a alignment with ambiguous data
+     * @param sites Map from taxa name to state
+     * @param ambig Description of ambiguous data
      */
     public Site(LinkedHashMap<String,String> sites, Ambiguous ambig)
     {
+        this(sites,ambig,null);
+    }
+    
+    /**
+     * Creates a site in a alignment with ambiguous data and with the given
+     * class
+     * @param sites Map from taxa name to state
+     * @param ambig Description of ambiguous data
+     * @param siteClass The class of this site
+     */
+    public Site(LinkedHashMap<String,String> sites, Ambiguous ambig, String siteClass)
+    {
         this.sites = sites;
         this.ambig = ambig;
+        this.siteClass = siteClass;
     }
     
     /**
@@ -75,6 +99,15 @@ public class Site implements Serializable
         return sites.keySet();
     }
     
+    /**
+     * Gets the class of this site
+     * @return The class of this site
+     */
+    public String getSiteClass()
+    {
+        return siteClass;
+    }
+    
     public boolean equals(Object o)
     {
         if (!(o instanceof Site))
@@ -83,8 +116,17 @@ public class Site implements Serializable
         }
         
         Site c = (Site) o;
+        boolean sc = false;
+        if ((siteClass == null) && (c.siteClass == null))
+        {
+            sc = true;
+        }
+        if ((siteClass != null) && (c.siteClass != null))
+        {
+            sc = siteClass.equals(c.siteClass);
+        }
         
-        return sites.equals(c.sites);
+        return (sc && sites.equals(c.sites));
     }
 
     public int hashCode()
@@ -124,11 +166,12 @@ public class Site implements Serializable
                 ns.put(s.getKey(),s.getValue());
             }
         }
-        return new Site(ns,ambig);
+        return new Site(ns,ambig,siteClass);
     }
     
-    private static final long serialVersionUID = 1;
+    private static final long serialVersionUID = 2;
     
     private LinkedHashMap<String,String> sites;
     private Ambiguous ambig;
+    private String siteClass;
 }

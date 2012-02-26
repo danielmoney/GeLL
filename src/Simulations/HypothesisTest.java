@@ -2,25 +2,55 @@ package Simulations;
 
 import Alignments.Alignment;
 import Alignments.AlignmentException;
-import Alignments.Site;
 import Constraints.Constrainer;
+import Constraints.NoConstraints;
 import Exceptions.OutputException;
 import Likelihood.Calculator;
 import Likelihood.Likelihood;
-import Likelihood.Likelihood.LikelihoodException;
 import Models.Model;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
 import Optimizers.Optimizer;
 import Parameters.Parameters;
 import Parameters.Parameters.ParameterException;
+import Simulations.Simulate.SimulationException;
 import Trees.Tree;
 import Trees.TreeException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class to do hypothesis testing using simulation to generate the null distribution.
+ * @author Daniel Money
+ * @version 1.1
+ */
 public class HypothesisTest
 {
+    /**
+     * Constructor for use when neither the null hypothesis and alternative 
+     * hypothesis have constraints.  
+     * @param nullModel The null model
+     * @param altModel The alternative model
+     * @param o The optimizer to be used
+     * @param reps The number of samples of the null distribution to generate
+     */
+    public HypothesisTest(Model nullModel, Model altModel, Optimizer o, int reps)
+    {
+        this(nullModel, altModel, new NoConstraints(nullModel.getStates()),
+                new NoConstraints(altModel.getStates()), o, reps);
+    }
+    
+    /**
+     * Constructor for use when one or both of the null hypothesis and alternative 
+     * hypothesis have constraints.  If only one is constrained then {@link
+     * NoConstraints} should be used as input for the hypothesis that is unconstrained.
+     * @param nullModel The null model
+     * @param altModel The alternative model
+     * @param nullConstrainer The constrainer for the null hypothesis
+     * @param altConstrainer The constrainer for the alternative hypothesis
+     * @param o The optimizer to be used
+     * @param reps The number of samples of the null distribution to generate
+     */
     public HypothesisTest(Model nullModel, Model altModel, 
             Constrainer nullConstrainer, Constrainer altConstrainer,
             Optimizer o, int reps)
@@ -33,24 +63,78 @@ public class HypothesisTest
         this.reps = reps;
     }
     
-    public double test(Tree t, Alignment a, Alignment missing, Parameters nullParams, Parameters altParams)
+    /**
+     * Does a hpyothesis test on the given data and gives a p-value
+     * @param t The tree
+     * @param a The alignment
+     * @param unobserved Any unobserved states
+     * @param nullParams The paramters of the null model
+     * @param altParams The parameters of the alternative model
+     * @return A p-value
+     * @throws AlignmentException Thrown if there is a problem with the alignment
+     * @throws TreeException Thrown if the constrainer has a problem with the tree
+     * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
+     * with the simulation (currently only if attempting to simulate for a site class
+     * we don't have a model and / or constraints for)
+     * @throws Models.RateCategory.RateException Thrown if there is an issue with
+     * a rate category in the model (e.g. a badly formatted rate).
+     * @throws Models.Model.ModelException Thrown if there is a problem with the
+     * model (e.g. the rate categories differ in their states)
+     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
+     * with the parameters (e.g. a requied parameter is not present) 
+     * @throws OutputException Should not currently be thrown as would only be thrown
+     * when an optimizer try to write a checkpoint file and that isn't currently supported
+     * in this class.  Included as should be in a future version.
+     */
+    public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams)
             throws RateException, ModelException, TreeException, ParameterException,
-            OutputException, AlignmentException
+            OutputException, AlignmentException, SimulationException
     {
-        Calculator nullCalc = new Calculator(nullModel, a, t, missing, nullConstrainer);
-        Calculator altCalc = new Calculator(altModel, a, t, missing, altConstrainer);
-        
+        return test(t,a,unobserved,nullParams,altParams,null);
+    }
+    
+    /**
+     * Does a hpyothesis test on the given data and gives a p-value
+     * @param t The tree
+     * @param a The alignment
+     * @param unobserved Any unobserved states
+     * @param nullParams The paramters of the null model
+     * @param altParams The parameters of the alternative model
+     * @param recode The recoding to be passed to the simulator.  See 
+     * {@link Simulate#getAlignment(int, java.util.Map)} for while this is neccessary.
+     * @return A p-value
+     * @throws AlignmentException Thrown if there is a problem with the alignment
+     * @throws TreeException Thrown if the constrainer has a problem with the tree
+     * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
+     * with the simulation (currently only if attempting to simulate for a site class
+     * we don't have a model and / or constraints for)
+     * @throws Models.RateCategory.RateException Thrown if there is an issue with
+     * a rate category in the model (e.g. a badly formatted rate).
+     * @throws Models.Model.ModelException Thrown if there is a problem with the
+     * model (e.g. the rate categories differ in their states)
+     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
+     * with the parameters (e.g. a requied parameter is not present) 
+     * @throws OutputException Should not currently be thrown as would only be thrown
+     * when an optimizer try to write a checkpoint file and that isn't currently supported
+     * in this class.  Included as should be in a future version.
+     */
+    public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams,
+            Map<String,String> recode)
+            throws RateException, ModelException, TreeException, ParameterException,
+            OutputException, AlignmentException, SimulationException
+    {
+        //Calculate the difference in likelihood between the two models for the given alignment
+        Calculator nullCalc = new Calculator(nullModel, a, t, unobserved, nullConstrainer);
+        Calculator altCalc = new Calculator(altModel, a, t, unobserved, altConstrainer);
         Likelihood nullL = o.maximise(nullCalc, nullParams);
-        Likelihood altL = o.maximise(altCalc, altParams);
-        System.out.println(nullL.getParameters());
-        
+        Likelihood altL = o.maximise(altCalc, altParams);        
         double diff = altL.getLikelihood() - nullL.getLikelihood();
-        System.out.println(diff);
-        System.out.println();
         
-        double[] dist = getDistribution(t,a.getLength(),missing,nullL.getParameters(),
-                nullParams,altParams);
+        //Get the null distribution
+        double[] dist = getDistribution(t,a.getLength(),unobserved,nullL.getParameters(),
+                nullParams,altParams,recode);
         
+        //Calculate and return the percentage point for our data
         int c = 0;
         for (double d: dist)
         {
@@ -64,25 +148,24 @@ public class HypothesisTest
     }
     
     private double[] getDistribution(Tree t, int alignLength, Alignment missing,
-            Parameters simParams, Parameters nullParams, Parameters altParams) 
+            Parameters simParams, Parameters nullParams, Parameters altParams,
+            Map<String,String> rec) 
             throws RateException, ModelException, TreeException, ParameterException,
-            OutputException, AlignmentException
+            OutputException, AlignmentException, SimulationException
     {
+        //Stores the distribution
         double[] dist = new double[reps];
+        
+        //Create the simulator
         Simulate s = new Simulate(nullModel, t, simParams, missing);
         
-        Map<String,String> rec = new HashMap<>();
-        rec.put("A","-");rec.put("B","-");
-        
-        double tot = 0.0;
-        
-        //alignLength = alignLength * 5;
-        
+        //For each sample
         for (int i=0; i < reps; i++)
         {
+            //Simulate an alignment
             Alignment a = s.getAlignment(alignLength, rec);
-            //a = a.recode(rec);
             
+            //Then calculate and store the likelihood difference between the two models
             Calculator nullCalc = new Calculator(nullModel, a, t, missing, nullConstrainer);
             Calculator altCalc = new Calculator(altModel, a, t, missing, altConstrainer);
 
@@ -90,11 +173,7 @@ public class HypothesisTest
             Likelihood altL = o.maximise(altCalc, altParams);
 
             dist[i] = altL.getLikelihood() - nullL.getLikelihood();
-            System.out.println(dist[i]);
-            tot += dist[i];
         }
-        
-        System.out.println(tot/reps);
         
         return dist;
     }
