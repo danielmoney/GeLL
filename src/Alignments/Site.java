@@ -23,9 +23,9 @@ public class Site implements Serializable
     }
     
     /**
-     * 
-     * @param sites
-     * @param ambig
+     * Creates a site in a alignment with ambiguous data
+     * @param sites Map from taxa name to state
+     * @param ambig Description of ambiguous data
      */
     public Site(LinkedHashMap<String,String> sites, Ambiguous ambig)
     {

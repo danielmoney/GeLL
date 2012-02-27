@@ -77,11 +77,14 @@ public class GeLL
 	    {
                 a = getAlignment(settings.getSetting("Likelihood", "AlignmentType"),
                         settings.getSetting("Likelihood", "Alignment"),
-                        settings.getSetting("Likelihood","MissingAmbig"));
+                        settings.getSetting("Likelihood","Ambig"));
                 
-                missing = getAlignment(settings.getSetting("Likelihood", "AlignmentType"),
-                        settings.getSetting("Likelihood", "Missing"),
-                        settings.getSetting("Likelihood","MissingAmbig"));
+                if (settings.getSetting("Likelihood", "Missing") != null)
+                {
+                    missing = getAlignment(settings.getSetting("Likelihood", "AlignmentType"),
+                            settings.getSetting("Likelihood", "Missing"),
+                            settings.getSetting("Likelihood","MissingAmbig"));
+                }
 
 		t = Tree.fromFile(new File(settings.getSetting("Likelihood", "TreeInput")));
 
@@ -136,8 +139,15 @@ public class GeLL
 		Model sm = getModel(settings.getSetting("Simulation", "Model"),m);
 
                 Parameters sp = getParameters(settings.getSetting("Simulation","Parameters"),p,st);
+                
+                Alignment smissing = null;
+                if (!((missing == null) && settings.getSetting("Simulation","Missing") == null))
+                {
+                    smissing = getAlignment(settings.getSetting("Simulation","AlignmentType"),
+                            settings.getSetting("Simulation","Missing"), missing);
+                }
 		
-		Simulate sim = new Simulate(sm,st, sp);
+		Simulate sim = new Simulate(sm,st,sp,smissing);
 		Alignment simAlign = sim.getAlignment(getLength(settings.getSetting("Simulation","Parameters")));
 
 		String sat = settings.getSetting("Simulation", "AlignmentType");

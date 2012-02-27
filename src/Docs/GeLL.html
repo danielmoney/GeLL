@@ -120,7 +120,11 @@
                     <a href="http://math.nist.gov/javanumerics/jama/">JAMA</a> and
                     has not been debugged.  This seems to especially be the case for
                     gene family size models.</li>
-                    <li><b>Parameters</b><br/>
+                    <li><b>Parameters (1)</b><br/>
+                    There is an issue where using the same Parameters object in two or more
+                    calls to different Calculator objects will cause an error.  This
+                    can be solved by passing a cloned copy of the paramters in the second
+                    <li><b>Parameters (2)</b><br/>
                     The way branch lengths are treated as parameters is a little odd
                     and could well cause confusion.  It is intended to overhaul
                     this in a future version.
