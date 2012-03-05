@@ -41,7 +41,7 @@ public class MapUtils
      * @param map The map
      * @return A list of the map's key sorted by asscoiated value in reverse order
      */
-    public static <K,V extends Comparable<V>> ArrayList<K> keySetSortedByValueReverse(Map<K, V> map)
+    public static <K,V extends Comparable<V>> List<K> keySetSortedByValueReverse(Map<K, V> map)
     {
 	return sortedList(map, true);
     }

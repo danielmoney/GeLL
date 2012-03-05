@@ -24,7 +24,8 @@ public class Site implements Serializable
     
     /**
      * Creates a site in a alignment with no ambiguous data and with the given
-     * class
+     * class.  <b>Note that either all sites in an alignment must have a class or
+     * none should.</b>
      * @param sites Map from taxa name to state
      * @param siteClass The class of this site
      */
@@ -45,7 +46,8 @@ public class Site implements Serializable
     
     /**
      * Creates a site in a alignment with ambiguous data and with the given
-     * class
+     * class.  <b>Note that either all sites in an alignment must have a class or
+     * none should.</b>
      * @param sites Map from taxa name to state
      * @param ambig Description of ambiguous data
      * @param siteClass The class of this site
