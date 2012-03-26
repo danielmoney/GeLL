@@ -1,6 +1,7 @@
 package Alignments;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -161,6 +162,18 @@ public class Alignment implements Iterable<Site>
             na.data.add(os.recode(recode));
         }
         return na;
+    }
+    
+    public Alignment limitToTaxa(Collection<String> limit)
+    {
+        Alignment na = new Alignment();
+        na.data = new ArrayList<>();
+        na.taxa.addAll(limit);
+        for (Site os: data)
+        {
+            na.data.add(os.limitToTaxa(limit));
+        }
+        return na;      
     }
     
     /**

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -48,6 +49,10 @@ public class RateCategory implements Serializable
 
     /**
      * Constructor for when the root distribution is defined.
+     * In this instance variables can be used in the rate matrix that represent
+     * the calculated frequency for a state.  These variables are named 
+     * <code>_<i>StateName</i></code>, for example if there is a state A, 
+     * the parameter <code>_A</code> can be used to represent the frquency of A.
      * @param rates Array representing the rate matrix
      * @param freq Root frequency.
      * @param map Map from State to position in matrix (0-index) or root frequency.  
@@ -93,7 +98,7 @@ public class RateCategory implements Serializable
         }
         //And if the frequency is being defined by the "model" make sure this
         //is the same size as the rate matrix
-        if (freqType == freqType.MODEL)
+        if (freqType == FrequencyType.MODEL)
         {
             if (freq.length != size)
             {
@@ -109,7 +114,7 @@ public class RateCategory implements Serializable
 	setNeeded();
     }
 
-    private void setNeeded()
+    private void setNeeded() throws RateException
     {
         //Build a list of needed parameters from the parameters appearing in
         //each element of the rate matrix.
@@ -134,12 +139,26 @@ public class RateCategory implements Serializable
 	    }
 	}
         //Now find all the variables in the resulting string
-	Pattern p = Pattern.compile("[A-Za-z]\\w*(?![\\[\\w])");
+	Pattern p = Pattern.compile("[A-Za-z_]\\w*(?![\\[\\w])");
 	Matcher match = p.matcher(raw.toString());
 	neededParams = new TreeSet<>();
 	while (match.find())
 	{
-	    neededParams.add(match.group());
+            if (match.group().startsWith("_"))
+            {
+                if (freqType != FrequencyType.MODEL)
+                {
+                    throw new RateException("Frequency parameters can not be used in matrix unless frequency type is model");
+                }
+                if (!map.containsKey(match.group().substring(1)))
+                {
+                    throw new RateException("Attempting to us a frequency parameter for a undefinied state");
+                }
+            }
+            else
+            {
+                neededParams.add(match.group());
+            }
 	}
     }
 
@@ -184,8 +203,20 @@ public class RateCategory implements Serializable
 	}
         
         //Calculate and store the rate matrix and frequency
-	m = calculateMatrix(p);
-	f = calculateFreq(p);
+        //If freq type is MODEL then we want to update the frequencies first so
+        //they can be used in the matrix.  Else we need to update the matrix first
+        //so that the (quasi-)stationary distribution is calculated on the right
+        //matrix
+        if (freqType == FrequencyType.MODEL)
+        {
+            f = calculateFreq(p);
+            m = calculateMatrix(p);
+        }
+        else
+        {
+            m = calculateMatrix(p);
+            f = calculateFreq(p);
+        }
         
         //Since we have a new rate matrix we need a new cache.  This effectively
         //stores P matrices for given lengths.  GoldenSection search will only
@@ -237,6 +268,16 @@ public class RateCategory implements Serializable
 	double[][] n = new double[rates.length][rates.length];
 
 	HashMap<String, Double> values = params.getValues();
+        
+        //If freq type is MODEL then add the frequencies to the paramters
+        //(with the name _state) so that threy can be used in the matrix
+        if (freqType == FrequencyType.MODEL)
+        {
+            for (Entry<String,Integer> e: map.entrySet())
+            {
+                values.put("_" + e.getKey(), f[e.getValue()]);
+            }
+        }
 
         //Evaluate an equation is slow and the same equation is often used
         //multiple times so cache this

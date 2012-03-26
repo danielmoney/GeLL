@@ -86,6 +86,11 @@ public class Likelihood implements Serializable
         return p;
     }
     
+    public String toString()
+    {
+        return Double.toString(l);
+    }
+    
     private double l;
     private Map<Site,SiteLikelihood> siteLikelihoods;
     private Map<Site,SiteLikelihood> missingLikelihoods;
@@ -170,6 +175,11 @@ public class Likelihood implements Serializable
         {
             return maxCat;
         }
+        
+        public String toString()
+        {
+            return Double.toString(l);
+        }
 
         private Map<RateCategory,RateLikelihood> rateLikelihoods;
         private double l;        
@@ -218,6 +228,11 @@ public class Likelihood implements Serializable
             {
                 throw new LikelihoodException("No result for node: " + node);
             }
+        }
+        
+        public String toString()
+        {
+            return Double.toString(l);
         }
 
         private double l;
@@ -281,6 +296,11 @@ public class Likelihood implements Serializable
             {
                 throw new LikelihoodException("No result for state: " + state);
             }
+        }
+        
+        public String toString()
+        {
+            return likelihoods.toString();
         }
 
         private ToDoubleHashMap<String> likelihoods;

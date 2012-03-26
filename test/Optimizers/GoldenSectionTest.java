@@ -78,5 +78,5 @@ public class GoldenSectionTest
         Likelihood l = o.maximise(c, p);
         
         assertTrue(Math.log10(Math.abs(l.getLikelihood() - -2616.073763)) < -3);
-    }    
+    }
 }

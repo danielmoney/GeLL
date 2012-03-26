@@ -1,6 +1,7 @@
 package Alignments;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -169,6 +170,19 @@ public class Site implements Serializable
             }
         }
         return new Site(ns,ambig,siteClass);
+    }
+    
+    public Site limitToTaxa(Collection<String> limit)
+    {
+        LinkedHashMap<String,String> ns = new LinkedHashMap<>();
+        for (Entry<String,String> s: sites.entrySet())
+        {
+            if (limit.contains(s.getKey()))
+            {
+                ns.put(s.getKey(), s.getValue());
+            }
+        }
+        return new Site(ns,ambig,siteClass);        
     }
     
     private static final long serialVersionUID = 2;

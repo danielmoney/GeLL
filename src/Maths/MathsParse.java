@@ -435,5 +435,5 @@ public class MathsParse
 
     private HashMap<String,FunctionParser> functions;
 
-    private static final String VAR = "[a-zA-Z][a-zA-Z0-9]*";
+    private static final String VAR = "[a-zA-Z_][a-zA-Z0-9]*";
 }
