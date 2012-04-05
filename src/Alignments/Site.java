@@ -172,6 +172,23 @@ public class Site implements Serializable
         return new Site(ns,ambig,siteClass);
     }
     
+    public Site recode(Map<String,String> recode, Ambiguous ambig)
+    {
+        LinkedHashMap<String,String> ns = new LinkedHashMap<>();
+        for (Entry<String,String> s: sites.entrySet())
+        {
+            if (recode.containsKey(s.getValue()))
+            {
+                ns.put(s.getKey(),recode.get(s.getValue()));
+            }
+            else
+            {
+                ns.put(s.getKey(),s.getValue());
+            }
+        }
+        return new Site(ns,ambig,siteClass);
+    }
+    
     public Site limitToTaxa(Collection<String> limit)
     {
         LinkedHashMap<String,String> ns = new LinkedHashMap<>();
@@ -183,6 +200,11 @@ public class Site implements Serializable
             }
         }
         return new Site(ns,ambig,siteClass);        
+    }
+    
+    public Ambiguous getAmbiguous()
+    {
+        return ambig;
     }
     
     private static final long serialVersionUID = 2;

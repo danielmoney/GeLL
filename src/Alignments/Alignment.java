@@ -164,6 +164,18 @@ public class Alignment implements Iterable<Site>
         return na;
     }
     
+    public Alignment recode(Map<String, String> recode, Ambiguous ambig)
+    {
+        Alignment na = new Alignment();
+        na.data = new ArrayList<>();
+        na.taxa = taxa;
+        for (Site os: data)
+        {
+            na.data.add(os.recode(recode,ambig));
+        }
+        return na;
+    }
+    
     public Alignment limitToTaxa(Collection<String> limit)
     {
         Alignment na = new Alignment();
@@ -174,6 +186,22 @@ public class Alignment implements Iterable<Site>
             na.data.add(os.limitToTaxa(limit));
         }
         return na;      
+    }
+    
+    public double getRawFreq(String state)
+    {
+        int c = 0;
+        for (Site s: data)
+        {
+            for (String t: taxa)
+            {
+                if (s.getRawCharacter(t).equals(state))
+                {
+                    c++;
+                }
+            }
+        }
+        return (double) c / (double) (data.size() * taxa.size());
     }
     
     /**
