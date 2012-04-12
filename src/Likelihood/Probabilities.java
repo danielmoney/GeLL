@@ -10,7 +10,10 @@ import Parameters.Parameters.ParameterException;
 import Trees.Branch;
 import Trees.Tree;
 import Trees.TreeException;
+import Utils.ArrayMap;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,18 +47,30 @@ public class Probabilities
         m.setParameters(p);
         rateClasses = m.getRates();
         map = m.getMap();
-        P = new HashMap<>();
+        //P = new HashMap<>();
+        //P = new ArrayMap<>(rateClasses.size());
+        P = new ArrayMap<>(RateCategory.class,RateProbabilities.class,rateClasses.size());
         freq = new HashMap<>();
         rateP = new HashMap<>();
+        states = map.keyList();
         //Calculate and store the various probabilities
         for (RateCategory rc: m)
         {
-            Map<Branch,SquareMatrix> rcP = new HashMap<>();
+            //ArrayMap<Branch,BranchProbabilities> bP = new ArrayMap<>(nt.getNumberBranches());
+            //ArrayMap<Branch,SquareMatrix> bP = new ArrayMap<>(nt.getNumberBranches());
+            ArrayMap<Branch,SquareMatrix> bP = new ArrayMap<>(Branch.class,SquareMatrix.class,nt.getNumberBranches());
+            for (Branch b: nt)
+            {
+                //bP.put(b, new BranchProbabilities(rc.getP(b.getLength())));
+                bP.put(b, rc.getP(b.getLength()));
+            }
+            P.put(rc, new RateProbabilities(bP));
+            /*Map<Branch,SquareMatrix> rcP = new HashMap<>();
             for (Branch b: nt)
             {
                 rcP.put(b,rc.getP(b.getLength()));
             }
-            P.put(rc,rcP);
+            P.put(rc,rcP);*/
             freq.put(rc,rc.getFreq());
             rateP.put(rc,m.getFreq(rc));
         }
@@ -74,9 +89,9 @@ public class Probabilities
      * Gets the set of all possible states
      * @return The set of all possible states
      */
-    public Set<String> getAllStates()
+    public List<String> getAllStates()
     {
-        return map.keySet();
+        return states;
     }
 
     /**
@@ -89,11 +104,12 @@ public class Probabilities
      * @return The probability of a transition from start state to end state along
      * the branch under the specified rate class.
      */
-    public double getP(RateCategory r, Branch b, String startState, String endState)
+    public RateProbabilities getP(RateCategory r)
+    //public double getP(RateCategory r, Branch b, String startState, String endState)
     {
-        return P.get(r).get(b).getPosition(
-                map.get(endState),
-                map.get(startState));
+        return P.get(r); //.get(b).getPosition(
+                //map.get(endState),
+                //map.get(startState));
     }
     
     /**
@@ -117,9 +133,61 @@ public class Probabilities
         return rateP.get(r);
     }
     
+    public ArrayMap<String,Integer> getMap()
+    {
+        return map;
+    }
+    
     private Set<RateCategory> rateClasses;
-    private Map<String,Integer> map;
-    private Map<RateCategory,Map<Branch,SquareMatrix>> P;
+    private ArrayMap<String,Integer> map;
+    //private ArrayMap<RateCategory,Map<Branch,SquareMatrix>> P;
+    private ArrayMap<RateCategory,RateProbabilities> P;
     private Map<RateCategory,double[]> freq;
     private Map<RateCategory,Double> rateP;
+    private ArrayList<String> states;
+    
+    public class RateProbabilities
+    {
+        //public RateProbabilities(ArrayMap<Branch,BranchProbabilities> P)
+        public RateProbabilities(ArrayMap<Branch,SquareMatrix> P)
+        {
+            this.P = P;
+        }
+        
+        //public BranchProbabilities getP(Branch b)
+        public SquareMatrix getP(Branch b)
+        {
+            return P.get(b);
+        }
+        
+        public double getP(Branch b, String startState, String endState)
+        {
+            return P.get(b).getPosition(map.get(endState),map.get(startState));
+        }
+        
+        //private ArrayMap<Branch,BranchProbabilities> P;
+        private ArrayMap<Branch,SquareMatrix> P;
+    }
+    
+    public class BranchProbabilities
+    {
+        public BranchProbabilities(SquareMatrix m)
+        {
+            this.m = m;
+        }
+        
+        public double getP(String startState, String endState)
+        {
+            //System.err.println(m.getPosition(map.get(endState),map.get(startState)));
+            return m.getPosition(map.get(endState),map.get(startState));
+        }
+        
+        public double getP(int startState, int endState)
+        {
+            //System.err.println(m.getPosition(endState, startState));
+            return m.getPosition(endState, startState);
+        }
+        
+        private SquareMatrix m;
+    }
 }

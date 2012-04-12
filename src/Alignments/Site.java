@@ -1,5 +1,10 @@
 package Alignments;
 
+import Constraints.SiteConstraints;
+import Likelihood.Likelihood.NodeLikelihood;
+import Models.Model;
+import Trees.Tree;
+import Utils.ArrayMap;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -58,6 +63,13 @@ public class Site implements Serializable
         this.sites = sites;
         this.ambig = ambig;
         this.siteClass = siteClass;
+    }
+    
+    Site(Site s)
+    {
+        this.sites = s.sites;
+        this.ambig = s.ambig;
+        this.siteClass = s.siteClass;
     }
     
     /**
@@ -147,6 +159,24 @@ public class Site implements Serializable
         }
         ret.delete(ret.length()-1, ret.length());
         return ret.toString();
+    }
+    
+    public ArrayMap<String, NodeLikelihood> getNodeLikelihoods(Tree t,  ArrayMap<String,Integer> map, SiteConstraints scon)
+    {        
+        ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+        for (String l: t.getLeaves())
+        {
+            //nodeLikelihoods.put(l, new NodeLikelihood(tp.getAllStates(), s.getCharacter(l)));
+            nodeLikelihoods.put(l, new NodeLikelihood(map, this.getCharacter(l)));
+        }
+
+        //And now internal nodes using any constraints
+        for (String i: t.getInternal())
+        {
+            //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
+            nodeLikelihoods.put(i, new NodeLikelihood(map, scon.getConstraint(i)));
+        }
+        return nodeLikelihoods;
     }
     
     /**

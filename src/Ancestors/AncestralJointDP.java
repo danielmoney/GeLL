@@ -135,7 +135,10 @@ public class AncestralJointDP extends AncestralJoint
                         //else throw an Exception.
                         String ch = SetUtils.getSingleElement(chs);
                         c.put(state,ch);
-                        l.put(state,P.getP(r.get(s.getSiteClass()), b, ch, state));
+                        //l.put(state,P.getP(r.get(s.getSiteClass()), b, ch, state));
+                        //THIS WILL BE SLOW
+                        //l.put(state,P.getP(r.get(s.getSiteClass())).getP(b).getP(ch,state));
+                        l.put(state,P.getP(r.get(s.getSiteClass())).getP(b,ch,state));
                     }
                     catch (SetHasMultipleElementsException e)
                     {
@@ -154,7 +157,10 @@ public class AncestralJointDP extends AncestralJoint
 		    {
 			//double cl = matrices[b].getPosition(j, i);
 			//double cl = P.getP(r, b, i, j);//matrices[b].getPosition(i, j);
-                        double cl = P.getP(r.get(s.getSiteClass()), b, j, i);
+                        //double cl = P.getP(r.get(s.getSiteClass()), b, j, i);
+                        //THIS WILL BE SLOW
+                        //double cl = P.getP(r.get(s.getSiteClass())).getP(b).getP(j, i);
+                        double cl = P.getP(r.get(s.getSiteClass())).getP(b, j, i);
 			//for (String ch: MapUtils.reverseLookupMulti(t.getBranches(), b+1))
                         for (Branch ch: t.getBranchesByParent(b.getChild()))
 			{

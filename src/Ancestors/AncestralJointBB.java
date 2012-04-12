@@ -10,6 +10,7 @@ import Likelihood.Likelihood.LikelihoodException;
 import Likelihood.Likelihood.SiteLikelihood;
 import Likelihood.Probabilities;
 import Constraints.SiteConstraints;
+import Likelihood.Likelihood.NodeLikelihood;
 import Parameters.Parameters;
 import Models.RateCategory;
 import Models.Model;
@@ -20,6 +21,7 @@ import Parameters.Parameters.ParameterException;
 import Trees.Branch;
 import Trees.Tree;
 import Trees.TreeException;
+import Utils.ArrayMap;
 import Utils.SetUtils;
 import Utils.SetUtils.SetHasMultipleElementsException;
 import java.util.ArrayList;
@@ -148,12 +150,24 @@ public class AncestralJointBB extends AncestralJoint
         //implememted if it's found to be needed although the dynamic programming
         //classes would need changes as well.  There's also no attempt to be clever
         //in the order we visit the internal nodes.  Again this seems to be reasonably
-        //effecient without it.
-        
+        //effecient without it.                
+        SiteConstraints con = new SiteConstraints(P.getAllStates());
+        ArrayMap<String, NodeLikelihood> nl = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+        for (String l: t.getLeaves())
+        {
+            //nodeLikelihoods.put(l, new NodeLikelihood(tp.getAllStates(), s.getCharacter(l)));
+            nl.put(l, new NodeLikelihood(m.get(ca.getSiteClass()).getMap(), ca.getCharacter(l)));
+        }
+
+        //And now internal nodes using any constraints
+        for (String i: t.getInternal())
+        {
+            //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
+            nl.put(i, new NodeLikelihood(m.get(ca.getSiteClass()).getMap(), con.getConstraint(i)));
+        }
         
         //Calculate the site likelihood without any constraints
-        SiteConstraints con = new SiteConstraints(P.getAllStates());
-        SiteLikelihood sl = (new SiteCalculator(ca,t,con,P)).calculate();
+        SiteLikelihood sl = (new SiteCalculator(ca,t,P,nl)).calculate();
 	RateCategory br = null;
         //And then use this to find the rate category that contributes the most likelihood
 	double brs = -Double.MAX_VALUE;
@@ -226,11 +240,25 @@ public class AncestralJointBB extends AncestralJoint
     {
         //Recursive depth first search of possible reconstructions
         
+        ArrayMap<String, NodeLikelihood> nl = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+        for (String l: t.getLeaves())
+        {
+            //nodeLikelihoods.put(l, new NodeLikelihood(tp.getAllStates(), s.getCharacter(l)));
+            nl.put(l, new NodeLikelihood(m.get(site.getSiteClass()).getMap(), site.getCharacter(l)));
+        }
+
+        //And now internal nodes using any constraints
+        for (String i: t.getInternal())
+        {
+            //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
+            nl.put(i, new NodeLikelihood(m.get(site.getSiteClass()).getMap(), assign.getConstraint(i)));
+        }
+        
         //If we've made an assignment to every node then...
 	if (isFull(assign))
 	{
             //Calculate the likelihood of that reconstruction
-            double s = (new SiteCalculator(site,t,assign,P)).calculate().getLikelihood();
+            double s = (new SiteCalculator(site,t,P,nl)).calculate().getLikelihood();
             //If it's better than the bext reconstruction we've encountered so far
             //update the best and return it
 	    if (s > best.score)
@@ -252,7 +280,7 @@ public class AncestralJointBB extends AncestralJoint
         //assignment we do already have.  This bound is calculated by summing accross
         //all possible states at unassigned nodes using the normal (quick) likelihood
         //calculation method.
-        double bound = (new SiteCalculator(site,t,assign,P)).calculate().getLikelihood();
+        double bound = (new SiteCalculator(site,t,P,nl)).calculate().getLikelihood();
 
 	//System.out.println(best.score + "\t" + bound + "\t" + Arrays.toString(assign));
 

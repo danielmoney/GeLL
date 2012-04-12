@@ -2,7 +2,7 @@ package Constraints;
 
 import Alignments.Site;
 import Trees.Tree;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Simple implementation of {@link Constrainer} that imposes no constraints
@@ -16,7 +16,7 @@ public class NoConstraints implements Constrainer
      * nodes will be constrained to these values.  As these are all the posisble
      * values there are no constraints.
      */
-    public NoConstraints(Set<String> allStates)
+    public NoConstraints(List<String> allStates)
     {
         def = new SiteConstraints(allStates);
     }

@@ -2,6 +2,7 @@ package Constraints;
 
 import Alignments.Site;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -19,7 +20,7 @@ public class SiteConstraints
      * Standard constructor that creates an object with no constraints
      * @param allStates The set of all possible states
      */
-    public SiteConstraints(Set<String> allStates)
+    public SiteConstraints(List<String> allStates)
     {
         con = new TreeMap<>();
         def = allStates;
@@ -60,7 +61,9 @@ public class SiteConstraints
         }
         else
         {
-            return def;
+            Set<String> ret = new HashSet<>();
+            ret.addAll(def);
+            return ret;
         }
     }
     
@@ -105,6 +108,6 @@ public class SiteConstraints
         return clone;
     }
     
-    private Set<String> def;
+    private List<String> def;
     private Map<String,Set<String>> con;
 }

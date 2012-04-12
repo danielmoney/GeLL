@@ -4,10 +4,12 @@ import Alignments.Site;
 import Exceptions.GeneralException;
 import Models.RateCategory;
 import Parameters.Parameters;
-import Utils.ToDoubleHashMap;
+import Utils.ArrayMap;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -20,8 +22,11 @@ import java.util.Set;
 
 public class Likelihood implements Serializable
 {
-    Likelihood(double l, Map<Site,SiteLikelihood> siteLikelihoods,
-            Map<Site,SiteLikelihood> missingLikelihoods,
+    //Likelihood(double l, Map<Site,SiteLikelihood> siteLikelihoods,
+    //        Map<Site,SiteLikelihood> missingLikelihoods,
+    //        Parameters p)
+    Likelihood(double l, ArrayMap<Site,SiteLikelihood> siteLikelihoods,
+            ArrayMap<Site,SiteLikelihood> missingLikelihoods,
             Parameters p)
     {
         this.l = l;
@@ -92,8 +97,8 @@ public class Likelihood implements Serializable
     }
     
     private double l;
-    private Map<Site,SiteLikelihood> siteLikelihoods;
-    private Map<Site,SiteLikelihood> missingLikelihoods;
+    private ArrayMap<Site,SiteLikelihood> siteLikelihoods;
+    private ArrayMap<Site,SiteLikelihood> missingLikelihoods;
     private Parameters p;
     
     private static final long serialVersionUID = 1;
@@ -105,7 +110,8 @@ public class Likelihood implements Serializable
      */
     public static class SiteLikelihood implements Serializable
     {
-        SiteLikelihood(Map<RateCategory,RateLikelihood> rateLikelihoods, Probabilities P)
+        //SiteLikelihood(Map<RateCategory,RateLikelihood> rateLikelihoods, Probabilities P)
+        SiteLikelihood(ArrayMap<RateCategory,RateLikelihood> rateLikelihoods, Probabilities P)
         {
             rateProbability = new HashMap<>();
             l = 0.0;
@@ -181,7 +187,7 @@ public class Likelihood implements Serializable
             return Double.toString(l);
         }
 
-        private Map<RateCategory,RateLikelihood> rateLikelihoods;
+        private ArrayMap<RateCategory,RateLikelihood> rateLikelihoods;
         private double l;        
         private Map<RateCategory,Double> rateProbability;
         private RateCategory maxCat;
@@ -196,7 +202,8 @@ public class Likelihood implements Serializable
      */
     public static class RateLikelihood implements Serializable
     {
-        RateLikelihood(double l, Map<String, NodeLikelihood> nodeLikelihoods)
+        //RateLikelihood(double l, Map<String, NodeLikelihood> nodeLikelihoods)
+        RateLikelihood(double l, ArrayMap<String, NodeLikelihood> nodeLikelihoods)
         {
             this.l = l;
             this.nodeLikelihoods = nodeLikelihoods;
@@ -236,7 +243,8 @@ public class Likelihood implements Serializable
         }
 
         private double l;
-        private Map<String, NodeLikelihood> nodeLikelihoods;
+        //private Map<String, NodeLikelihood> nodeLikelihoods;
+        private ArrayMap<String, NodeLikelihood> nodeLikelihoods;
         private static final long serialVersionUID = 1;
     }
 
@@ -248,6 +256,81 @@ public class Likelihood implements Serializable
      */
     public static class NodeLikelihood implements Serializable
     {
+        public NodeLikelihood(ArrayMap<String,Integer> states, Set<String> setStates)
+        {
+            likelihoods = new double[states.size()];
+            this.states = states;
+            //for (Entry<String,Integer> s: states.entryList())
+            for (int i = 0; i < states.size(); i ++)
+            {
+                Entry<String,Integer> s = states.getEntry(i);
+                if (setStates.contains(s.getKey()))
+                {
+                    likelihoods[s.getValue()] = 1.0;
+                }
+                else
+                {
+                    likelihoods[s.getValue()] = 0.0;
+                }
+            }
+        }
+        
+        private NodeLikelihood(double[] l, ArrayMap<String,Integer> states)
+        {
+            likelihoods = Arrays.copyOf(l, l.length);
+            this.states = states;
+        }
+        
+        public NodeLikelihood clone()
+        {
+            return new NodeLikelihood(likelihoods, states);
+        }
+        
+        void multiply(String state, double by)
+        {
+            int i = states.get(state);
+            likelihoods[i] = likelihoods[i] * by;
+        }
+        
+        public double getLikelihood(String state) throws LikelihoodException
+        {
+            if (states.containsKey(state))
+            {
+                return likelihoods[states.get(state)];
+            }
+            else
+            {
+                throw new LikelihoodException("No result for state: " + state);
+            }
+        }
+        
+        public double getLikelihood(int i)
+        {
+            /*for (int j = 0; j < likelihoods.length; j++)
+            {
+                if (i == j)
+                {
+                    return likelihoods[j];
+                }
+            }
+            return Double.NEGATIVE_INFINITY;*/
+            return likelihoods[i];
+        }
+        
+        public double[] getLikelihoods()
+        {
+            return likelihoods;
+        }
+        
+        public String toString()
+        {
+            return Arrays.toString(likelihoods);
+        }
+        
+        private ArrayMap<String,Integer> states;
+        private double[] likelihoods;
+    }
+    /*{
         //This constructor creates the initial sate of a node.
         //Takes the set of all states and the set of setStates. For leaf nodes
         //that is the possible values given by the alignment.  for internal nodes
@@ -277,7 +360,7 @@ public class Likelihood implements Serializable
         void multiply(String state, double by)
         {
             likelihoods.multiply(state, by);
-        }
+        }*/
 
         /**
          * Returns the partial likelihood for a given state
@@ -286,7 +369,7 @@ public class Likelihood implements Serializable
          * @throws Likelihood.Likelihood.LikelihoodException Thrown if no likelihood
          * has been calculated for the given state 
          */
-        public Double getLikelihood(String state) throws LikelihoodException
+        /*public Double getLikelihood(String state) throws LikelihoodException
         {
             if (likelihoods.containsKey(state))
             {
@@ -305,7 +388,7 @@ public class Likelihood implements Serializable
 
         private ToDoubleHashMap<String> likelihoods;
         private static final long serialVersionUID = 1;
-    }
+    }*/
     
     /**
      * Exception related to a likelihood calculation

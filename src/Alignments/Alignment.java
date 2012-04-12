@@ -2,10 +2,12 @@ package Alignments;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 
@@ -74,9 +76,40 @@ public class Alignment implements Iterable<Site>
      * likelihoods as each site pattern only has to be calculated once.
      * @return A set of unique sites
      */
-    public Set<Site> getUniqueSites()
+    public List<UniqueSite> getUniqueSites()
     {
-        return new HashSet<>(data);
+        if (us == null)
+        {
+            Map<Site,Integer> counts = new HashMap<>();
+            for (Site s: data)
+            {
+                if (counts.containsKey(s))
+                {
+                    counts.put(s,counts.get(s) + 1);
+                }
+                else
+                {
+                    counts.put(s,1);
+                }
+            }
+            us = new ArrayList<>();
+            for (Entry<Site,Integer> e: counts.entrySet())
+            {
+                us.add(new UniqueSite(e.getKey(), e.getValue()));
+            }
+            /*ArrayList<Site> ret = new ArrayList<>();
+            for (Site s: data)
+            {
+                if (!ret.contains(s))
+                {
+                    ret.add(s);
+                }
+            }
+            us = ret;
+            return ret;*/
+        }
+        return us;
+        //return new ArrayList<>(data);
     }
     
     /**
@@ -86,7 +119,7 @@ public class Alignment implements Iterable<Site>
      */
     //This is probably slightly ineffecient but will be quite minor in the 
     //ground scheme of things.
-    public int getCount(Site s)
+    /*public int getCount(Site s)
     {
         int c = 0;
         for (Site ps: data)
@@ -97,7 +130,7 @@ public class Alignment implements Iterable<Site>
             }
         }
         return c;
-    }
+    }*/
 
     /**
      * Returns the site at a given position in the alignment
@@ -218,4 +251,27 @@ public class Alignment implements Iterable<Site>
      * Whether the sites in this alignment contain site information
      */
     protected boolean hasClasses = false;
+    
+    private List<UniqueSite> us;
+    
+    public class UniqueSite extends Site
+    {
+        public UniqueSite(Site s, int c)
+        {
+            super(s);
+            this.c = c;
+        }
+        
+        public int getCount()
+        {
+            return c;
+        }
+        
+        public String toString()
+        {
+            return super.toString() + "\t" + c;
+        }
+        
+        private int c;
+    }
 }

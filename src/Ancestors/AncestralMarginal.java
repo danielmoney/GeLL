@@ -245,7 +245,10 @@ public class AncestralMarginal
                     double li = 0.0;
                     for (String startState: P.getAllStates())
                     {
-                        li += l.get(b.getChild()).getLikelihood(startState) * P.getP(r, b, startState, endState);
+                        //li += l.get(b.getChild()).getLikelihood(startState) * P.getP(r, b, startState, endState);
+                        //THIS WILL BE SLOW
+                        //li += l.get(b.getChild()).getLikelihood(startState) * P.getP(r).getP(b).getP(startState, endState);
+                        li += l.get(b.getChild()).getLikelihood(startState) * P.getP(r).getP(b, startState, endState);
                     }
                     l.get(b.getParent()).multiply(endState,li);
                 }
@@ -266,7 +269,10 @@ public class AncestralMarginal
                     double li = 0.0;
                     for (String startState: P.getAllStates())
                     {
-                        li += l.get(b.getParent()).getLikelihood(startState) * P.getP(r, b, endState, startState);
+                        //li += l.get(b.getParent()).getLikelihood(startState) * P.getP(r, b, endState, startState);
+                        //THIS WILL BE SLOW
+                        //li += l.get(b.getParent()).getLikelihood(startState) * P.getP(r).getP(b).getP(endState, startState);
+                        li += l.get(b.getParent()).getLikelihood(startState) * P.getP(r).getP(b, endState, startState);
                     }
                     l.get(b.getChild()).multiply(endState,li);
                 }
@@ -321,7 +327,7 @@ public class AncestralMarginal
         //any constraints, will be all states.  As per the standard likelihood
         //calculation set states are given a "likelihood" of 1, all other states
         //zero.
-        private NodeLikelihood(Set<String> states, Set<String> setStates)
+        private NodeLikelihood(List<String> states, Set<String> setStates)
         {
             likelihoods = new ToDoubleHashMap<>();
             for (String s: states)

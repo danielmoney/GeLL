@@ -40,7 +40,7 @@ public class Tree implements Iterable<Branch>
     public Tree(List<Branch> branches) throws TreeException
     {
 	internal = new ArrayList<>();
-        leaves = new HashSet<>();
+        leaves = new ArrayList<>();
         Set<String> posroot = new HashSet<>();
         for (Branch b: branches)
         {
@@ -138,7 +138,7 @@ public class Tree implements Iterable<Branch>
      * Gets a list of leaves
      * @return A list of leaves
      */
-    public Set<String> getLeaves()
+    public List<String> getLeaves()
     {
         return leaves;
     }
@@ -663,7 +663,7 @@ public class Tree implements Iterable<Branch>
     
     private List<Branch> branches;
     private String root;
-    private Set<String> leaves;
+    private List<String> leaves;
     private List<String> internal;
 
     /**

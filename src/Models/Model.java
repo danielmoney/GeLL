@@ -3,12 +3,15 @@ package Models;
 import Exceptions.GeneralException;
 import Exceptions.InputException;
 import Exceptions.UnexpectedError;
+import Maths.CompiledFunction;
+import Maths.CompiledFunction.Constant;
 import Maths.FunctionParser;
 import Maths.MathsParse;
 import Maths.NoSuchFunction;
 import Maths.WrongNumberOfVariables;
 import Models.RateCategory.RateException;
 import Parameters.Parameters;
+import Utils.ArrayMap;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,7 +20,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,7 +48,8 @@ public class Model implements Iterable<RateCategory>
     {
 	f = new HashMap<>();
 	freq = new HashMap<>();
-	freq.put(r,"1.0");
+	//freq.put(r,"1.0");
+        freq.put(r, new Constant(1.0));
 	nStates = r.getNumberStates();
 	map = r.getMap();
 	scale = 1.0;
@@ -59,7 +65,25 @@ public class Model implements Iterable<RateCategory>
      */
     public Model(Map<RateCategory,String> freq) throws ModelException
     {
-	this.freq = freq;
+	//this.freq = freq;
+        this.freq = new HashMap<>();
+        for (Entry<RateCategory,String> e: freq.entrySet())
+        {
+            try
+            {
+                this.freq.put(e.getKey(),mp.compileFunction(e.getValue()));
+            }
+	    catch (NoSuchFunction ex)
+	    {
+		throw new ModelException("Frequency" +
+			e.getValue() + ": No Such Function", ex);
+	    }
+	    catch (WrongNumberOfVariables ex)
+	    {
+		throw new ModelException("Frequency" +
+			e.getValue() + ": Wromg Number of Variables for Function", ex);
+	    }
+        }
 
 	f = new HashMap<>();
 
@@ -100,7 +124,7 @@ public class Model implements Iterable<RateCategory>
      * Should it really be a method of Model rather than Rate
      * @return Map from rate name to index
      */
-    public Map<String,Integer> getMap()
+    public ArrayMap<String,Integer> getMap()
     {
 	return map;
     }
@@ -109,9 +133,9 @@ public class Model implements Iterable<RateCategory>
      * Gets the set of all states in the model
      * @return The set of all states
      */
-    public Set<String> getStates()
+    public List<String> getStates()
     {
-        return map.keySet();
+        return map.keyList();
     }
     
     /**
@@ -138,7 +162,8 @@ public class Model implements Iterable<RateCategory>
 	HashMap<String,Double> values = p.getValues();
 	for (RateCategory r: freq.keySet())
 	{
-	    try
+            f.put(r,freq.get(r).compute(values));
+	    /*try
 	    {
 		f.put(r,mp.parseEquation(freq.get(r), values));
 	    }
@@ -151,7 +176,7 @@ public class Model implements Iterable<RateCategory>
 	    {
 		throw new ModelException("Frequency" +
 			freq.get(r) + ": Wromg Number of Variables for Function", ex);
-	    }
+	    }*/
 	}
 	// Scale to total of 1.0
 	double total = 0.0;
@@ -240,7 +265,7 @@ public class Model implements Iterable<RateCategory>
      * @param cats The number of categories, or rate classes, in the new model
      * @return The model
      */
-    public static Model gammaRates(RateCategory r, String gamma, int cats)
+    public static Model gammaRates(RateCategory r, String gamma, int cats) throws RateException
     {
 	HashMap<RateCategory,String> freq = new HashMap<>();
 
@@ -356,8 +381,9 @@ public class Model implements Iterable<RateCategory>
     private double scale;
     private int nStates;
     private Map<RateCategory,Double> f;
-    private Map<RateCategory,String> freq;
-    private Map<String,Integer> map;
+    //private Map<RateCategory,String> freq;
+    private Map<RateCategory,CompiledFunction> freq;
+    private ArrayMap<String,Integer> map;
     private boolean rescale = true;
 
     private static final Pattern gammaRE = Pattern.compile("^\\*\\*G\\s+(\\d+)\\s+(\\w+)");

@@ -25,6 +25,8 @@ public interface FunctionParser
      */
     public double evaluate(String function, Double[] variables) throws WrongNumberOfVariables, NoSuchFunction;
     
+    public int numberInputs(String function) throws NoSuchFunction;
+    
     /**
      * Returns a list of function names that this class can calculate
      * @return  A list of functions the class implements

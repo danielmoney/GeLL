@@ -1,11 +1,13 @@
 package Simulations;
 
+import Likelihood.Likelihood.NodeLikelihood;
+import Utils.ArrayMap;
+import java.util.ArrayList;
+import java.util.List;
 import Parameters.Parameter;
 import Likelihood.Probabilities;
 import Likelihood.Calculator.SiteCalculator;
 import Constraints.SiteConstraints;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.LinkedHashMap;
 import Alignments.Site;
 import java.util.Map;
@@ -92,7 +94,8 @@ public class SimulateTest
         
         
         Map<Site,Double> theory = new HashMap<>();
-        Set<String> bases = new HashSet<>();
+        //Set<String> bases = new HashSet<>();
+        List<String> bases = new ArrayList<>();
         bases.add("T");
         bases.add("C");
         bases.add("A");
@@ -112,7 +115,26 @@ public class SimulateTest
                         sm.put("gorilla", g);
                         sm.put("orangutan", o);
                         Site s = new Site(sm);
-                        SiteCalculator sc = new SiteCalculator(s,t,new SiteConstraints(bases),P);
+                        
+                        SiteConstraints scon = new SiteConstraints(bases);
+                        
+                        /*ArrayMap<String, NodeLikelihood> nl = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+                        for (String l: t.getLeaves())
+                        {
+                            //nodeLikelihoods.put(l, new NodeLikelihood(tp.getAllStates(), s.getCharacter(l)));
+                            nl.put(l, new NodeLikelihood(P.getMap(), s.getCharacter(l)));
+                        }
+
+                        //And now internal nodes using any constraints
+                        for (String i: t.getInternal())
+                        {
+                            //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
+                            nl.put(i, new NodeLikelihood(P.getMap(), scon.getConstraint(i)));
+                        }*/
+                        
+                        ArrayMap<String, NodeLikelihood> nl = s.getNodeLikelihoods(t, P.getMap(), scon);
+                        
+                        SiteCalculator sc = new SiteCalculator(s,t,P,nl);
                         double l = sc.calculate().getLikelihood();
                         theory.put(s, l * 1000000);
                     }

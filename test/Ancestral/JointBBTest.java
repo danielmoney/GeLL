@@ -1,4 +1,8 @@
 package Ancestral;
+import Likelihood.Likelihood.NodeLikelihood;
+import Utils.ArrayMap;
+import java.util.ArrayList;
+import java.util.List;
 import Alignments.Alignment;
 import Alignments.SequenceAlignment;
 import Alignments.Site;
@@ -13,9 +17,7 @@ import Constraints.SiteConstraints;
 import Trees.Tree;
 import java.io.File;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -91,7 +93,7 @@ public class JointBBTest
     private String[] getBest(Tree t, Probabilities P,
         Site s)
     {
-        Set<String> bases = new HashSet<>();
+        List<String> bases = new ArrayList<>();
         bases.add("A"); bases.add("C"); bases.add("G"); bases.add("T");
         Map<String,Map<String,Map<String,Double>>> hash = new HashMap<>();
         double maxL = -Double.MAX_VALUE;
@@ -109,7 +111,21 @@ public class JointBBTest
                     sc.addConstraint("B", b);
                     sc.addConstraint("C", c);
                     
-                    SiteCalculator calc = new SiteCalculator(s,t,sc,P);
+                    ArrayMap<String, NodeLikelihood> nl = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+                    for (String l: t.getLeaves())
+                    {
+                        //nodeLikelihoods.put(l, new NodeLikelihood(tp.getAllStates(), s.getCharacter(l)));
+                        nl.put(l, new NodeLikelihood(P.getMap(), s.getCharacter(l)));
+                    }
+
+                    //And now internal nodes using any constraints
+                    for (String i: t.getInternal())
+                    {
+                        //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
+                        nl.put(i, new NodeLikelihood(P.getMap(), sc.getConstraint(i)));
+                    }
+                    
+                    SiteCalculator calc = new SiteCalculator(s,t,P,nl);
                     double l = calc.calculate().getLikelihood();
                     if (l > maxL)
                     {

@@ -3,6 +3,8 @@ package Models;
 import Exceptions.GeneralException;
 import Exceptions.InputException;
 import Exceptions.UnexpectedError;
+import Maths.CompiledFunction;
+import Maths.CompiledFunction.Multiply;
 import Parameters.Parameters;
 import Maths.MathsParse;
 import Maths.NoSuchFunction;
@@ -11,6 +13,7 @@ import Maths.SquareMatrix;
 import Maths.SquareMatrix.SquareMatrixException;
 import Models.Distributions.DistributionsException;
 import Parameters.Parameter;
+import Utils.ArrayMap;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -107,20 +110,139 @@ public class RateCategory implements Serializable
             }
         }
         
-	this.rates = rates;
-	this.freq = freq;
+        this.rates = new CompiledFunction[size][size];
+        for (int i = 0; i < size; i++)
+        {
+            for (int j = 0; j < size; j++)
+            {
+                if (i != j)
+                {
+                    try
+                    {
+                        this.rates[i][j] = mp.compileFunction(rates[i][j]);
+                    }
+                    catch (NoSuchFunction ex)
+                    {
+                        throw new RateException("Rate + [" + i + "," + j + "]",
+                                rates[i][j], "No Such Function", ex);
+                    }
+                    catch (WrongNumberOfVariables ex)
+                    {
+                        throw new RateException("Rate + [" + i + "," + j + "]",
+                                rates[i][j], "Wromg Number of Variables for Function", ex);
+                    }
+                }
+            }
+        }
+
+        
+	//this.rates = rates;
+	//this.freq = freq;
+        
+        if (freq == null)
+        {
+            this.freq = null;
+        }
+        else
+        {
+            this.freq = new CompiledFunction[freq.length];
+            for (int i = 0; i < size; i++)
+            {
+                try
+                {
+                    this.freq[i] = mp.compileFunction(freq[i]);
+                }
+                catch (NoSuchFunction ex)
+                {
+                    throw new RateException("Frequency + [" + i + "]",
+                            freq[i], "No Such Function", ex);
+                }
+                catch (WrongNumberOfVariables ex)
+                {
+                    throw new RateException("Frequency + [" + i + "]",
+                            freq[i], "Wromg Number of Variables for Function", ex);
+                }
+            }            
+        }
+        
 	this.freqType = freqType;
-	this.map = map;
+	//this.map = new ArrayMap<>(map.size());
+        this.map = new ArrayMap<>(String.class, Integer.class, map.size());
+        for (Entry<String,Integer> e: map.entrySet())
+        {
+            //this.map.put(e.getKey(), e.getValue());
+            this.map.put(e.getValue(), e.getKey(), e.getValue());
+        }
+        /*for (int i = 0; i < map.size(); i++)
+        {
+            for (Entry<String,Integer> e: map.entrySet())
+            {
+                if (e.getValue() == i)
+                {
+                    this.map.put(e.getKey(), i);
+                }
+            }
+        }*/
 	setNeeded();
+    }
+    
+    private RateCategory(CompiledFunction[][] rates, FrequencyType freqType, CompiledFunction[] freq, ArrayMap<String, Integer> map)
+    {
+        this.rates = rates;
+        this.freqType = freqType;
+        this.freq = freq;
+        this.map = map;
+        try
+        {
+            setNeeded();
+        }
+        catch (RateException e)
+        {
+            //Shouldn't happen
+        }
     }
 
     private void setNeeded() throws RateException
     {
+        neededParams = new TreeSet<>(); 
+	for (int i = 0; i < rates.length; i++)
+	{
+	    for (int j = 0; j < rates.length; j++)
+	    {
+                if (i != j)
+                {
+                    neededParams.addAll(rates[i][j].neededParams());
+                }
+            }
+        }
+	if (freq != null)
+	{
+	    for (int i = 0; i < freq.length; i++)
+	    {
+		neededParams.addAll(freq[i].neededParams());
+	    }
+	}
+        
+        for (String p: neededParams)
+        {
+            if (p.startsWith("_"))
+            {
+                if (freqType != FrequencyType.MODEL)
+                {
+                    throw new RateException("Frequency parameters can not be used in matrix unless frequency type is model");
+                }
+                if (!map.containsKey(p.substring(1)))
+                {
+                    throw new RateException("Attempting to us a frequency parameter for a undefinied state");
+                }
+            }
+        }
+    }
         //Build a list of needed parameters from the parameters appearing in
         //each element of the rate matrix.
         
         //First concetenate each element into one long string
-	StringBuilder raw = new StringBuilder();
+	/*StringBuilder raw = new StringBuilder();
 	for (int i = 0; i < rates.length; i++)
 	{
 	    for (int j = 0; j < rates.length; j++)
@@ -160,7 +282,7 @@ public class RateCategory implements Serializable
                 neededParams.add(match.group());
             }
 	}
-    }
+    }*/
 
     /**
      * Updates the parameters in the RateCategory.  Should only be called if
@@ -273,8 +395,10 @@ public class RateCategory implements Serializable
         //(with the name _state) so that threy can be used in the matrix
         if (freqType == FrequencyType.MODEL)
         {
-            for (Entry<String,Integer> e: map.entrySet())
+            //for (Entry<String,Integer> e: map.entrySet())
+            for (int i = 0; i < map.size(); i++)
             {
+                Entry<String,Integer> e = map.getEntry(i);
                 values.put("_" + e.getKey(), f[e.getValue()]);
             }
         }
@@ -292,19 +416,20 @@ public class RateCategory implements Serializable
                 //so ignore them here apart from to calculate the total
 		if (i != j)
 		{
-		    try
-		    {
-			if (equationCache.containsKey(rates[i][j]))
+		    //try
+		    //{
+			/*if (equationCache.containsKey(rates[i][j]))
 			{
 			    n[i][j] = equationCache.get(rates[i][j]);
 			}
 			else
-			{
-			    n[i][j] = mp.parseEquation(rates[i][j], values);
-			    equationCache.put(rates[i][j], n[i][j]);
-			}
-		    }
-		    catch (NoSuchFunction ex)
+			{*/
+                    n[i][j] = rates[i][j].compute(values);
+			    //n[i][j] = mp.parseEquation(rates[i][j], values);
+			    //equationCache.put(rates[i][j], n[i][j]);
+			//}
+		    //}
+		    /*catch (NoSuchFunction ex)
 		    {
 			throw new RateException("Rate + [" + i + "," + j + "]",
 				rates[i][j], "No Such Function", ex);
@@ -313,7 +438,7 @@ public class RateCategory implements Serializable
 		    {
 			throw new RateException("Rate + [" + i + "," + j + "]",
 				rates[i][j], "Wromg Number of Variables for Function", ex);
-		    }
+		    }*/
 		    total += n[i][j];
 		}
 	    }
@@ -377,10 +502,11 @@ public class RateCategory implements Serializable
 		double[] fr = new double[freq.length];
 		for (int i = 0; i < freq.length; i++)
 		{
-		    try
-		    {
-			fr[i] = mp.parseEquation(freq[i], values);
-		    }
+		    //try
+		    //{
+			//fr[i] = mp.parseEquation(freq[i], values);
+                    fr[i] = freq[i].compute(values);
+		    /*}
 		    catch (NoSuchFunction ex)
 		    {
 			throw new RateException("Frequency + [" + i + "]",
@@ -390,7 +516,7 @@ public class RateCategory implements Serializable
 		    {
 			throw new RateException("Frequency + [" + i + "]",
 				freq[i], "Wromg Number of Variables for Function", ex);
-		    }
+		    }*/
 		}
 		// Scale to total of 1.0
 		double total = 0.0;
@@ -412,14 +538,15 @@ public class RateCategory implements Serializable
      */
     public int getNumberStates()
     {
-	return map.keySet().size();
+	//return map.keySet().size();
+        return map.size();
     }
 
     /**
      * Gets the map that maps state to position in matrix
      * @return Map from state to position in matrix
      */
-    public HashMap<String, Integer> getMap()
+    public ArrayMap<String, Integer> getMap()
     {
 	return map;
     }
@@ -431,7 +558,44 @@ public class RateCategory implements Serializable
      * a equation)
      * @return The new RateClass
      */
-    RateCategory multiplyBy(String mult)
+    RateCategory multiplyBy(String mult) throws RateException
+    {
+        CompiledFunction cm;
+        try
+        {
+            cm = mp.compileFunction(mult);
+        }
+        catch (NoSuchFunction ex)
+        {
+            throw new RateException("Multiply by",
+                    mult, "No Such Function", ex);
+        }
+        catch (WrongNumberOfVariables ex)
+        {
+            throw new RateException("Multiply by",
+                    mult, "Wromg Number of Variables for Function", ex);
+        }        
+        CompiledFunction[][] nr = new CompiledFunction[rates.length][rates.length];
+	for (int i = 0; i < rates.length; i++)
+	{
+	    for (int j = 0; j < rates.length; j++)
+	    {
+		nr[i][j] = new Multiply(cm,rates[i][j]);
+	    }
+	}
+
+        //try
+        //{
+            return new RateCategory(nr, freqType, freq, map);
+        //}
+        //catch (RateException ex)
+        //{
+            // Shouldn't happen as would have thrown an error when creating
+            // the original object
+            //throw new UnexpectedError(ex);
+        //}
+    }
+    /*RateCategory multiplyBy(String mult)
     {
 	String[][] nr = new String[rates.length][rates.length];
 	for (int i = 0; i < rates.length; i++)
@@ -442,9 +606,16 @@ public class RateCategory implements Serializable
 	    }
 	}
 
+        //Huge Fudge!!
+        HashMap<String,Integer> nm = new HashMap<>();
+        for (int i = 0; i < map.size(); i++)
+        {
+            Entry<String,Integer> e = map.getEntry(i);
+            nm.put(e.getKey(), e.getValue());
+        }
         try
         {
-            return new RateCategory(nr, freqType, freq, map);
+            return new RateCategory(nr, freqType, freq, nm);
         }
         catch (RateException ex)
         {
@@ -452,7 +623,7 @@ public class RateCategory implements Serializable
             // the original object
             throw new UnexpectedError(ex);
         }
-    }
+    }*/
 
     /**
      * Gets the P-matrix for a given length
@@ -520,9 +691,11 @@ public class RateCategory implements Serializable
     private TreeSet<String> neededParams;
     private SquareMatrix m;
     private double[] f;
-    private String[] freq;
-    private String[][] rates;
-    private HashMap<String, Integer> map;
+    //private String[] freq;
+    private CompiledFunction[] freq;
+    //private String[][] rates;
+    private CompiledFunction[][] rates;
+    private ArrayMap<String, Integer> map;
     private FrequencyType freqType;
     private static MathsParse mp = new MathsParse();    
     private String name = null;

@@ -72,7 +72,7 @@
 
     -->
     
-    <property name="GeLLVer" value="1.1" />
+    <property name="GeLLVer" value="1.2" />
     
     <target name="-post-jar" depends="-javadoc-build">
         <delete file="${dist.dir}/README.txt" />

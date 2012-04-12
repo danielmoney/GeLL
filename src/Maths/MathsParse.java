@@ -1,9 +1,18 @@
 package Maths;
 
+import Maths.CompiledFunction.Add;
+import Maths.CompiledFunction.Constant;
+import Maths.CompiledFunction.Divide;
+import Maths.CompiledFunction.Function;
+import Maths.CompiledFunction.Multiply;
+import Maths.CompiledFunction.Power;
+import Maths.CompiledFunction.Subtract;
+import Maths.CompiledFunction.Variable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,6 +59,12 @@ public class MathsParse
 	    }
 	}
     }
+    
+    /*public double parseEquation(String equation, Map<String,Double> values) throws NoSuchFunction, WrongNumberOfVariables
+    {
+        CompiledFunction f = compileFunction(equation);
+        return f.compute(values);
+    }*/
 
 
     /**
@@ -62,14 +77,14 @@ public class MathsParse
      * @throws WrongNumberOfVariables If the equation uses a function and passes
      * it the wrong number of variables
      */
-    public double parseEquation(String equation, Map<String,Double> values) throws NoSuchFunction, WrongNumberOfVariables
+    public CompiledFunction compileFunction(String equation) throws NoSuchFunction, WrongNumberOfVariables
     {
         //Keeps track of already evaluated parts of the equation.
         //Parts of the equation that have been evaluated are replaced with
         //{id} and this map keeps track of what the value of that sting is.
         //Done this way so as not to lose precission by writing value as text
         //in equation.
-        HashMap<String,Double> results = new HashMap<>(values);
+        HashMap<String,CompiledFunction> results = new HashMap<>();
         
         //Keeps track of the next unused id for use in the above.
 	int id = 0;
@@ -87,7 +102,8 @@ public class MathsParse
 	Matcher m = p.matcher(equation);
 	while (m.matches())
 	{
-	    results.put("{" + id + "}",Double.parseDouble(m.group()));
+	    //results.put("{" + id + "}",Double.parseDouble(m.group()));
+            results.put("{" + id + "}", new Constant(Double.parseDouble(m.group())));
 	    equation = equation.substring(0,m.start()) + "{" + id + "}" + equation.substring(m.end());
 	    id++;
 
@@ -125,7 +141,7 @@ public class MathsParse
 		numb--;
 		if (numb == 0)
 		{
-		    results.put("{" + id + "}",parseEquation(equation.substring(start+1,pos),values));
+		    results.put("{" + id + "}",compileFunction(equation.substring(start+1,pos)));
 		    equation = equation.substring(0,Math.max(0,start)) + "{" + id + "}" + equation.substring(pos+1);
 		    id++;
 		    pos = 0;
@@ -142,12 +158,12 @@ public class MathsParse
          //present in the string
 	 while (equation.indexOf('[') > -1)
 	 {
-             //Find andevaluate the inputs to the function
+             //Find and evaluate the inputs to the function
 	    String[] inputs = equation.substring(equation.indexOf('[')+1,equation.indexOf(']')).split(",");
-	    Double[] vs = new Double[inputs.length];
+	    CompiledFunction[] vs = new CompiledFunction[inputs.length];
 	    for (int j = 0; j < inputs.length; j++)
 	    {
-		vs[j] = parseEquation(inputs[j],values);
+		vs[j] = compileFunction(inputs[j]);
 	    }
 	    
             //Find the string to the left of the [
@@ -168,7 +184,8 @@ public class MathsParse
             //Evaluate the function, store the result and replace in the equation
 	    if (functions.containsKey(name))
 	    {
-		results.put("{" + id + "}",functions.get(name).evaluate(name,vs));
+		//results.put("{" + id + "}",functions.get(name).evaluate(name,vs));
+                results.put("{" + id + "}",new Function(functions.get(name),name,vs));
 	    }
 	    else
 	    {
@@ -203,16 +220,20 @@ public class MathsParse
             //And then what's between the operator and the ^ must be the a in a^b
 	    String left = fLeft.substring(ls+1);
             //Calculate the value of a (stored in lv)
-	    double lv;
+	    CompiledFunction lv;
             //If it's a variable or an already evaluate string get the result
 	    if (left.matches("\\{\\d+\\}") || left.matches(VAR))
 	    {
 		lv = results.get(left);
 	    }
+            else if (left.matches(VAR))
+            {
+                lv = new Variable(left);
+            }
             //Else parse as a double
 	    else
 	    {
-		lv = Double.valueOf(left);
+		lv = new Constant(Double.valueOf(left));//Double.valueOf(left);
 	    }
 	    
             //Do the same for the right side of the string, i.e. the b in a^b
@@ -224,18 +245,23 @@ public class MathsParse
 	    if (Math.min(re,fRight.indexOf('^'))>-1) {re = Math.min(re,fRight.indexOf('^'));}
 	    
 	    String right = fRight.substring(0,re);
-	    double rv;
-	    if (right.matches("\\{\\d+\\}") || right.matches(VAR))
+	    CompiledFunction rv;
+	    if (right.matches("\\{\\d+\\}"))
 	    {
 		rv = results.get(right);
 	    }
+            else if (right.matches(VAR))
+            {
+                rv = new Variable(right);
+            }
 	    else
 	    {
-		rv = Double.valueOf(right);
+		rv = new Constant(Double.valueOf(right));//Double.valueOf(right);
 	    }
 	    
             //Calculate the result, store it and replace it in the string
-	    results.put("{" + id + "}",Math.pow(lv,rv));
+	    //results.put("{" + id + "}",Math.pow(lv,rv));
+            results.put("{" + id + "}",new Power(lv,rv));
 	    equation = equation.substring(0,Math.max(0,ls+1)) + "{" + id + "}" + equation.substring(f + re + 1);
 	    id++;
 	}
@@ -271,14 +297,18 @@ public class MathsParse
 	    ls = Math.max(ls,fLeft.lastIndexOf('-'));
 	    
 	    String left = fLeft.substring(ls+1);
-	    double lv;
-	    if (left.matches("\\{\\d+\\}") || left.matches(VAR))
+	    CompiledFunction lv;
+	    if (left.matches("\\{\\d+\\}"))
 	    {
 		lv = results.get(left);
 	    }
+            else if (left.matches(VAR))
+            {
+                lv = new Variable(left);
+            }
 	    else
 	    {
-		lv = Double.valueOf(left);
+		lv = new Constant(Double.valueOf(left));//Double.valueOf(left);
 	    }
 	    
 	    int re = fRight.length();
@@ -288,23 +318,29 @@ public class MathsParse
 	    if (Math.min(re,fRight.indexOf('/'))>-1) {re = Math.min(re,fRight.indexOf('/'));}
 	    
 	    String right = fRight.substring(0,re);
-	    double rv;
-	    if (right.matches("\\{\\d+\\}") || right.matches(VAR))
+	    CompiledFunction rv;
+	    if (right.matches("\\{\\d+\\}"))
 	    {
 		rv = results.get(right);
 	    }
+            else if (right.matches(VAR))
+            {
+                rv = new Variable(right);
+            }
 	    else
 	    {
-		rv = Double.valueOf(right);
+		rv = new Constant(Double.valueOf(right));//Double.valueOf(right);
 	    }
 	    
 	    if (div)
 	    {
-		results.put("{" + id + "}",lv/rv);
+		//results.put("{" + id + "}",lv/rv);
+                results.put("{" + id + "}",new Divide(lv,rv));
 	    }
 	    else
 	    {
-		results.put("{" + id + "}",lv*rv);
+		//results.put("{" + id + "}",lv*rv);
+                results.put("{" + id + "}",new Multiply(lv,rv));
 	    }
 	    equation = equation.substring(0,Math.max(0,ls)) + "{" + id + "}" + equation.substring(f + re + 1);
 	    id++;
@@ -338,14 +374,18 @@ public class MathsParse
 	    ls = Math.max(ls,fLeft.lastIndexOf('-'));
 	    
 	    String left = fLeft.substring(ls+1);
-	    double lv;
-	    if (left.matches("\\{\\d+\\}") || left.matches(VAR))
+	    CompiledFunction lv;
+	    if (left.matches("\\{\\d+\\}"))
 	    {
 		lv = results.get(left);
 	    }
+            else if (left.matches(VAR))
+            {
+                lv = new Variable(left);
+            }
 	    else
 	    {
-		lv = Double.valueOf(left);
+		lv = new Constant(Double.valueOf(left));// Double.valueOf(left);
 	    }
 	    
 	    int re = fRight.length();
@@ -355,23 +395,29 @@ public class MathsParse
 	    if (Math.min(re,fRight.indexOf('/'))>-1) {re = Math.min(re,fRight.indexOf('/'));}
 	    
 	    String right = fRight.substring(0,re);
-	    double rv;
-	    if (right.matches("\\{\\d+\\}") || right.matches(VAR))
+	    CompiledFunction rv;
+	    if (right.matches("\\{\\d+\\}"))
 	    {
 		rv = results.get(right);
 	    }
+            else if (right.matches(VAR))
+            {
+                rv = new Variable(right);
+            }
 	    else
 	    {
-		rv = Double.valueOf(right);
+		rv = new Constant(Double.valueOf(right));//rv = Double.valueOf(right);
 	    }
 	    
 	    if (minus)
 	    {
-		results.put("{" + id + "}",lv-rv);
+		//results.put("{" + id + "}",lv-rv);
+                results.put("{" + id + "}",new Subtract(lv,rv));
 	    }
 	    else
 	    {
-		results.put("{" + id + "}",lv+rv);
+		//results.put("{" + id + "}",lv+rv);
+                results.put("{" + id + "}",new Add(lv,rv));
 	    }
 	    equation = equation.substring(0,Math.max(0,ls)) + "{" + id + "}" + equation.substring(f + re + 1);
 	    id++;
@@ -383,14 +429,20 @@ public class MathsParse
         
         //Whats left will either be a variable or previously evaluated string
         //in which case returnt the value of that
-	if (equation.matches("\\{\\d+\\}") || equation.matches(VAR))
+	if (equation.matches("\\{\\d+\\}"))
 	{
 	    return results.get(equation);
 	}
+        
+        if (equation.matches(VAR))
+        {
+            return new Variable(equation);
+        }
         //Or a number (if that's all that was passed) so parse and return
 	else
 	{
-	    return Double.parseDouble(equation);
+	    //return Double.parseDouble(equation);
+            return new Constant(Double.parseDouble(equation));
 	}
     }
 
@@ -414,12 +466,30 @@ public class MathsParse
 	    {
 		if (vs.length == 3)
 		{
-		    return Gamma.rates(vs[0],vs[2].intValue())[vs[1].intValue()-1];
+                    if (!gammaCache.containsKey(vs[0]))
+                    {
+                        gammaCache.put(vs[0], Gamma.rates(vs[0],vs[2].intValue()));
+                    }
+                    return gammaCache.get(vs[0])[vs[1].intValue()-1];
+		    //return Gamma.rates(vs[0],vs[2].intValue())[vs[1].intValue()-1];
 		}
 		else
 		{
 		    throw new WrongNumberOfVariables(name,3,vs.length);
 		}
+	    }
+	    throw new NoSuchFunction(name);
+	}
+        
+        public int numberInputs(String name) throws NoSuchFunction
+	{
+	    if (name.equalsIgnoreCase("ln"))
+	    {
+                return 1;
+	    }
+	    if (name.equalsIgnoreCase("g"))
+	    {
+                return 3;
 	    }
 	    throw new NoSuchFunction(name);
 	}
@@ -431,6 +501,9 @@ public class MathsParse
 	    list.add("g");
 	    return list;
 	}
+        
+        //NEED TO THINK ABOUT WHAT WOULD HAPPEN IF PASSED DIFFERENT GAMMA BIN SIZE!
+        private TreeMap<Double,double[]> gammaCache = new TreeMap<>();
     }
 
     private HashMap<String,FunctionParser> functions;

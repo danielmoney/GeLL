@@ -669,7 +669,11 @@ public class Simulate
 		ret  = s;
 	    }
             //As we're traversing the tree the opposite way start is end!
-	    tot = tot + P.get(siteClass).getP(r, b, s, start);
+	    //tot = tot + P.get(siteClass).getP(r, b, s, start);
+            
+            //THIS WILL BE SLOW!!!
+            //tot = tot + P.get(siteClass).getP(r).getP(b).getP(s, start);
+            tot = tot + P.get(siteClass).getP(r).getP(b, s, start);
 	}
         
 	return ret;
