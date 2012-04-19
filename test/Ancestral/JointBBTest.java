@@ -16,8 +16,12 @@
  */
 
 package Ancestral;
+import Likelihood.Likelihood.NodeLikelihood;
+import Utils.ArrayMap;
+import java.util.ArrayList;
+import java.util.List;
 import Alignments.Alignment;
-import Alignments.SequenceAlignment;
+import Alignments.PhylipAlignment;
 import Alignments.Site;
 import Ancestors.AncestralJoint;
 import Likelihood.Calculator.SiteCalculator;
@@ -30,16 +34,14 @@ import Constraints.SiteConstraints;
 import Trees.Tree;
 import java.io.File;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
  * Tests the branch-and-bound joint reconstruction method
  * @author Daniel Money
- * @version 1.0
+ * @version 1.2
  */
 public class JointBBTest
 {
@@ -52,7 +54,7 @@ public class JointBBTest
     public void testReconstruction() throws Exception
     {
         Tree t = Tree.fromNewickString("(((Human: 0.057987, Chimpanzee: 0.074612)A: 0.035490, Gorilla: 0.074352)B: 0.131394, Orangutan: 0.350156, Gibbon: 0.544601)C;");
-        Alignment a = new SequenceAlignment(new File("test\\PAML\\Likelihood\\brown.nuc"));
+        Alignment a = new PhylipAlignment(new File("test\\PAML\\Likelihood\\brown.nuc"));
 
         String[][] ma = new String[4][4];
 
@@ -108,7 +110,7 @@ public class JointBBTest
     private String[] getBest(Tree t, Probabilities P,
         Site s)
     {
-        Set<String> bases = new HashSet<>();
+        List<String> bases = new ArrayList<>();
         bases.add("A"); bases.add("C"); bases.add("G"); bases.add("T");
         Map<String,Map<String,Map<String,Double>>> hash = new HashMap<>();
         double maxL = -Double.MAX_VALUE;
@@ -126,7 +128,19 @@ public class JointBBTest
                     sc.addConstraint("B", b);
                     sc.addConstraint("C", c);
                     
-                    SiteCalculator calc = new SiteCalculator(s,t,sc,P);
+                    ArrayMap<String, NodeLikelihood> nl = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+                    for (String l: t.getLeaves())
+                    {
+                        nl.put(l, new NodeLikelihood(P.getArrayMap(), s.getCharacter(l)));
+                    }
+
+                    //And now internal nodes using any constraints
+                    for (String i: t.getInternal())
+                    {
+                        nl.put(i, new NodeLikelihood(P.getArrayMap(), sc.getConstraint(i)));
+                    }
+                    
+                    SiteCalculator calc = new SiteCalculator(t,P,nl);
                     double l = calc.calculate().getLikelihood();
                     if (l > maxL)
                     {

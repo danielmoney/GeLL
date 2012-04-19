@@ -20,16 +20,19 @@ package Executable;
 import Alignments.Alignment;
 import Alignments.Ambiguous;
 import Alignments.DuplicationAlignment;
-import Alignments.SequenceAlignment;
+import Alignments.PhylipAlignment;
 import Ancestors.AncestralJoint;
 import Ancestors.AncestralMarginal;
 import Exceptions.GeneralException;
+import Exceptions.InputException;
 import Exceptions.UnexpectedError;
 import Likelihood.Calculator;
 import Likelihood.Likelihood;
 import Maths.SquareMatrix;
 import Models.Distributions;
 import Models.Model;
+import Models.Model.ModelException;
+import Models.RateCategory.RateException;
 import Optimizers.GoldenSection;
 import Optimizers.NelderMead;
 import Optimizers.Optimizer;
@@ -40,11 +43,15 @@ import Utils.PossibleSettings;
 import Utils.SetSettings;
 import Utils.SettingException;
 import Utils.Settings;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -52,7 +59,7 @@ import java.util.concurrent.TimeUnit;
  * the distribution for information on how to run this driver.
  * 
  * @author Daniel Money
- * @version 1.0
+ * @version 1.2
  */
 public class GeLL
 {
@@ -85,7 +92,7 @@ public class GeLL
             
 	    Alignment a = null;
 	    Tree t = null;
-	    Model m = null;
+	    Map<String,Model> m = null;
 	    Parameters p = null;
 	    Alignment missing = null;
 
@@ -105,7 +112,7 @@ public class GeLL
 
 		t = Tree.fromFile(new File(settings.getSetting("Likelihood", "TreeInput")));
 
-		m = Model.fromFile(new File(settings.getSetting("Likelihood", "Model")));
+		m = getModels(new File(settings.getSetting("Likelihood", "Model")));
 
                 p = getParameters(settings.getSetting("Likelihood","ParameterInput"), t);
 
@@ -136,7 +143,7 @@ public class GeLL
 		Alignment aa = getAlignment(settings.getSetting("Ancestral", "AlignmentType"),
                         settings.getSetting("Ancestral", "Alignment"), a);
 
-		Model am = getModel(settings.getSetting("Ancestral", "Model"),m);
+		Map<String,Model> am = getModel(settings.getSetting("Ancestral", "Model"),m);
 
                 Parameters ap = getParameters(settings.getSetting("Ancestral","Parameters"),p,at);
 		
@@ -153,7 +160,7 @@ public class GeLL
 	    {
 		Tree st = getTree(settings.getSetting("Simulation", "Tree"), t);
 
-		Model sm = getModel(settings.getSetting("Simulation", "Model"),m);
+		Map<String,Model> sm = getModel(settings.getSetting("Simulation", "Model"),m);
 
                 Parameters sp = getParameters(settings.getSetting("Simulation","Parameters"),p,st);
                 
@@ -378,7 +385,7 @@ public class GeLL
         }
         if (type.equals("Sequence"))
         {
-            a = new SequenceAlignment(new File(file));
+            a = new PhylipAlignment(new File(file));
         }
         if (a == null)
         {
@@ -397,7 +404,7 @@ public class GeLL
         }
         if (type.equals("Sequence"))
         {
-            missing = new SequenceAlignment(new File(file));
+            missing = new PhylipAlignment(new File(file));
         }
         if (missing == null)
         {
@@ -512,7 +519,7 @@ public class GeLL
         }
     }
     
-    private static Model getModel(String file, Model m)
+    private static Map<String,Model> getModel(String file, Map<String,Model> m)
             throws GeneralException, SettingException
     {
         if (m != null)
@@ -530,13 +537,51 @@ public class GeLL
         {
             if (file != null)
             {
-                return Model.fromFile(new File(file)); 
+                return getModels(new File(file)); 
             }
             else
             {
                 throw new SettingException("No model to use");
             }
         }
+    }
+    
+    private static Map<String,Model> getModels(File f) throws InputException,
+            ModelException, RateException
+    {
+        Map<String,Model> ret = new HashMap<>();
+        BufferedReader in;
+	try
+	{
+	    in = new BufferedReader(new FileReader(f));
+	}
+	catch (FileNotFoundException e)
+ 	{
+	    throw new InputException(f.getAbsolutePath(),"Not Applicable","File does not exist",e);
+	}
+        try
+        {
+            String line = in.readLine();
+            if (line.startsWith("**"))
+            {
+                in.close();
+                ret.put(null,Model.fromFile(f));
+            }
+            else
+            {
+                do
+                {
+                    String[] parts = line.split("\t",2);
+                    ret.put(parts[0],Model.fromFile(new File(parts[1])));
+                }
+                while ((line = in.readLine()) != null);
+            }
+        }
+        catch (IOException e)
+	{
+	    throw new InputException(f.getAbsolutePath(),"Not Applicable","Problem reading file",e);
+	}
+        return ret;
     }
     
     private static Parameters getParameters(String file, Parameters p, Tree t)
@@ -629,7 +674,7 @@ public class GeLL
         }
         if (type.equals("Sequence"))
         {
-            SequenceAlignment.writeFile(a, new File(file));
+            PhylipAlignment.writeFile(a, new File(file));
         }
     }
     
@@ -648,7 +693,7 @@ public class GeLL
         return p;
     }
     
-    private static Alignment getAncestral(String type, Model m, Alignment a, Tree t, Parameters p)
+    private static Alignment getAncestral(String type, Map<String,Model> m, Alignment a, Tree t, Parameters p)
             throws GeneralException, SettingException
     {
         if (type.equals("Joint"))

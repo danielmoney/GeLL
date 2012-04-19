@@ -20,6 +20,7 @@ package Maths;
 import Exceptions.UnexpectedError;
 import Maths.EigenvalueDecomposition.ConvergenceException;
 import Utils.Array2D;
+import Utils.DaemonThreadFactory;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Represents a square matrix.  
@@ -65,6 +67,8 @@ public class SquareMatrix implements Serializable
         }
         this.m = m;
 	this.dim = m.length;
+        //this.cached = 0;
+        //this.cache = this.m[0];
     }
 
     /**
@@ -90,7 +94,7 @@ public class SquareMatrix implements Serializable
             //of processors as reported by Java
             try
             {
-                ExecutorService es = Executors.newFixedThreadPool(noThreads);
+                /*ExecutorService es = Executors.newFixedThreadPool(noThreads);
 
                 List<Future<double[]>> list = new ArrayList<>();
 
@@ -103,7 +107,14 @@ public class SquareMatrix implements Serializable
                 }
 
                 //Wait for the ExecutorService to finish
-                es.shutdown();
+                es.shutdown();*/
+                
+                List<ThreadedMult> tasks = new ArrayList<>();
+                for (int i=0; i < dim; i++)
+                {
+                    tasks.add(new ThreadedMult(a, b, i));
+                }
+                List<Future<double[]>> list = es.invokeAll(tasks);
 
                 //Retrieve and combine the results
                 for (int i=0; i < dim; i++)
@@ -157,7 +168,7 @@ public class SquareMatrix implements Serializable
 
     private double[][] aAdd(double[][] M, double[][] N)
     {
-	double[][] r = new double[dim][dim];
+	/*double[][] r = new double[dim][dim];
 	for (int i = 0; i < dim; i++)
 	{
 	    for (int j = 0; j < dim; j++)
@@ -165,7 +176,19 @@ public class SquareMatrix implements Serializable
 		r[i][j] = M[i][j] + N[i][j];
 	    }
 	}
-	return r;
+	return r;*/
+        double[][] r = new double[dim][];
+        for (int i = 0; i < r.length; i ++)
+        {
+            double[] ri = Arrays.copyOf(M[i], M[i].length);
+            double[] ni = N[i];
+            for (int j = 0; j < ri.length; j++)
+            {
+                ri[j] = ri[j] + ni[j];
+            }
+            r[i] = ri;
+        }
+        return r;
     }
 
     private double[][] aSDivide(double[][] M, double n)
@@ -183,13 +206,28 @@ public class SquareMatrix implements Serializable
 
     private double[][] aSMultiply(double[][] M, double n)
     {
-	double[][] r = new double[dim][dim];
+        /*double[][] r = new double[dim][dim];
 	for (int i = 0; i < dim; i++)
 	{
 	    for (int j = 0; j < dim; j++)
 	    {
 		r[i][j] = M[i][j] * n;
 	    }
+	}
+	return r;*/
+	//double[][] r = new double[dim][dim];
+        double[][] r = new double[dim][];
+	//for (int i = 0; i < dim; i++)
+        for (int i = 0; i < r.length; i++)
+	{
+            double[] ri = Arrays.copyOf(M[i], M[i].length);
+	    //for (int j = 0; j < dim; j++)
+            for (int j = 0; j < ri.length; j++)
+	    {
+		//r[i][j] = M[i][j] * n;
+                ri[j] = ri[j] * n;
+	    }
+            r[i] = ri;
 	}
 	return r;
     }
@@ -317,7 +355,7 @@ public class SquareMatrix implements Serializable
 	double[][] R = new double[dim][dim];
 	for (int i = 0; i < dim; i++)
 	{
-	    for (int j = 0; j < dim; j++)
+	    /*for (int j = 0; j < dim; j++)
 	    {
 		if (i == j)
 		{
@@ -327,7 +365,8 @@ public class SquareMatrix implements Serializable
 		{
 		    R[i][j] = 0.0;
 		}
-	    }
+	    } */
+            R[i][i] = 1.0;
 	}
 
         //Calculate the Taylor expansion using the already stored values of A, A^2,
@@ -415,7 +454,7 @@ public class SquareMatrix implements Serializable
 
 	pdiv = t;
 
-	powers = new double[numIt+1][dim][dim];
+	powers = new double[numIt+1][][];
 
 	double[][] P = new double[dim][dim];
 	for (int i = 0; i < dim; i++)
@@ -425,6 +464,8 @@ public class SquareMatrix implements Serializable
 		P[i][j] = m[i][j] * Math.pow(2.0,-t);
 	    }
 	}
+        
+        //double[][] P = aSMultiply(m, Math.pow(2.0,-t));
 
 	powers[1] = P;
 
@@ -696,6 +737,12 @@ public class SquareMatrix implements Serializable
      */
     public double getPosition(int i, int j)
     {
+        /*if (i != cached)
+        {
+            cached = i;
+            cache = m[i];
+        }
+        return cache[j];*/
 	return m[i][j];
     }
 
@@ -742,7 +789,8 @@ public class SquareMatrix implements Serializable
      */
     public static void setNoThreads(int number)
     {
-        noThreads = number;
+        //noThreads = number;
+        es = Executors.newFixedThreadPool(number, new DaemonThreadFactory());
     }
     
     public boolean equals(Object ob)
@@ -918,13 +966,19 @@ public class SquareMatrix implements Serializable
 
     private int pdiv;
     
-    private static int noThreads = Runtime.getRuntime().availableProcessors();
+    //private double[] cache;
+    //private int cached;
+    
+    //private static int noThreads = Runtime.getRuntime().availableProcessors();
 
     private static final int numIt = 12;
 
     private static Calculation expMethod = Calculation.TAYLOR;
 
     private static int force = 0;
+    
+    private static ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
+            new DaemonThreadFactory());
     
     /**
      * Enumeration of the possible ways of calculating the matrix exponential

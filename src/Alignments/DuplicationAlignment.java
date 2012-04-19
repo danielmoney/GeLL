@@ -34,7 +34,7 @@ import java.util.Set;
  * Represents a duplication "alignment" - a set of gene families with their
  * associated size in each species
  * @author Daniel Money
- * @version 1.0
+ * @version 1.1
  */
 public class DuplicationAlignment extends Alignment
 {
@@ -43,10 +43,12 @@ public class DuplicationAlignment extends Alignment
      * First row is a header file.  First field is ignored while subsequent fields
      * are the name of the species.  Each additional row represents a family.
      * The first field is an ID for the family while subsequent fields are the
-     * size of the family in the appropiate species.
+     * size of the family in the appropiate species.  A family name of <code>*class*</code> is
+     * assumed not to be a taxa but rather gfives the class of each site (which can be any
+     * string).
      * @param f The input file
      * @throws InputException Thrown if there is a problem with the input file
-     * @throws AlignmentException Thrown if any family contains the wrong number
+     * @throws Alignments.AlignmentException Thrown if any family contains the wrong number
      * of species
      */
     public DuplicationAlignment(File f) throws InputException, AlignmentException
@@ -60,7 +62,7 @@ public class DuplicationAlignment extends Alignment
      * @param f The input file
      * @param ambig Desription o the ambiguous data
      * @throws InputException Thrown if there is a problem with the input file
-     * @throws AlignmentException Thrown if any family contains the wrong number
+     * @throws Alignments.AlignmentException Thrown if any family contains the wrong number
      * of species
      */
     public DuplicationAlignment(File f, Ambiguous ambig) throws InputException, AlignmentException
@@ -94,6 +96,10 @@ public class DuplicationAlignment extends Alignment
                 {
                     throw new AlignmentException("Taxa names", line, "Repeated taxa name",null);
                 }
+                if (names[i].equals("*Class*"))
+                {
+                    hasClasses = true;
+                }
 	    }
 
 	    int i = 0;
@@ -107,13 +113,26 @@ public class DuplicationAlignment extends Alignment
 		    throw new AlignmentException("Family " + i, line, "Wrong number of species",null);
 		}
                 LinkedHashMap<String,String> sizes = new LinkedHashMap<>();
+                String c = null;
                 for (int j = 1; j < split.length; j++)
                 {
-                    sizes.put(names[j], split[j]);
+                    if (!names[j].equals("*Class*"))
+                    {
+                        sizes.put(names[j], split[j]);
+                    }
+                    else
+                    {
+                        c = split[j];
+                    }
                 }
-                data.add(new Site(sizes,ambig));
+                data.add(new Site(sizes,ambig,c));
 	    }
 	    ain.close();
+            
+            if (hasClasses)
+            {
+                taxa.remove("*Class*");
+            }
 	}
 	catch (IOException e)
 	{
@@ -137,6 +156,10 @@ public class DuplicationAlignment extends Alignment
 	    for (String taxa: a.getTaxa())
 	    {
 		out.print("\t" + taxa);
+                if (a.hasClasses)
+                {
+                    out.print("\t*Class*");
+                }
 	    }
 	    out.println();
 	    for (int i=0; i < a.getLength(); i++)
@@ -145,6 +168,10 @@ public class DuplicationAlignment extends Alignment
 		for (String taxa: a.getTaxa())
 		{
 		    out.print("\t" + a.getSite(i).getRawCharacter(taxa));
+                    if (a.hasClasses)
+                    {
+                        out.print("\t" + a.getSite(i).getSiteClass());
+                    }
 		}
 		out.println();
 	    }

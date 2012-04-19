@@ -27,14 +27,18 @@ import Parameters.Parameters.ParameterException;
 import Trees.Branch;
 import Trees.Tree;
 import Trees.TreeException;
+import Utils.ArrayMap;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Stores the values of each transition, frequency etc for one set of parameters.
  * @author Daniel Money
- * @version 1.0
+ * @version 1.2
  */
 public class Probabilities
 {
@@ -60,19 +64,20 @@ public class Probabilities
         //Set the parameters in the model
         m.setParameters(p);
         rateClasses = m.getRates();
-        map = m.getMap();
-        P = new HashMap<>();
+        map = m.getArrayMap();
+        P = new ArrayMap<>(RateCategory.class,RateProbabilities.class,rateClasses.size());
         freq = new HashMap<>();
         rateP = new HashMap<>();
+        states = map.keyList();
         //Calculate and store the various probabilities
         for (RateCategory rc: m)
         {
-            Map<Branch,SquareMatrix> rcP = new HashMap<>();
+            ArrayMap<Branch,SquareMatrix> bP = new ArrayMap<>(Branch.class,SquareMatrix.class,nt.getNumberBranches());
             for (Branch b: nt)
             {
-                rcP.put(b,rc.getP(b.getLength()));
+                bP.put(b, rc.getP(b.getLength()));
             }
-            P.put(rc,rcP);
+            P.put(rc, new RateProbabilities(bP));
             freq.put(rc,rc.getFreq());
             rateP.put(rc,m.getFreq(rc));
         }
@@ -88,29 +93,36 @@ public class Probabilities
     }
     
     /**
-     * Gets the set of all possible states
-     * @return The set of all possible states
+     * Gets the list of all possible states
+     * @return A list of all possible states
      */
     public Set<String> getAllStates()
     {
-        return map.keySet();
+        HashSet<String> ret = new HashSet<>();
+        ret.addAll(states);
+        return ret;
+    }
+    
+    /**
+     * Gets the list of all possible states.  Called this as {@link #getAllStates()} 
+     * is kept for backward compitability
+     * @return A list of all possible states
+     */
+    public List<String> getAllStatesAsList()
+    {
+        return states;
     }
 
     /**
      * Gets a specific probability for a change from one state to another along
      * a specific branch under a specific RateClass
      * @param r The rate class
-     * @param b The branch
-     * @param startState The start state
-     * @param endState The end state
      * @return The probability of a transition from start state to end state along
      * the branch under the specified rate class.
      */
-    public double getP(RateCategory r, Branch b, String startState, String endState)
+    public RateProbabilities getP(RateCategory r)
     {
-        return P.get(r).get(b).getPosition(
-                map.get(endState),
-                map.get(startState));
+        return P.get(r);
     }
     
     /**
@@ -134,9 +146,58 @@ public class Probabilities
         return rateP.get(r);
     }
     
+    /**
+     * Gets an ArrayMap linking states to position in an array
+     * @return Map linking state to positions
+     */
+    public ArrayMap<String,Integer> getArrayMap()
+    {
+        return map;
+    }
+    
     private Set<RateCategory> rateClasses;
-    private Map<String,Integer> map;
-    private Map<RateCategory,Map<Branch,SquareMatrix>> P;
+    private ArrayMap<String,Integer> map;
+    private ArrayMap<RateCategory,RateProbabilities> P;
     private Map<RateCategory,double[]> freq;
     private Map<RateCategory,Double> rateP;
+    private ArrayList<String> states;
+    
+    /**
+     * Stores the values of each transition, frequency etc for one set of parameters
+     * and for a single rate category.
+     * @author Daniel Money
+     * @version 1.0
+     */
+    public class RateProbabilities
+    {
+        RateProbabilities(ArrayMap<Branch,SquareMatrix> P)
+        {
+            this.P = P;
+        }
+        
+        /**
+         * Gets the probability matrix for a single branch
+         * @param b The branch to get the matrix for
+         * @return The probability matrix associated with that branch
+         */
+        public SquareMatrix getP(Branch b)
+        {
+            return P.get(b);
+        }
+        
+        /**
+         * Gets the probability fo a single transition on a single branch
+         * @param b The branch
+         * @param startState The start state
+         * @param endState The end state
+         * @return The probabiluty of a transition from start state to end state
+         * along the given branch
+         */
+        public double getP(Branch b, String startState, String endState)
+        {
+            return P.get(b).getPosition(map.get(endState),map.get(startState));
+        }
+        
+        private ArrayMap<Branch,SquareMatrix> P;
+    }
 }

@@ -17,12 +17,14 @@
 
 package Simulations;
 
+import Likelihood.Likelihood.NodeLikelihood;
+import Utils.ArrayMap;
+import java.util.ArrayList;
+import java.util.List;
 import Parameters.Parameter;
 import Likelihood.Probabilities;
 import Likelihood.Calculator.SiteCalculator;
 import Constraints.SiteConstraints;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.LinkedHashMap;
 import Alignments.Site;
 import java.util.Map;
@@ -41,6 +43,7 @@ import static org.junit.Assert.*;
 /**
  * Tests the simulation method
  * @author Daniel Money
+ * @version 1.2
  */
 public class SimulateTest
 {
@@ -109,7 +112,7 @@ public class SimulateTest
         
         
         Map<Site,Double> theory = new HashMap<>();
-        Set<String> bases = new HashSet<>();
+        List<String> bases = new ArrayList<>();
         bases.add("T");
         bases.add("C");
         bases.add("A");
@@ -129,7 +132,12 @@ public class SimulateTest
                         sm.put("gorilla", g);
                         sm.put("orangutan", o);
                         Site s = new Site(sm);
-                        SiteCalculator sc = new SiteCalculator(s,t,new SiteConstraints(bases),P);
+                        
+                        SiteConstraints scon = new SiteConstraints(bases);
+                        
+                        ArrayMap<String, NodeLikelihood> nl = s.getInitialNodeLikelihoods(t, P.getArrayMap(), scon);
+                        
+                        SiteCalculator sc = new SiteCalculator(t,P,nl);
                         double l = sc.calculate().getLikelihood();
                         theory.put(s, l * 1000000);
                     }

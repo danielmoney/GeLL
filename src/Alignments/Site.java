@@ -1,23 +1,11 @@
-/*
- * This file is part of GeLL.
- * 
- * GeLL is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * GeLL is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with GeLL.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package Alignments;
 
+import Constraints.SiteConstraints;
+import Likelihood.Likelihood.NodeLikelihood;
+import Trees.Tree;
+import Utils.ArrayMap;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,7 +14,7 @@ import java.util.Set;
 /**
  * Represents a "site" in an "alignment".  Both terms used generously.
  * @author Daniel Money
- * @version 1.0
+ * @version 1.2
  */
 public class Site implements Serializable
 {
@@ -36,7 +24,19 @@ public class Site implements Serializable
      */
     public Site(LinkedHashMap<String, String> sites)
     {
-        this(sites,new Ambiguous());
+        this(sites,new Ambiguous(), null);
+    }
+    
+    /**
+     * Creates a site in a alignment with no ambiguous data and with the given
+     * class.  <b>Note that either all sites in an alignment must have a class or
+     * none should.</b>
+     * @param sites Map from taxa name to state
+     * @param siteClass The class of this site
+     */
+    public Site(LinkedHashMap<String,String> sites, String siteClass)
+    {
+        this(sites,new Ambiguous(), siteClass);
     }
     
     /**
@@ -46,8 +46,29 @@ public class Site implements Serializable
      */
     public Site(LinkedHashMap<String,String> sites, Ambiguous ambig)
     {
+        this(sites,ambig,null);
+    }
+    
+    /**
+     * Creates a site in a alignment with ambiguous data and with the given
+     * class.  <b>Note that either all sites in an alignment must have a class or
+     * none should.</b>
+     * @param sites Map from taxa name to state
+     * @param ambig Description of ambiguous data
+     * @param siteClass The class of this site
+     */
+    public Site(LinkedHashMap<String,String> sites, Ambiguous ambig, String siteClass)
+    {
         this.sites = sites;
         this.ambig = ambig;
+        this.siteClass = siteClass;
+    }
+    
+    Site(Site s)
+    {
+        this.sites = s.sites;
+        this.ambig = s.ambig;
+        this.siteClass = s.siteClass;
     }
     
     /**
@@ -92,6 +113,15 @@ public class Site implements Serializable
         return sites.keySet();
     }
     
+    /**
+     * Gets the class of this site
+     * @return The class of this site
+     */
+    public String getSiteClass()
+    {
+        return siteClass;
+    }
+    
     public boolean equals(Object o)
     {
         if (!(o instanceof Site))
@@ -100,8 +130,17 @@ public class Site implements Serializable
         }
         
         Site c = (Site) o;
+        boolean sc = false;
+        if ((siteClass == null) && (c.siteClass == null))
+        {
+            sc = true;
+        }
+        if ((siteClass != null) && (c.siteClass != null))
+        {
+            sc = siteClass.equals(c.siteClass);
+        }
         
-        return sites.equals(c.sites);
+        return (sc && sites.equals(c.sites));
     }
 
     public int hashCode()
@@ -119,6 +158,37 @@ public class Site implements Serializable
         }
         ret.delete(ret.length()-1, ret.length());
         return ret.toString();
+    }
+    
+    /**
+     * Gdets initial node likelihoods based on the site, tree and any constraints.
+     * 
+     * Done like this as creating the node likelihoods is time consuming whereas
+     * copying them once initialised is not.  As they only need to be initalised
+     * once for each site this saves time as they then need only be copied for
+     * each likelihood calculation.
+     * @param t The tree
+     * @param map A map from state to position in array
+     * @param scon Any constraints on the site
+     * @return An ArrayMap of NodeLikelihoods which can be used to initialise
+     * likelihood calculations
+     */
+    public ArrayMap<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t,  ArrayMap<String,Integer> map, SiteConstraints scon)
+    {        
+        ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+        for (String l: t.getLeaves())
+        {
+            //nodeLikelihoods.put(l, new NodeLikelihood(tp.getAllStates(), s.getCharacter(l)));
+            nodeLikelihoods.put(l, new NodeLikelihood(map, this.getCharacter(l)));
+        }
+
+        //And now internal nodes using any constraints
+        for (String i: t.getInternal())
+        {
+            //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
+            nodeLikelihoods.put(i, new NodeLikelihood(map, scon.getConstraint(i)));
+        }
+        return nodeLikelihoods;
     }
     
     /**
@@ -141,11 +211,65 @@ public class Site implements Serializable
                 ns.put(s.getKey(),s.getValue());
             }
         }
-        return new Site(ns,ambig);
+        return new Site(ns,ambig,siteClass);
+    }
+
+    /**
+     * Recodes the alignment and returns it and also allows the definition of
+     * new ambiguous states
+     * @param recode A map from original state to new state, e.g. to recode
+     * DNA to RY it would contains A -> R, G -> R, C -> Y, T -> Y
+     * @param ambig The new ambiiguous states
+     * @return A recoded site
+     */    
+    public Site recode(Map<String,String> recode, Ambiguous ambig)
+    {
+        LinkedHashMap<String,String> ns = new LinkedHashMap<>();
+        for (Entry<String,String> s: sites.entrySet())
+        {
+            if (recode.containsKey(s.getValue()))
+            {
+                ns.put(s.getKey(),recode.get(s.getValue()));
+            }
+            else
+            {
+                ns.put(s.getKey(),s.getValue());
+            }
+        }
+        return new Site(ns,ambig,siteClass);
     }
     
-    private static final long serialVersionUID = 1;
+    /**
+     * Returns a new Site which is the same as this one except it is limited
+     * to certain taxa
+     * @param limit The taxa to limit the new site to
+     * @return The limited site
+     */    
+    public Site limitToTaxa(Collection<String> limit)
+    {
+        LinkedHashMap<String,String> ns = new LinkedHashMap<>();
+        for (Entry<String,String> s: sites.entrySet())
+        {
+            if (limit.contains(s.getKey()))
+            {
+                ns.put(s.getKey(), s.getValue());
+            }
+        }
+        return new Site(ns,ambig,siteClass);        
+    }
+    
+    /**
+     * Gets the information about ambiguous states for this site
+     * @return Information about the ambiguous states
+     */
+    public Ambiguous getAmbiguous()
+    {
+        return ambig;
+    }
+    
+    private static final long serialVersionUID = 2;
     
     private LinkedHashMap<String,String> sites;
     private Ambiguous ambig;
+    private String siteClass;
 }

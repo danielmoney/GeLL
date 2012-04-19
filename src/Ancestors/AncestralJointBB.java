@@ -44,19 +44,21 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Class to perform joint ancestral reconstrion using the method of Pupko 2002
  * slightly modified
  * @author Daniel Money
- * @version 1.0
+ * @version 1.2
  */
 public class AncestralJointBB extends AncestralJoint
 {   
     AncestralJointBB(Model m, Alignment a, Tree t)
     {
 	this.a = a;
-	this.m = m;
+        this.m = new HashMap<>();
+	this.m.put(null,m);
 	this.t = t;
         //Create a dynamic programming ancestral reconstructir for each rate
         //category.  Saves creating one for each site.  Used to choose a sensible
@@ -74,6 +76,37 @@ public class AncestralJointBB extends AncestralJoint
                 //rate category but just in case...
                 throw new UnexpectedError(ex);
             }
+        }
+    }
+    
+    AncestralJointBB(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException
+    {
+	this.a = a;
+        this.m = m;
+	this.t = t;
+        //Create a dynamic programming ancestral reconstructir for each rate
+        //category.  Saves creating one for each site.  Used to choose a sensible
+        //starting state for branch and bound search.
+        dps = new HashMap<>();
+        for (Model mo: m.values())
+        {
+            for (RateCategory r: mo)
+            {
+                try
+                {
+                    dps.put(r,new AncestralJointDP(new Model(r),a,t));
+                }
+                catch (MultipleRatesException ex)
+                {
+                    //Can't reach here as we know we only pass in models with a single
+                    //rate category but just in case...
+                    throw new UnexpectedError(ex);
+                }
+            }
+        }
+        if (!a.check(m))
+        {
+            throw new AlignmentException("Alignment contains classes for which no model has been defined");
         }
     }
 
@@ -94,7 +127,11 @@ public class AncestralJointBB extends AncestralJoint
 	}
         
         //Calculate probabilities for this model, tree and set of parameters
-        Probabilities P = new Probabilities(m,t,p);
+        Map<String,Probabilities> P = new HashMap<>();
+        for (Entry<String,Model> e: m.entrySet())
+        {
+            P.put(e.getKey(),new Probabilities(e.getValue(),t,p));
+        }
 
         //Get unqiue sites in the alignment and calculator a reconstuction for each
         Map<Site,Site> ret = new HashMap<>();
@@ -102,7 +139,7 @@ public class AncestralJointBB extends AncestralJoint
 	{
 	    try
 	    {
-		ret.put(s,calculateSite(s,P));
+		ret.put(s,calculateSite(s,P.get(s.getSiteClass())));
 	    }
 	    catch (AncestralException e)
 	    {
@@ -128,16 +165,15 @@ public class AncestralJointBB extends AncestralJoint
         //implememted if it's found to be needed although the dynamic programming
         //classes would need changes as well.  There's also no attempt to be clever
         //in the order we visit the internal nodes.  Again this seems to be reasonably
-        //effecient without it.
-        
+        //effecient without it.                
+        SiteConstraints con = new SiteConstraints(P.getAllStatesAsList());
         
         //Calculate the site likelihood without any constraints
-        SiteConstraints con = new SiteConstraints(P.getAllStates());
         SiteLikelihood sl = (new SiteCalculator(ca,t,con,P)).calculate();
 	RateCategory br = null;
         //And then use this to find the rate category that contributes the most likelihood
 	double brs = -Double.MAX_VALUE;
-	for (RateCategory r: m)
+	for (RateCategory r: m.get(ca.getSiteClass()))
 	{
             double rs = 0.0;
             try
@@ -166,7 +202,7 @@ public class AncestralJointBB extends AncestralJoint
         //the same as constraining the node to the fixedstate so we can use
         //the constraints mechanism to keep track of what internal nodes we've
         //fixed.  To begin with nbo nodes are fixed.
-        SiteConstraints assign = new SiteConstraints(P.getAllStates());
+        SiteConstraints assign = new SiteConstraints(P.getAllStatesAsList());
         
         //Initialise the structure that keeps track of the best reconstruction
         //found so far.  We don't have a best reconstruction yet, so pass
@@ -205,7 +241,7 @@ public class AncestralJointBB extends AncestralJoint
     private Best DFS(Site site, SiteConstraints assign, Best best, Probabilities P, Site ba)
     {
         //Recursive depth first search of possible reconstructions
-        
+     
         //If we've made an assignment to every node then...
 	if (isFull(assign))
 	{
@@ -257,7 +293,7 @@ public class AncestralJointBB extends AncestralJoint
 	best = DFS(site,na,best,P,ba);
 
         //Next try all other assignments
-	for (String state: P.getAllStates())
+	for (String state: P.getAllStatesAsList())
 	{
             //Excpet the one we've already tried
 	    if (!state.equals(ba.getRawCharacter(b)))
@@ -317,7 +353,7 @@ public class AncestralJointBB extends AncestralJoint
 
     private Alignment a;
 
-    private Model m;
+    private Map<String,Model> m;
 
     private Tree t;
     

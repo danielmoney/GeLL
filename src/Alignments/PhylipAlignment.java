@@ -1,20 +1,3 @@
-/*
- * This file is part of GeLL.
- * 
- * GeLL is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * GeLL is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with GeLL.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package Alignments;
 
 import Exceptions.InputException;
@@ -32,13 +15,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Represents a sequence alignment
+ * Represents a sequence alignment in Phylip format
  * @author Daniel Money
  * @version 1.2
- * @deprecated Replaced by {@link PhylipAlignment} to allow for easier use of
- * multiple formats.
  */
-public class SequenceAlignment extends Alignment
+public class PhylipAlignment extends Alignment
 {
     /**
      * Creates a sequence alignment from a file.  File should be in a format similar
@@ -54,21 +35,21 @@ public class SequenceAlignment extends Alignment
      * @throws Alignments.AlignmentException Thrown if there issomething wrong with the alignment, e.g.
      * different length sequences
      */
-    public SequenceAlignment(File f) throws InputException, AlignmentException
+    public PhylipAlignment(File f) throws InputException, AlignmentException
     {
         this(f, new Ambiguous(new HashMap<String,Set<String>>()));
     }
 
     /**
      * Creates a sequence alignment from a file with ambiguouis data.  File should
-     * be in {@link #SequenceAlignment(java.io.File)}
+     * be in the format described at {@link #PhylipAlignment(java.io.File)}
      * @param f The input file
      * @param ambig Desription o the ambiguous data
      * @throws InputException Thrown if there is a problem with the input file
      * @throws Alignments.AlignmentException Thrown if there issomething wrong with the alignment, e.g.
      * different length sequences
      */
-    public SequenceAlignment(File f, Ambiguous ambig) throws InputException, AlignmentException
+    public PhylipAlignment(File f, Ambiguous ambig) throws InputException, AlignmentException
     {
 	// Create the hashmap to store the sequences (seq name =>  sequence)
         LinkedHashMap<String,String> seq = new LinkedHashMap<>();
@@ -168,7 +149,7 @@ public class SequenceAlignment extends Alignment
 
     /**
      * Writes a alignment to a file in the format described in 
-     * {@link #SequenceAlignment(java.io.File)}.
+     * {@link #PhylipAlignment(java.io.File)}.
      * @param a The alignment to write to the file. Need not be a sequence alignment
      * @param f The file to write to
      * @throws OutputException Thrown if there is a problem creating the file

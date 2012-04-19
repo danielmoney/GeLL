@@ -44,7 +44,7 @@ import java.util.Set;
  * Represents a phylogenetic tree.  Trees are defined as a list of {@link Branch}.
  * Nodes are defined by a String
  * @author Daniel Money
- * @version 1.0
+ * @version 1.2
  */
 public class Tree implements Iterable<Branch>
 {
@@ -57,7 +57,7 @@ public class Tree implements Iterable<Branch>
     public Tree(List<Branch> branches) throws TreeException
     {
 	internal = new ArrayList<>();
-        leaves = new HashSet<>();
+        leaves = new ArrayList<>();
         Set<String> posroot = new HashSet<>();
         for (Branch b: branches)
         {
@@ -155,7 +155,7 @@ public class Tree implements Iterable<Branch>
      * Gets a list of leaves
      * @return A list of leaves
      */
-    public Set<String> getLeaves()
+    public List<String> getLeaves()
     {
         return leaves;
     }
@@ -357,7 +357,7 @@ public class Tree implements Iterable<Branch>
 	{
             Branch bi = getBranchByChild(child);
             //If we've found the midway point...
-            if (((maxDist / 2) > total) && ((maxDist/2) < (total + bi.getLength())))
+            if (((maxDist / 2) >= total) && ((maxDist/2) < (total + bi.getLength())))
 	    {
 		br = child;
 		brd = (maxDist/2) - total;
@@ -373,7 +373,7 @@ public class Tree implements Iterable<Branch>
 	while (!child.equals(p))
 	{
             Branch bi = getBranchByChild(child);
-            if (((maxDist / 2) > total) && ((maxDist/2) < (total + bi.getLength())))
+            if (((maxDist / 2) >= total) && ((maxDist/2) < (total + bi.getLength())))
 	    {
 		br = child;
 		brd = (maxDist/2) - total;
@@ -381,17 +381,29 @@ public class Tree implements Iterable<Branch>
 	    total += bi.getLength();
 	    child = bi.getParent();
 	}
+        
+        //If we haven't found the branch the midpoint is on it must be exactly
+        //at the current root
+        if (br == null)
+        {
+            br = root;
+            brd = 0.0;
+        }
 
         //Create the new branches as a copy of the old ones
         List<Branch> nb = new ArrayList<>(branches);
 
-        //Remove the branch we're splitting
-        nb.remove(getBranchByChild(br));
-	
-        //And add the two new ones that will be formed
-        nb.add(new Branch(newRootName,br,brd));
-        
-	nb.add(new Branch(newRootName,getBranchByChild(br).getParent(),brd));
+        //If the midpoint is at a node we don't need to add a node
+        if (brd != 0.0)
+        {
+            //Remove the branch we're splitting
+            nb.remove(getBranchByChild(br));
+
+            //And add the two new ones that will be formed
+            nb.add(new Branch(newRootName,br,brd));
+
+            nb.add(new Branch(newRootName,getBranchByChild(br).getParent(),brd));
+        }
 
         
         //Work out which branches need swapping direction, that is the parent
@@ -399,7 +411,17 @@ public class Tree implements Iterable<Branch>
         //This is the branches between the odl and new roots.
         LinkedList<String> dealWith = new LinkedList<>();
 
-        String cur = getBranchByChild(br).getParent();
+        //If the midpoint is at the root we don't need to do anything, setting cur
+        //to the root ensures this.
+        String cur;
+        if (br.equals(root))
+        {
+            cur = root;
+        }
+        else
+        {
+            cur = getBranchByChild(br).getParent();
+        }
 	dealWith.addFirst(cur);
         while (!cur.equals(root))
 	{
@@ -658,7 +680,7 @@ public class Tree implements Iterable<Branch>
     
     private List<Branch> branches;
     private String root;
-    private Set<String> leaves;
+    private List<String> leaves;
     private List<String> internal;
 
     /**

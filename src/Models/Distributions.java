@@ -123,7 +123,7 @@ public class Distributions
 	do
 	{
             //Throw error if we've been going too long without convergence
-	    if (reps > 2000000)
+	    if (reps > 20000000)
 	    {
 		throw new DistributionsException("Cannot calculate quasi-stationary distribution - no convergence");
 	    }
@@ -237,7 +237,7 @@ public class Distributions
 	int reps = 0;
 	do
 	{
-	    if (reps > 20000)
+	    if (reps > 2000000)
 	    {
 		throw new DistributionsException("Cannot calculate stationary distribution - no convergence");
 	    }

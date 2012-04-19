@@ -281,12 +281,16 @@
                     of the sequence, is ignored.  Further non-blank lines represent each sequence, one
                     per line.  Anything from the start of the line to the first white space is
                     considered the taxa's name.  Anything after the first whitespace is the sequence.
-                    Whitespace in the sequence is ignored.</li>
+                    Whitespace in the sequence is ignored.  A taxa name of <code>*class*</code> is
+                    assumed not to be a taxa but rather gfives the class of each site (which can be any
+                    single character).</li>
                     <li><b>Duplication</b>&nbsp;-&nbsp; File is tab seperated.
                     First row is a header file.  First field is ignored while subsequent fields
                     are the name of the species.  Each additional row represents a family.
                     The first field is an ID for the family while subsequent fields are the
-                    size of the family in the appropiate species.</li>
+                    size of the family in the appropiate species.  A family name of <code>*class*</code> is
+                    assumed not to be a taxa but rather gfives the class of each site (which can be any
+                    string).</li>
                 </ul>
             </div>
             
@@ -344,6 +348,12 @@
                     </ul>                    
                 </li>
                 </ul>
+                <p>To use different models for different site classes the format
+                of this file is different.  In this instance each line of the file
+                will represent one class and will contain two fields tab seperated.
+                The first field is the class identifier while the second is the file
+                name of a file in the normal model format (above) that defines the
+                model for that class.</p>
             </div>
             
             <div class="collapsetop">Rate Category File

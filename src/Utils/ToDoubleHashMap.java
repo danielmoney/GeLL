@@ -68,4 +68,17 @@ public class ToDoubleHashMap<K> extends HashMap<K,Double>
             
         return mk;
     }
+    
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (Entry<K,Double> e: entrySet())
+        {
+            sb.append(e.getKey());
+            sb.append("=>");
+            sb.append(e.getValue());
+            sb.append(",");
+        }
+       return sb.substring(0, sb.length()-1);
+    }
 }
