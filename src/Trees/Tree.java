@@ -27,7 +27,7 @@ import java.util.Set;
  * Represents a phylogenetic tree.  Trees are defined as a list of {@link Branch}.
  * Nodes are defined by a String
  * @author Daniel Money
- * @version 1.0
+ * @version 1.2
  */
 public class Tree implements Iterable<Branch>
 {

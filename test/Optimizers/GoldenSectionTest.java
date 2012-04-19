@@ -1,14 +1,7 @@
 package Optimizers;
 
-import Exceptions.OutputException;
-import Alignments.AlignmentException;
-import Exceptions.InputException;
-import Models.Model.ModelException;
-import Models.RateCategory.RateException;
-import Parameters.Parameters.ParameterException;
-import Trees.TreeException;
 import Alignments.Alignment;
-import Alignments.SequenceAlignment;
+import Alignments.PhylipAlignment;
 import Likelihood.Calculator;
 import Likelihood.Likelihood;
 import Models.Model;
@@ -24,7 +17,7 @@ import static org.junit.Assert.*;
 /**
  * Tests the GoldenSection optimizer is working right
  * @author Daniel Money
- * @version 1.0
+ * @version 1.2
  */
 public class GoldenSectionTest
 {
@@ -37,7 +30,7 @@ public class GoldenSectionTest
     public void SimpleTest() throws Exception
     {
         Tree t = Tree.fromNewickString("(((Human, Chimpanzee)A, Gorilla)B, Orangutan, Gibbon)C;");
-        Alignment a = new SequenceAlignment(new File("test\\PAML\\Likelihood\\brown.nuc"));
+        Alignment a = new PhylipAlignment(new File("test\\PAML\\Likelihood\\brown.nuc"));
 
         String[][] ma = new String[4][4];
 

@@ -8,6 +8,7 @@ import Maths.CompiledFunction.Constant;
 import Maths.FunctionParser;
 import Maths.MathsParse;
 import Maths.NoSuchFunction;
+import Maths.NoSuchVariable;
 import Maths.WrongNumberOfVariables;
 import Models.RateCategory.RateException;
 import Parameters.Parameters;
@@ -36,7 +37,7 @@ import java.util.regex.Pattern;
  * They may also contain numbers and mathematical operations.  See 
  * {@link FunctionParser} for more on how these rates are evaluated.
  * @author Daniel Money
- * @version 1.0
+ * @version 1.2
  */
 public class Model implements Iterable<RateCategory>
 {
@@ -51,7 +52,7 @@ public class Model implements Iterable<RateCategory>
 	//freq.put(r,"1.0");
         freq.put(r, new Constant(1.0));
 	nStates = r.getNumberStates();
-	map = r.getMap();
+	map = r.getArrayMap();
 	scale = 1.0;
     }
     
@@ -99,13 +100,13 @@ public class Model implements Iterable<RateCategory>
 	    {
 		nStates = r.getNumberStates();
 	    }
-	    if ((map != null) && (!r.getMap().equals(map)))
+	    if ((map != null) && (!r.getArrayMap().equals(map)))
 	    {
 		throw new ModelException("Rates have different states");
 	    }
 	    else
 	    {
-		map = r.getMap();
+		map = r.getArrayMap();
 	    }
 	}
     }
@@ -121,12 +122,27 @@ public class Model implements Iterable<RateCategory>
 
     /**
      * Gets a map from the rate name to its index in the rate matrix
-     * Should it really be a method of Model rather than Rate
-     * @return Map from rate name to index
+     * Called this as {@link #getMap()} is kept for comptability
+     * @return ArrayMap from rate name to index
      */
-    public ArrayMap<String,Integer> getMap()
+    public ArrayMap<String,Integer> getArrayMap()
     {
 	return map;
+    }
+ 
+    /**
+     * Gets a map from the rate name to its index in the rate matrix
+     * @return ArrayMap from rate name to index
+     */
+    public Map<String,Integer> getMap()
+    {
+        HashMap<String,Integer> ret = new HashMap<>();
+        for (int i = 0; i < map.size(); i++)
+        {
+            Entry<String,Integer> e = map.getEntry(i);
+            ret.put(e.getKey(),e.getValue());
+        }
+        return ret;
     }
     
     /**
@@ -162,7 +178,14 @@ public class Model implements Iterable<RateCategory>
 	HashMap<String,Double> values = p.getValues();
 	for (RateCategory r: freq.keySet())
 	{
-            f.put(r,freq.get(r).compute(values));
+            try
+            {
+                f.put(r,freq.get(r).compute(values));
+            }
+            catch (NoSuchVariable e)
+            {
+                throw new ModelException("Unable to calculate RateCategory frequencies - variable value not passed");
+            }
 	    /*try
 	    {
 		f.put(r,mp.parseEquation(freq.get(r), values));
@@ -265,15 +288,24 @@ public class Model implements Iterable<RateCategory>
      * @param cats The number of categories, or rate classes, in the new model
      * @return The model
      */
-    public static Model gammaRates(RateCategory r, String gamma, int cats) throws RateException
+    public static Model gammaRates(RateCategory r, String gamma, int cats)
     {
 	HashMap<RateCategory,String> freq = new HashMap<>();
 
 	for (int i = 1; i <= cats; i++)
 	{
-	    RateCategory nr = r.multiplyBy("g[" + gamma + "," + i + "," + cats + "]");
-            nr.setName("Gamma Category " + i);
-	    freq.put(nr, Double.toString(1.0 / (double) cats));
+            try
+            {
+                RateCategory nr = r.multiplyBy("g[" + gamma + "," + i + "," + cats + "]");
+                nr.setName("Gamma Category " + i);
+                freq.put(nr, Double.toString(1.0 / (double) cats));
+            }
+            catch (Exception e)
+            {
+                //As this code is constructing the model itself we shouldn't get any
+                //error as it should create it properly!
+                throw new UnexpectedError(e);
+            }            
 	}
 
 	try

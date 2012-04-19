@@ -13,7 +13,7 @@ import Alignments.Site;
 import org.junit.Test;
 import org.junit.BeforeClass;
 import Alignments.Alignment;
-import Alignments.SequenceAlignment;
+import Alignments.PhylipAlignment;
 import Models.Model;
 import Models.RateCategory;
 import Parameters.Parameter;
@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
  * Tests whether we're doing likeliohood calcualations right by comparing results
  * to PAML
  * @author Daniel Money
- * @version 1.0
+ * @version 1.2
  */
 public class LikelihoodTest
 {
@@ -39,7 +39,7 @@ public class LikelihoodTest
     public static void setUpClass() throws Exception
     {
         Tree t = Tree.fromNewickString("(((Human: 0.057987, Chimpanzee: 0.074612)A: 0.035490, Gorilla: 0.074352)B: 0.131394, Orangutan: 0.350156, Gibbon: 0.544601)C;");
-        a = new SequenceAlignment(new File("test\\PAML\\Likelihood\\brown.nuc"));
+        a = new PhylipAlignment(new File("test\\PAML\\Likelihood\\brown.nuc"));
 
         String[][] ma = new String[4][4];
 

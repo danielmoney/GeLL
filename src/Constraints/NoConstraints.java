@@ -7,6 +7,7 @@ import java.util.List;
 /**
  * Simple implementation of {@link Constrainer} that imposes no constraints
  * @author Daniel Money
+ * @version 1.2
  */
 public class NoConstraints implements Constrainer
 {

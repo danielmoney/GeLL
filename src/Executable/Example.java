@@ -1,7 +1,7 @@
 package Executable;
 
 import Alignments.Alignment;
-import Alignments.SequenceAlignment;
+import Alignments.PhylipAlignment;
 import Ancestors.AncestralJoint;
 import Likelihood.Calculator;
 import Likelihood.Likelihood;
@@ -18,7 +18,7 @@ import java.io.File;
  * An example executable.  Does not try to be a general driver so a better
  * learning example than {@link GeLL}.
  * @author Daniel Money
- * @version 1.0
+ * @version 1.2
  */
 public class Example
 {    
@@ -39,7 +39,7 @@ public class Example
         //no point including them in the tree
         Tree t = Tree.fromNewickString("(((Human, Chimpanzee)A, Gorilla)B, Orangutan, Gibbon)C;");
         //Load an alignment
-        Alignment a = new SequenceAlignment(new File("src\\Executable\\example\\brown.nuc"));
+        Alignment a = new PhylipAlignment(new File("src\\Executable\\example\\brown.nuc"));
         //Get the parameters from the tree.  This step is recommended although due
         //to it's wierdness will be done automatically if missed out.
         Parameters p = t.getParametersForEstimation();
@@ -73,7 +73,7 @@ public class Example
         Alignment anc = aj.calculate(p);
         
         //Write out the reconstructed alignment
-        SequenceAlignment.writeFile(anc, new File("src\\Executable\\example\\ancestor.dat"));
+        PhylipAlignment.writeFile(anc, new File("src\\Executable\\example\\ancestor.dat"));
         
         //Create a simulation object, using the parameters we've just estimated
         Simulate s = new Simulate(m,t,p);
@@ -82,6 +82,6 @@ public class Example
         Alignment sim = s.getAlignment(500);
         
         //Write out the simulated alignment
-        SequenceAlignment.writeFile(sim, new File("src\\Executable\\example\\simulated.dat"));
+        PhylipAlignment.writeFile(sim, new File("src\\Executable\\example\\simulated.dat"));
     }
 }

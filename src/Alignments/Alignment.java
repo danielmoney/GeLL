@@ -17,7 +17,7 @@ import java.util.Set;
  * {@link SequenceAlignment}.
  * 
  * @author Daniel Money
- * @version 1.1
+ * @version 1.2
  */
 public class Alignment implements Iterable<Site>
 {
@@ -97,40 +97,10 @@ public class Alignment implements Iterable<Site>
             {
                 us.add(new UniqueSite(e.getKey(), e.getValue()));
             }
-            /*ArrayList<Site> ret = new ArrayList<>();
-            for (Site s: data)
-            {
-                if (!ret.contains(s))
-                {
-                    ret.add(s);
-                }
-            }
-            us = ret;
-            return ret;*/
         }
         return us;
-        //return new ArrayList<>(data);
     }
     
-    /**
-     * Gets a count of hoften a site occurs in the alignment
-     * @param s The site 
-     * @return How often it occurs
-     */
-    //This is probably slightly ineffecient but will be quite minor in the 
-    //ground scheme of things.
-    /*public int getCount(Site s)
-    {
-        int c = 0;
-        for (Site ps: data)
-        {
-            if (ps.equals(s))
-            {
-                c++;
-            }
-        }
-        return c;
-    }*/
 
     /**
      * Returns the site at a given position in the alignment
@@ -197,6 +167,14 @@ public class Alignment implements Iterable<Site>
         return na;
     }
     
+    /**
+     * Recodes the alignment and returns it and also allows the definition of
+     * new ambiguous states
+     * @param recode A map from original state to new state, e.g. to recode
+     * DNA to RY it would contains A -> R, G -> R, C -> Y, T -> Y
+     * @param ambig The new ambiiguous states
+     * @return A recoded alignment
+     */
     public Alignment recode(Map<String, String> recode, Ambiguous ambig)
     {
         Alignment na = new Alignment();
@@ -209,6 +187,12 @@ public class Alignment implements Iterable<Site>
         return na;
     }
     
+    /**
+     * Returns a new Alignment which is the same as this one except it is limited
+     * to certain taxa
+     * @param limit The taxa to limit the new alignment to
+     * @return The limited alignment
+     */
     public Alignment limitToTaxa(Collection<String> limit)
     {
         Alignment na = new Alignment();
@@ -221,20 +205,43 @@ public class Alignment implements Iterable<Site>
         return na;      
     }
     
-    public double getRawFreq(String state)
+    /**
+     * Gets the frequency of a raw character
+     * @param character The character to get the frequency for
+     * @return The frequency of that chaacter
+     */
+    public double getRawFreq(String character)
     {
         int c = 0;
         for (Site s: data)
         {
             for (String t: taxa)
             {
-                if (s.getRawCharacter(t).equals(state))
+                if (s.getRawCharacter(t).equals(character))
                 {
                     c++;
                 }
             }
         }
         return (double) c / (double) (data.size() * taxa.size());
+    }
+    
+    /**
+     * Gets a count of hoften a site occurs in the alignment
+     * @param s The site 
+     * @return How often it occurs
+     */
+    //This will be slow but is now only included for backwards compitability
+    public int getCount(Site s)
+    {
+        for (UniqueSite u: us)
+        {
+            if (u.equals(s))
+            {
+                return u.getCount();
+            }
+        }
+        return 0;
     }
     
     /**
@@ -254,14 +261,27 @@ public class Alignment implements Iterable<Site>
     
     private List<UniqueSite> us;
     
+    /**
+     * Used to represent a unique site in an alignment.  Augments the normal site
+     * class with a count of how often the site occurs
+     */
     public class UniqueSite extends Site
     {
+        /**
+         * Default constructor
+         * @param s The site
+         * @param c How often the site occurs
+         */
         public UniqueSite(Site s, int c)
         {
             super(s);
             this.c = c;
         }
         
+        /**
+         * Get the number of times the site occurs in the related alignment
+         * @return The number of times the site occurs
+         */
         public int getCount()
         {
             return c;

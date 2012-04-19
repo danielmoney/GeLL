@@ -2,7 +2,6 @@ package Alignments;
 
 import Constraints.SiteConstraints;
 import Likelihood.Likelihood.NodeLikelihood;
-import Models.Model;
 import Trees.Tree;
 import Utils.ArrayMap;
 import java.io.Serializable;
@@ -15,7 +14,7 @@ import java.util.Set;
 /**
  * Represents a "site" in an "alignment".  Both terms used generously.
  * @author Daniel Money
- * @version 1.1
+ * @version 1.2
  */
 public class Site implements Serializable
 {
@@ -161,7 +160,20 @@ public class Site implements Serializable
         return ret.toString();
     }
     
-    public ArrayMap<String, NodeLikelihood> getNodeLikelihoods(Tree t,  ArrayMap<String,Integer> map, SiteConstraints scon)
+    /**
+     * Gdets initial node likelihoods based on the site, tree and any constraints.
+     * 
+     * Done like this as creating the node likelihoods is time consuming whereas
+     * copying them once initialised is not.  As they only need to be initalised
+     * once for each site this saves time as they then need only be copied for
+     * each likelihood calculation.
+     * @param t The tree
+     * @param map A map from state to position in array
+     * @param scon Any constraints on the site
+     * @return An ArrayMap of NodeLikelihoods which can be used to initialise
+     * likelihood calculations
+     */
+    public ArrayMap<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t,  ArrayMap<String,Integer> map, SiteConstraints scon)
     {        
         ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
         for (String l: t.getLeaves())
@@ -201,7 +213,15 @@ public class Site implements Serializable
         }
         return new Site(ns,ambig,siteClass);
     }
-    
+
+    /**
+     * Recodes the alignment and returns it and also allows the definition of
+     * new ambiguous states
+     * @param recode A map from original state to new state, e.g. to recode
+     * DNA to RY it would contains A -> R, G -> R, C -> Y, T -> Y
+     * @param ambig The new ambiiguous states
+     * @return A recoded site
+     */    
     public Site recode(Map<String,String> recode, Ambiguous ambig)
     {
         LinkedHashMap<String,String> ns = new LinkedHashMap<>();
@@ -219,6 +239,12 @@ public class Site implements Serializable
         return new Site(ns,ambig,siteClass);
     }
     
+    /**
+     * Returns a new Site which is the same as this one except it is limited
+     * to certain taxa
+     * @param limit The taxa to limit the new site to
+     * @return The limited site
+     */    
     public Site limitToTaxa(Collection<String> limit)
     {
         LinkedHashMap<String,String> ns = new LinkedHashMap<>();
@@ -232,6 +258,10 @@ public class Site implements Serializable
         return new Site(ns,ambig,siteClass);        
     }
     
+    /**
+     * Gets the information about ambiguous states for this site
+     * @return Information about the ambiguous states
+     */
     public Ambiguous getAmbiguous()
     {
         return ambig;

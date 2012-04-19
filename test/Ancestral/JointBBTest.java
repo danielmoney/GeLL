@@ -4,7 +4,7 @@ import Utils.ArrayMap;
 import java.util.ArrayList;
 import java.util.List;
 import Alignments.Alignment;
-import Alignments.SequenceAlignment;
+import Alignments.PhylipAlignment;
 import Alignments.Site;
 import Ancestors.AncestralJoint;
 import Likelihood.Calculator.SiteCalculator;
@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 /**
  * Tests the branch-and-bound joint reconstruction method
  * @author Daniel Money
- * @version 1.0
+ * @version 1.2
  */
 public class JointBBTest
 {
@@ -37,7 +37,7 @@ public class JointBBTest
     public void testReconstruction() throws Exception
     {
         Tree t = Tree.fromNewickString("(((Human: 0.057987, Chimpanzee: 0.074612)A: 0.035490, Gorilla: 0.074352)B: 0.131394, Orangutan: 0.350156, Gibbon: 0.544601)C;");
-        Alignment a = new SequenceAlignment(new File("test\\PAML\\Likelihood\\brown.nuc"));
+        Alignment a = new PhylipAlignment(new File("test\\PAML\\Likelihood\\brown.nuc"));
 
         String[][] ma = new String[4][4];
 
@@ -114,18 +114,16 @@ public class JointBBTest
                     ArrayMap<String, NodeLikelihood> nl = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
                     for (String l: t.getLeaves())
                     {
-                        //nodeLikelihoods.put(l, new NodeLikelihood(tp.getAllStates(), s.getCharacter(l)));
-                        nl.put(l, new NodeLikelihood(P.getMap(), s.getCharacter(l)));
+                        nl.put(l, new NodeLikelihood(P.getArrayMap(), s.getCharacter(l)));
                     }
 
                     //And now internal nodes using any constraints
                     for (String i: t.getInternal())
                     {
-                        //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
-                        nl.put(i, new NodeLikelihood(P.getMap(), sc.getConstraint(i)));
+                        nl.put(i, new NodeLikelihood(P.getArrayMap(), sc.getConstraint(i)));
                     }
                     
-                    SiteCalculator calc = new SiteCalculator(s,t,P,nl);
+                    SiteCalculator calc = new SiteCalculator(t,P,nl);
                     double l = calc.calculate().getLikelihood();
                     if (l > maxL)
                     {

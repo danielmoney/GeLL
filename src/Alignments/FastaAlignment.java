@@ -15,43 +15,41 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Represents a sequence alignment
+ * Represents a sequence alignment in FASTA format
  * @author Daniel Money
  * @version 1.2
- * @deprecated Replaced by {@link PhylipAlignment} to allow for easier use of
- * multiple formats.
  */
-public class SequenceAlignment extends Alignment
+public class FastaAlignment extends Alignment
 {
     /**
-     * Creates a sequence alignment from a file.  File should be in a format similar
-     * to Phylip.  The first non-blank line, which normally gives the number and length
-     * of the sequence, is ignored.  Further non-blank lines represent each sequence, one
-     * per line.  Anything from the start of the line to the first white space is
-     * considered the taxa's name.  Anything after the first whitespace is the sequence.
-     * Whitespace in the sequence is ignored.  A taxa name of <code>*class*</code> is
-     * assumed not to be a taxa but rather gfives the class of each site (which can be any
+     * Creates a sequence alignment from a file.  File should be in Fasta format
+     * File should consist of a line beginningb with a ">" followed by the taxa name -
+     * anything after a "|" is ignored.  The following lines to the next line
+     * beginning with ">" are tjhe sequence associated with that taxa.  Blank lines
+     * are ignored.  Comments, i.e. lines beginning with ";" are NOT supported.
+     * A taxa name of <code>*class*</code> is
+     * assumed not to be a taxa but rather gives the class of each site (which can be any
      * single character).
      * @param f The input file
-     * @throws InputException Thrown if there is a problem reading the file
+     * @throws InputException Thrown if there is a problem with the input file
      * @throws Alignments.AlignmentException Thrown if there issomething wrong with the alignment, e.g.
      * different length sequences
      */
-    public SequenceAlignment(File f) throws InputException, AlignmentException
+    public FastaAlignment(File f) throws InputException, AlignmentException
     {
         this(f, new Ambiguous(new HashMap<String,Set<String>>()));
     }
 
     /**
      * Creates a sequence alignment from a file with ambiguouis data.  File should
-     * be in {@link #SequenceAlignment(java.io.File)}
+     * be in {@link #FastaAlignment(java.io.File)}
      * @param f The input file
-     * @param ambig Desription o the ambiguous data
+     * @param ambig Desription of the ambiguous data
      * @throws InputException Thrown if there is a problem with the input file
      * @throws Alignments.AlignmentException Thrown if there issomething wrong with the alignment, e.g.
      * different length sequences
      */
-    public SequenceAlignment(File f, Ambiguous ambig) throws InputException, AlignmentException
+    public FastaAlignment(File f, Ambiguous ambig) throws InputException, AlignmentException
     {
 	// Create the hashmap to store the sequences (seq name =>  sequence)
         LinkedHashMap<String,String> seq = new LinkedHashMap<>();
@@ -68,60 +66,52 @@ public class SequenceAlignment extends Alignment
         }
         try
         {
-            boolean paramLine = true;
             String line;
             int seqLength = -1;
+            String sequence = "";
+            String name = null;
             while ((line = in.readLine()) != null)
             {
-                if (!line.equals("") && !paramLine)
+                if (!line.equals(""))
                 {
-                    String[] parts = line.split("\\s+", 2);
-                    
-                    if (parts.length == 1)
+                    if (line.startsWith(">"))
                     {
-                        throw new AlignmentException("Sequence " + parts[0], line, "No sequence given",null);
-                    }
-                    
-                    String sequence = parts[1].replaceAll("\\s+", "");
-                    if ((seqLength != -1) && (sequence.length() != seqLength))
-                    {
-                        throw new AlignmentException("Sequence " + parts[0], line, "Wrong sequence length",null);
+                        if (name != null)
+                        {
+                            if (checkSequence(name,sequence,seqLength,classLine))
+                            {
+                                seq.put(name, sequence);
+                                seqLength = sequence.length();
+                            }
+                            else
+                            {
+                                classLine = sequence;
+                                seqLength = sequence.length();
+                            }
+                        }
+                        sequence = "";
+                        String[] parts = line.split("\\|");
+                        name = parts[0].substring(1);
                     }
                     else
                     {
-                        seqLength = sequence.length();
-                    }
-                    if (!parts[0].equals("*Class*"))
-                    {
-                        seq.put(parts[0], sequence);
-                        if (!taxa.contains(parts[0]))
-                        {
-                            taxa.add(parts[0]);
-                        }
-                        else
-                        {
-                            throw new AlignmentException("Taxa names", line, "Repeated taxa name",null);
-                        }
-                    }
-                    else
-                    {
-                        if (classLine == null)
-                        {
-                            classLine = parts[1];
-                            hasClasses = true;
-                        }
-                        else
-                        {
-                            throw new AlignmentException("Taxa names", line, "Site class defined more than once",null);
-                        }
-                    }
-                }
-                if (!line.equals("") && paramLine)
-                {
-                    paramLine = false;
+                        sequence = sequence + line;
+                    }               
                 }
             }
             in.close();
+            
+            if (name != null)
+            {
+                if (checkSequence(name,sequence,seqLength,classLine))
+                {
+                    seq.put(name, sequence);
+                }
+                else
+                {
+                    classLine = sequence;
+                }
+            }
             
             if (taxa.size() < 2)
             {
@@ -148,10 +138,50 @@ public class SequenceAlignment extends Alignment
 	    throw new InputException(f.getAbsolutePath(),"Not Applicable","Problem reading file",e);
 	}
     }
+    
+    private boolean checkSequence(String name, String sequence, int seqLength, String classLine) throws AlignmentException
+    {
+        if (sequence.length() == 0)
+        {
+            throw new AlignmentException("Sequence " + name, "N/A", "No sequence given",null);
+        }
+        if ((seqLength != -1) && (sequence.length() != seqLength))
+        {
+            throw new AlignmentException("Sequence " + name, "N/A", "Wrong sequence length",null);
+        }
+        else
+        {
+            seqLength = sequence.length();
+        }
+        if (!name.equals("*Class*"))
+        {
+            if (!taxa.contains(name))
+            {
+                taxa.add(name);
+                return true;
+            }
+            else
+            {
+                throw new AlignmentException("Taxa names", "N/A", "Repeated taxa name",null);
+            }
+        }
+        else
+        {
+            if (classLine == null)
+            {
+                hasClasses = true;
+                return false;
+            }
+            else
+            {
+                throw new AlignmentException("Taxa names", "N/A", "Site class defined more than once",null);
+            }
+        }
+    }
 
     /**
      * Writes a alignment to a file in the format described in 
-     * {@link #SequenceAlignment(java.io.File)}.
+     * {@link #FastaAlignment(java.io.File)}.
      * @param a The alignment to write to the file. Need not be a sequence alignment
      * @param f The file to write to
      * @throws OutputException Thrown if there is a problem creating the file
@@ -162,13 +192,15 @@ public class SequenceAlignment extends Alignment
         {
             PrintStream out = new PrintStream(new FileOutputStream(f));
 
-            out.println("     " + a.getNumber() + "    " + a.getLength());
-            out.println();
             for (String taxa: a.getTaxa())
             {
-                out.print(taxa + "     ");
+                out.print(">" + taxa);
                 for (int j=0; j < a.getLength(); j++)
                 {
+                    if (j % 70 == 0)
+                    {
+                        out.println();
+                    }
                     out.print(a.getSite(j).getRawCharacter(taxa));
                 }
                 out.println();
@@ -177,9 +209,13 @@ public class SequenceAlignment extends Alignment
             if (a.hasClasses)
             {
                 out.println();
-                out.print("*Class*     ");
+                out.print(">*Class*     ");
                 for (int j=0; j < a.getLength(); j++)
                 {
+                    if (j % 70 == 0)
+                    {
+                        out.println();
+                    }
                     out.print(a.getSite(j).getSiteClass());
                 }
                 out.println();

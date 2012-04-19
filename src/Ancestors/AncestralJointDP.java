@@ -27,7 +27,7 @@ import java.util.Set;
 /**
  * Class to perform joint ancestral reconstrion using the method of Pupko 2000
  * @author Daniel Money
- * @version 1.1
+ * @version 1.2
  */
 public class AncestralJointDP extends AncestralJoint
 {
@@ -125,7 +125,7 @@ public class AncestralJointDP extends AncestralJoint
 	    Map<String,Double> l = new HashMap<>();
 	    if (t.isExternal(b))
 	    {
-		for (String state: P.getAllStates())
+		for (String state: P.getAllStatesAsList())
 		{                    
                     Set<String> chs = s.getCharacter(b.getChild());
                     try
@@ -148,12 +148,12 @@ public class AncestralJointDP extends AncestralJoint
 	    }
 	    else
 	    {
-		for (String i: P.getAllStates())
+		for (String i: P.getAllStatesAsList())
 		{
 		    double maxL = -Double.MAX_VALUE;
 		    String maxC = null;
 
-		    for (String j : P.getAllStates())
+		    for (String j : P.getAllStatesAsList())
 		    {
 			//double cl = matrices[b].getPosition(j, i);
 			//double cl = P.getP(r, b, i, j);//matrices[b].getPosition(i, j);
@@ -182,7 +182,7 @@ public class AncestralJointDP extends AncestralJoint
 
 	double maxL = -Double.MAX_VALUE;
 	String maxC = null;
-	for (String j: P.getAllStates())
+	for (String j: P.getAllStatesAsList())
 	{
 	    double cl = P.getFreq(r.get(s.getSiteClass()), j);
 	    for (Branch ch: t.getBranchesByParent(t.getRoot()))

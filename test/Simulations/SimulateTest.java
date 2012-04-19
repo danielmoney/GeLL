@@ -26,6 +26,7 @@ import static org.junit.Assert.*;
 /**
  * Tests the simulation method
  * @author Daniel Money
+ * @version 1.2
  */
 public class SimulateTest
 {
@@ -94,7 +95,6 @@ public class SimulateTest
         
         
         Map<Site,Double> theory = new HashMap<>();
-        //Set<String> bases = new HashSet<>();
         List<String> bases = new ArrayList<>();
         bases.add("T");
         bases.add("C");
@@ -118,23 +118,9 @@ public class SimulateTest
                         
                         SiteConstraints scon = new SiteConstraints(bases);
                         
-                        /*ArrayMap<String, NodeLikelihood> nl = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
-                        for (String l: t.getLeaves())
-                        {
-                            //nodeLikelihoods.put(l, new NodeLikelihood(tp.getAllStates(), s.getCharacter(l)));
-                            nl.put(l, new NodeLikelihood(P.getMap(), s.getCharacter(l)));
-                        }
-
-                        //And now internal nodes using any constraints
-                        for (String i: t.getInternal())
-                        {
-                            //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
-                            nl.put(i, new NodeLikelihood(P.getMap(), scon.getConstraint(i)));
-                        }*/
+                        ArrayMap<String, NodeLikelihood> nl = s.getInitialNodeLikelihoods(t, P.getArrayMap(), scon);
                         
-                        ArrayMap<String, NodeLikelihood> nl = s.getNodeLikelihoods(t, P.getMap(), scon);
-                        
-                        SiteCalculator sc = new SiteCalculator(s,t,P,nl);
+                        SiteCalculator sc = new SiteCalculator(t,P,nl);
                         double l = sc.calculate().getLikelihood();
                         theory.put(s, l * 1000000);
                     }

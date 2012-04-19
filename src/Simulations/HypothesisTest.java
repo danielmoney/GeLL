@@ -16,7 +16,6 @@ import Parameters.Parameters.ParameterException;
 import Simulations.Simulate.SimulationException;
 import Trees.Tree;
 import Trees.TreeException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**

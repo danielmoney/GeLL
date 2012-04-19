@@ -41,7 +41,7 @@ import java.util.concurrent.Executors;
  * one case.  Uses the pruning technique of Felenstein 1981 and can account for
  * unobserved states using Felsenstein 1992.
  * @author Daniel Money
- * @version 1.1
+ * @version 1.2
  */
 public class Calculator
 {  
@@ -51,6 +51,7 @@ public class Calculator
      * @param m The model
      * @param a The alignment
      * @param t The tree
+     * @throws TreeException If there is a problem with the tree 
      */
     public Calculator(Model m, Alignment a, Tree t) throws TreeException
     {
@@ -64,6 +65,7 @@ public class Calculator
      * @param a The alignment
      * @param t The tree
      * @param unobserved Unobserved data given as another alignment
+     * @throws TreeException If there is a problem with the tree
      */    
     public Calculator(Model m, Alignment a, Tree t, Alignment unobserved) throws TreeException
     {
@@ -77,6 +79,7 @@ public class Calculator
      * @param a The alignment
      * @param t The tree
      * @param con Any constraints
+     * @throws TreeException If there is a problem with the tree
      */
     public Calculator(Model m, Alignment a, Tree t, Constrainer con) throws TreeException
     {
@@ -92,6 +95,7 @@ public class Calculator
      * @param t The tree
      * @param unobserved Unobserved data given as another alignment
      * @param con Any constraints
+     * @throws TreeException If there is a problem with the tree
      */
     public Calculator(Model m, Alignment a, Tree t, Alignment unobserved, Constrainer con) throws TreeException
     {
@@ -103,18 +107,24 @@ public class Calculator
         this.con = new HashMap<>();
         this.con.put(null,con);
         
+        //The initial node likelihoods will stay the same for every call to
+        //calculator.  As initalising them is slow compared to copying a pre-exsisting
+        //one, pre-create initalised node likelihoods and copy them each time
+        //we do a calculation.  Results in a significant speed increase when
+        //optimising.
         this.snl = new HashMap<>();
         for (UniqueSite s: a.getUniqueSites())
         {
             SiteConstraints scon = con.getConstraints(t, s);            
-            snl.put(s, s.getNodeLikelihoods(t, m.getMap(), scon));
+            snl.put(s, s.getInitialNodeLikelihoods(t, m.getArrayMap(), scon));
         }
         if (missing != null)
         {
+            //As for the main alignment
             for (UniqueSite s: missing.getUniqueSites())
             {
                 SiteConstraints scon = con.getConstraints(t, s);            
-                snl.put(s, s.getNodeLikelihoods(t, m.getMap(), scon));
+                snl.put(s, s.getInitialNodeLikelihoods(t, m.getArrayMap(), scon));
             }
         }
     }
@@ -127,6 +137,7 @@ public class Calculator
      * @param t The tree
      * @throws AlignmentException Thrown if a model isn't given for each site class
      * in the alignment
+     * @throws TreeException If there is a problem with the tree
      */
     public Calculator(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException, TreeException
     {
@@ -147,15 +158,19 @@ public class Calculator
         this.snl = new HashMap<>();
         for (UniqueSite s: a.getUniqueSites())
         {
+            //See the constructor Calculator(Model m, Alignment a, Tree t, Alignment unobserved, Constrainer con)
+            //for why this code is here
             SiteConstraints scon = con.get(s.getSiteClass()).getConstraints(t, s);            
-            snl.put(s, s.getNodeLikelihoods(t, m.get(s.getSiteClass()).getMap(), scon));
+            snl.put(s, s.getInitialNodeLikelihoods(t, m.get(s.getSiteClass()).getArrayMap(), scon));
         }
         if (missing != null)
         {
             for (UniqueSite s: missing.getUniqueSites())
             {
+                //See the constructor Calculator(Model m, Alignment a, Tree t, Alignment unobserved, Constrainer con)
+                //for why this code is here
                 SiteConstraints scon = con.get(s.getSiteClass()).getConstraints(t, s);            
-                snl.put(s, s.getNodeLikelihoods(t, m.get(s.getSiteClass()).getMap(), scon));
+                snl.put(s, s.getInitialNodeLikelihoods(t, m.get(s.getSiteClass()).getArrayMap(), scon));
             }
         }
     }
@@ -169,6 +184,7 @@ public class Calculator
      * @param unobserved Unobserved data given as another alignment
      * @throws AlignmentException Thrown if a model isn't given for each site class
      * in the alignment 
+     * @throws TreeException If there is a problem with the tree
      */
     public Calculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved) throws AlignmentException, TreeException
     {
@@ -189,18 +205,18 @@ public class Calculator
         for (UniqueSite s: a.getUniqueSites())
         {
             SiteConstraints scon = con.get(s.getSiteClass()).getConstraints(t, s);
+            //See the constructor Calculator(Model m, Alignment a, Tree t, Alignment unobserved, Constrainer con)
+            //for why this code is here
             ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
             for (String l: t.getLeaves())
             {
-                //nodeLikelihoods.put(l, new NodeLikelihood(tp.getAllStates(), s.getCharacter(l)));
-                nodeLikelihoods.put(l, new NodeLikelihood(m.get(s.getSiteClass()).getMap(), s.getCharacter(l)));
+                nodeLikelihoods.put(l, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap(), s.getCharacter(l)));
             }
 
             //And now internal nodes using any constraints
             for (String i: t.getInternal())
             {
-                //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
-                nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getMap(), scon.getConstraint(i)));
+                nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap(), scon.getConstraint(i)));
             }
             snl.put(s, nodeLikelihoods);
         }
@@ -209,18 +225,18 @@ public class Calculator
             for (UniqueSite s: missing.getUniqueSites())
             {
                 SiteConstraints scon = con.get(s.getSiteClass()).getConstraints(t, s);
+                //See the constructor Calculator(Model m, Alignment a, Tree t, Alignment unobserved, Constrainer con)
+                //for why this code is here
                 ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
                 for (String l: t.getLeaves())
                 {
-                    //nodeLikelihoods.put(l, new NodeLikelihood(tp.getAllStates(), s.getCharacter(l)));
-                    nodeLikelihoods.put(l, new NodeLikelihood(m.get(s.getSiteClass()).getMap(), s.getCharacter(l)));
+                    nodeLikelihoods.put(l, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap(), s.getCharacter(l)));
                 }
 
                 //And now internal nodes using any constraints
                 for (String i: t.getInternal())
                 {
-                    //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
-                    nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getMap(), scon.getConstraint(i)));
+                      nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap(), scon.getConstraint(i)));
                 }
                 snl.put(s, nodeLikelihoods);
             }
@@ -236,7 +252,8 @@ public class Calculator
      * @param t The tree
      * @param con Map from site class to constrainer
      * @throws AlignmentException Thrown if a model and constrainer isn't given
-     * for each site class in the alignment 
+     * for each site class in the alignment
+     * @throws TreeException If there is a problem with the tree
      */
     public Calculator(Map<String,Model> m, Alignment a, Tree t, Map<String,Constrainer> con) throws AlignmentException, TreeException
     {
@@ -253,7 +270,8 @@ public class Calculator
      * @param unobserved Unobserved data given as another alignment
      * @param con Map from site class to constrainer
      * @throws AlignmentException Thrown if a model and constrainer isn't given
-     * for each site class in the alignment  
+     * for each site class in the alignment
+     * @throws TreeException If there is a problem with the tree
      */
     public Calculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved, Map<String,Constrainer> con) throws AlignmentException, TreeException
     {
@@ -274,18 +292,20 @@ public class Calculator
         for (UniqueSite s: a.getUniqueSites())
         {
             SiteConstraints scon = con.get(s.getSiteClass()).getConstraints(t, s);
+            //See the constructor Calculator(Model m, Alignment a, Tree t, Alignment unobserved, Constrainer con)
+            //for why this code is here
             ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
             for (String l: t.getLeaves())
             {
                 //nodeLikelihoods.put(l, new NodeLikelihood(tp.getAllStates(), s.getCharacter(l)));
-                nodeLikelihoods.put(l, new NodeLikelihood(m.get(s.getSiteClass()).getMap(), s.getCharacter(l)));
+                nodeLikelihoods.put(l, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap(), s.getCharacter(l)));
             }
 
             //And now internal nodes using any constraints
             for (String i: t.getInternal())
             {
                 //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
-                nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getMap(), scon.getConstraint(i)));
+                nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap(), scon.getConstraint(i)));
             }
             snl.put(s, nodeLikelihoods);
         }
@@ -294,18 +314,20 @@ public class Calculator
             for (UniqueSite s: missing.getUniqueSites())
             {
                 SiteConstraints scon = con.get(s.getSiteClass()).getConstraints(t, s);
+            //See the constructor Calculator(Model m, Alignment a, Tree t, Alignment unobserved, Constrainer con)
+            //for why this code is here
                 ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
                 for (String l: t.getLeaves())
                 {
                     //nodeLikelihoods.put(l, new NodeLikelihood(tp.getAllStates(), s.getCharacter(l)));
-                    nodeLikelihoods.put(l, new NodeLikelihood(m.get(s.getSiteClass()).getMap(), s.getCharacter(l)));
+                    nodeLikelihoods.put(l, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap(), s.getCharacter(l)));
                 }
 
                 //And now internal nodes using any constraints
                 for (String i: t.getInternal())
                 {
                     //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
-                    nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getMap(), scon.getConstraint(i)));
+                    nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap(), scon.getConstraint(i)));
                 }
                 snl.put(s, nodeLikelihoods);
             }
@@ -325,7 +347,6 @@ public class Calculator
      * model (e.g. the rate categories differ in their states)
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
      * with the parameters (e.g. a requied parameter is not present) 
-     *  
      */
     public Likelihood calculate(Parameters p) throws TreeException, RateException, ModelException, ParameterException
     {
@@ -353,15 +374,11 @@ public class Calculator
         //The total ikelihood
         double l = 0.0;
         //Stores the likelihood of sites in the alignment
-        //Map<Site,SiteLikelihood> siteLikelihoods = new HashMap<>();
-        //ArrayMap<Site,SiteLikelihood> siteLikelihoods = new ArrayMap<>(a.getUniqueSites().size());
         ArrayMap<Site,SiteLikelihood> siteLikelihoods = new ArrayMap<>(Site.class,SiteLikelihood.class,a.getUniqueSites().size());
         //Stores the likelihood of unobserved states
-        //Map<Site,SiteLikelihood> missingLikelihoods = new HashMap<>();
         ArrayMap<Site,SiteLikelihood> missingLikelihoods;
         if (missing != null)
         {
-             //missingLikelihoods = new ArrayMap<>(missing.getUniqueSites().size());
             missingLikelihoods = new ArrayMap<>(Site.class,SiteLikelihood.class,missing.getUniqueSites().size());
         }
         else
@@ -379,8 +396,6 @@ public class Calculator
         {
             //Calculate all the probabilites associated with this model, tree and
             //set of parameters
-            //Map<String,Probabilities> tp = new HashMap<>();
-            //ArrayMap<String,Probabilities> tp = new ArrayMap<>(m.size());
             ArrayMap<String,Probabilities> tp = new ArrayMap<>(String.class,Probabilities.class,m.size());
             for (Entry<String,Model> e: m.entrySet())
             {
@@ -390,29 +405,21 @@ public class Calculator
             //For each unique site in both the alignment and unobserved sites
             //create a callable object to calculate it and send it to
             // be executed.
-            //ExecutorService es = Executors.newFixedThreadPool(noThreads);
-
-            //Map<Site, SiteCalculator> sites = new HashMap<>();
-            //Map<Site, SiteCalculator> miss = new HashMap<>();
-            //ArrayMap<Site, SiteCalculator> sites = new ArrayMap<>(a.getUniqueSites().size());
             ArrayMap<UniqueSite, SiteCalculator> sites = new ArrayMap<>(UniqueSite.class,SiteCalculator.class,a.getUniqueSites().size());
             ArrayMap<UniqueSite, SiteCalculator> miss;
             if (missing != null)
             {
-                //miss = new ArrayMap<>(missing.getUniqueSites().size());
                 miss = new ArrayMap<>(UniqueSite.class,SiteCalculator.class,missing.getUniqueSites().size());
             }
             else
             {
-                //miss = new ArrayMap<>(0);
                 miss = new ArrayMap<>(UniqueSite.class,SiteCalculator.class,0);
             }
             
             List<SiteCalculator> scs = new ArrayList<>();
             for (UniqueSite s: a.getUniqueSites())
             {
-                SiteCalculator temp = new SiteCalculator(s, t, 
-                        //con.get(s.getSiteClass()).getConstraints(t, s),
+                SiteCalculator temp = new SiteCalculator(t, 
                         tp.get(s.getSiteClass()),
                         snl.get(s));
                 scs.add(temp);
@@ -422,8 +429,7 @@ public class Calculator
             {
                 for (UniqueSite s: missing.getUniqueSites())
                 {
-                    SiteCalculator temp = new SiteCalculator(s, t, 
-                            //con.get(s.getSiteClass()).getConstraints(t, s),
+                    SiteCalculator temp = new SiteCalculator(t, 
                             tp.get(s.getSiteClass()),
                             snl.get(s));
                     scs.add(temp);
@@ -433,30 +439,6 @@ public class Calculator
             
             es.invokeAll(scs);
                         
-            /*for (Site s: a.getUniqueSites())
-            {
-                SiteCalculator temp = new SiteCalculator(s, t, 
-                        con.get(s.getSiteClass()).getConstraints(t, s),
-                        tp.get(s.getSiteClass()));
-                sites.put(s, temp);
-                es.submit(temp);
-            }
-            if (missing != null)
-            {
-                for (Site s: missing.getUniqueSites())
-                {
-                    SiteCalculator temp = new SiteCalculator(s, t,
-                            con.get(s.getSiteClass()).getConstraints(t, s), 
-                            tp.get(s.getSiteClass()));
-                    miss.put(s, temp);
-                    es.submit(temp);
-                }
-            }
-
-            //Wait for all the site calculations to complete
-            es.shutdown();
-            es.awaitTermination(7, TimeUnit.DAYS);*/
-
             //Get the result for each site and calculate the total likelihood (l)
             //of the alignemnt taking into account how often each unique site occurs
             //for (Entry<Site, SiteCalculator> e: sites.entrySet())
@@ -481,7 +463,6 @@ public class Calculator
             //Get the result for each site and calculate the total likelihood (m)
             //of the unobserved date.  Follows Felsenstein 1992.
             double ml = 0.0;
-            //for (Entry<Site, SiteCalculator> e: miss.entrySet())
             for (int i = 0; i < miss.size(); i++)
             {
                 Entry<UniqueSite,SiteCalculator> e = miss.getEntry(i);
@@ -524,10 +505,8 @@ public class Calculator
     private Tree t;
     private Alignment missing;
     private Map<String,Constrainer> con;
-    //private static int noThreads = Runtime.getRuntime().availableProcessors();
     private static ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
             new DaemonThreadFactory());
-    //private static ExecutorService es = Executors.newSingleThreadExecutor();
     
     private HashMap<Site,ArrayMap<String,NodeLikelihood>> snl;
     
@@ -541,19 +520,46 @@ public class Calculator
     {
         /**
          * Standard constructor
-         * @param s Site
          * @param t Tree
-         * @param con Constraints on that site
          * @param tp Pre-computed datastructure containing probabilities
+         * @param nl Initalised node likelihoods based on the site and any constraints.
+         * See {@link Site#getInitialNodeLikelihoods(Trees.Tree, Utils.ArrayMap, Constraints.SiteConstraints)}.
          */
-        public SiteCalculator(Site s, Tree t, Probabilities tp, ArrayMap<String,NodeLikelihood> nl)
+        public SiteCalculator(Tree t, Probabilities tp, ArrayMap<String,NodeLikelihood> nl)
         {
-            this.s = s;
             this.t = t;
             this.tp = tp;
-            //this.con = con;
             this.nl = nl;
             result = null;
+        }
+        
+        /**
+         * Constructor mainly for backwards compitability although also still used by
+         * some of the ancestral calculations.  Calculates the initial node likelihoods
+         * as part of the constructor
+         * @param s The site
+         * @param t The tree
+         * @param con Constraints on the site
+         * @param tp Pre-computed datastructure containing probabilities
+         */
+        public SiteCalculator(Site s, Tree t, SiteConstraints con, Probabilities tp)
+        {
+            this.t = t;
+            this.tp = tp;
+            result = null;
+            
+            //Create the initial values for the node likelihoods based on the tip assignment
+            nl = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+            for (String l: t.getLeaves())
+            {
+                nl.put(l, new NodeLikelihood(tp.getArrayMap(), s.getCharacter(l)));
+            }
+
+            //And now internal nodes using any constraints
+            for (String i: t.getInternal())
+            {
+                nl.put(i, new NodeLikelihood(tp.getArrayMap(), con.getConstraint(i)));
+            }
         }
 
         public SiteLikelihood call()//void run()
@@ -570,8 +576,6 @@ public class Calculator
         public SiteLikelihood calculate()
         {
             List<Branch> branches = t.getBranches();
-            //Map<RateCategory,RateLikelihood> rateLikelihoods = new HashMap<>();
-            //ArrayMap<RateCategory,RateLikelihood> rateLikelihoods = new ArrayMap<>(tp.getRateCategory().size());
             ArrayMap<RateCategory,RateLikelihood> rateLikelihoods = new ArrayMap<>(RateCategory.class,RateLikelihood.class,tp.getRateCategory().size());
 
             //Calculate the likelihood for each RateCategory
@@ -580,21 +584,15 @@ public class Calculator
                 RateProbabilities rp = tp.getP(rc);
                 //Initalise the lieklihood values at each node.  first internal
                 //using the alignemnt.
-                //LinkedHashMap<String, NodeLikelihood> nodeLikelihoods = new LinkedHashMap<>();
-                //ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(branches.size() + 1);
                 ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,branches.size() + 1);
                 for (String l: t.getLeaves())
                 {
-                    //nodeLikelihoods.put(l, new NodeLikelihood(tp.getAllStates(), s.getCharacter(l)));
-                    //nodeLikelihoods.put(l, new NodeLikelihood(tp.getMap(), s.getCharacter(l)));
                     nodeLikelihoods.put(l, nl.get(l).clone());
                 }
 
                 //And now internal nodes using any constraints
                 for (String i: t.getInternal())
                 {
-                    //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
-                    //nodeLikelihoods.put(i, new NodeLikelihood(tp.getMap(), con.getConstraint(i)));
                     nodeLikelihoods.put(i, nl.get(i).clone());
                 }
 
@@ -609,9 +607,9 @@ public class Calculator
                     SquareMatrix bp = rp.getP(b);
                     //So for each state at the parent node...
                     //for (String endState: tp.getAllStates())
-                    for (int i = 0; i < tp.getAllStates().size(); i ++)
+                    for (int i = 0; i < tp.getAllStatesAsList().size(); i ++)
                     {
-                        String endState = tp.getAllStates().get(i);
+                        String endState = tp.getAllStatesAsList().get(i);
                         //l keeps track of the total likelihood from each possible
                         //state at the child
                         double l = 0.0;
@@ -621,24 +619,9 @@ public class Calculator
                         //for (int j = 0; j < tp.getAllStates().size(); j ++)
                         for (int j = 0; j < nl.length; j++)
                         {
-                            //String startState = tp.getAllStates().get(j);
-                            //try
-                            //{
-                                //Add the likelihood of going from start state to
-                                //end state along that branch in that ratecategory
-                                //l += nodeLikelihoods.get(b.getChild()).getLikelihood(startState) * tp.getP(rc, b, startState, endState);
-                                //l += nodeLikelihoods.get(b.getChild()).getLikelihood(startState) * bp.getP(startState, endState);
-                                //l += nodeLikelihoods.get(b.getChild()).getLikelihood(startState) * bp.getP(j, i);
-                                //l += nodeLikelihoods.get(b.getChild()).getLikelihood(j) * bp.getP(j, i);
-                                //l += nodeLikelihoods.get(b.getChild()).getLikelihood(j) * bp.getPosition(i, j);
-                                l += nl[j] * bp.getPosition(i, j);
-                            //}
-                            //catch (LikelihoodException ex)
-                            //{
-                                //Shouldn't reach here as we know what oinformation should
-                                // have been claculated and only ask for that
-                                //throw new UnexpectedError(ex);
-                            //}
+                            //Add the likelihood of going from start state to
+                            //end state along that branch in that ratecategory
+                            l += nl[j] * bp.getPosition(i, j);
                         }
                         //Now multiply the likelihood of the parent by this total value.
                         //This will happen for each possible child as per standard techniques
@@ -654,7 +637,7 @@ public class Calculator
                 //Get the root likelihoods
                 NodeLikelihood rootL = nodeLikelihoods.get(t.getRoot());
                 //For each possible state
-                for (String state: this.tp.getAllStates())
+                for (String state: this.tp.getAllStatesAsList())
                 {
                     try
                     {
@@ -695,12 +678,8 @@ public class Calculator
                 throw new ResultNotComputed();
             }
         }
-
-
-        private Site s;
         private Tree t;
         private Probabilities tp;
-        //private SiteConstraints con;
         private SiteLikelihood result;
         private ArrayMap<String,NodeLikelihood> nl;
     }

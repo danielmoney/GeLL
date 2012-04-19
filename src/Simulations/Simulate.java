@@ -31,7 +31,7 @@ import java.util.Set;
 /**
  * Class for constructing simulated data
  * @author Daniel Money
- * @version 1.1
+ * @version 1.2
  */
 public class Simulate
 {
@@ -662,17 +662,13 @@ public class Simulate
 	double v = random.nextDouble();
 	String ret = null;
 
-        for (String s: P.get(siteClass).getAllStates())
+        for (String s: P.get(siteClass).getAllStatesAsList())
 	{
 	    if (tot <= v)
 	    {
 		ret  = s;
 	    }
             //As we're traversing the tree the opposite way start is end!
-	    //tot = tot + P.get(siteClass).getP(r, b, s, start);
-            
-            //THIS WILL BE SLOW!!!
-            //tot = tot + P.get(siteClass).getP(r).getP(b).getP(s, start);
             tot = tot + P.get(siteClass).getP(r).getP(b, s, start);
 	}
         
@@ -705,7 +701,7 @@ public class Simulate
 	double v = random.nextDouble();
 	String ret = null;
 
-        for (String s: P.get(siteClass).getAllStates())
+        for (String s: P.get(siteClass).getAllStatesAsList())
 	{
 	    if (tot <= v)
 	    {

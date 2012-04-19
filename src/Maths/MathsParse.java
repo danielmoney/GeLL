@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  * Additional functions can be defined by passing instances of classes that
  * implement {@link FunctionParser} to the constructor.
  * @author Daniel Money
- * @version 1.0
+ * @version 1.2
  */
 public class MathsParse
 {
@@ -60,19 +60,30 @@ public class MathsParse
 	}
     }
     
-    /*public double parseEquation(String equation, Map<String,Double> values) throws NoSuchFunction, WrongNumberOfVariables
-    {
-        CompiledFunction f = compileFunction(equation);
-        return f.compute(values);
-    }*/
-
-
     /**
      * Parses an equation and returns the result
      * @param equation The equation to parse
      * @param values Map from a string to a double that represents the value of
      * any variables in the equation
      * @return The result of the equation
+     * @throws NoSuchFunction If the equation uses an undefined function
+     * @throws WrongNumberOfVariables If the equation uses a function and passes
+     * it the wrong number of variables
+     * @throws NoSuchVariable Thrown if values does not contain a needed variable  
+     */
+    public double parseEquation(String equation, Map<String,Double> values) throws NoSuchFunction, WrongNumberOfVariables, NoSuchVariable
+    {
+        CompiledFunction f = compileFunction(equation);
+        return f.compute(values);
+    }
+
+
+    /**
+     * Parses an equation and returns a compiled function that can then be used
+     * to compute the value fo an equation.  Compiling functions saves a lot of
+     * time if it is to be called multiple times
+     * @param equation The equation to parse
+     * @return Compiled function that can be used to calculate the functions value
      * @throws NoSuchFunction If the equation uses an undefined function
      * @throws WrongNumberOfVariables If the equation uses a function and passes
      * it the wrong number of variables

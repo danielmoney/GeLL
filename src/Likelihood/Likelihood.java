@@ -17,14 +17,11 @@ import java.util.Set;
  * likelihood it stores the likelihood of each site and also of each missing
  * site.
  * @author Daniel Money
- * @version 1.0
+ * @version 1.2
  */
 
 public class Likelihood implements Serializable
 {
-    //Likelihood(double l, Map<Site,SiteLikelihood> siteLikelihoods,
-    //        Map<Site,SiteLikelihood> missingLikelihoods,
-    //        Parameters p)
     Likelihood(double l, ArrayMap<Site,SiteLikelihood> siteLikelihoods,
             ArrayMap<Site,SiteLikelihood> missingLikelihoods,
             Parameters p)
@@ -110,7 +107,6 @@ public class Likelihood implements Serializable
      */
     public static class SiteLikelihood implements Serializable
     {
-        //SiteLikelihood(Map<RateCategory,RateLikelihood> rateLikelihoods, Probabilities P)
         SiteLikelihood(ArrayMap<RateCategory,RateLikelihood> rateLikelihoods, Probabilities P)
         {
             rateProbability = new HashMap<>();
@@ -202,8 +198,7 @@ public class Likelihood implements Serializable
      */
     public static class RateLikelihood implements Serializable
     {
-        //RateLikelihood(double l, Map<String, NodeLikelihood> nodeLikelihoods)
-        RateLikelihood(double l, ArrayMap<String, NodeLikelihood> nodeLikelihoods)
+       RateLikelihood(double l, ArrayMap<String, NodeLikelihood> nodeLikelihoods)
         {
             this.l = l;
             this.nodeLikelihoods = nodeLikelihoods;
@@ -251,12 +246,21 @@ public class Likelihood implements Serializable
     /**
      * Stores the results of a likelihood claculation for a single node in a tree.
      * That is the partial likelihoods for each possible state.
+     * This is one of only two classes where backwards compitability with 1.1 is not possible.
+     * The previous constructor only contained information on the states and not
+     * what position they mapped too.  The new, more efficient data structures need
+     * to knoiw the mapping so there's no way the old constructor is usable.
      * @author Daniel Money
-     * @version 1.0
+     * @version 1.2
      */
     public static class NodeLikelihood implements Serializable
     {
-        public NodeLikelihood(ArrayMap<String,Integer> states, Set<String> setStates)
+        /**
+         * Default constructor
+         * @param states Map from a state to it's position in the array
+         * @param allowedStates The allowed states at this state
+         */
+        public NodeLikelihood(ArrayMap<String,Integer> states, Set<String> allowedStates)
         {
             likelihoods = new double[states.size()];
             this.states = states;
@@ -264,7 +268,7 @@ public class Likelihood implements Serializable
             for (int i = 0; i < states.size(); i ++)
             {
                 Entry<String,Integer> s = states.getEntry(i);
-                if (setStates.contains(s.getKey()))
+                if (allowedStates.contains(s.getKey()))
                 {
                     likelihoods[s.getValue()] = 1.0;
                 }
@@ -292,6 +296,13 @@ public class Likelihood implements Serializable
             likelihoods[i] = likelihoods[i] * by;
         }
         
+        /**
+         * Returns the partial likelihood for a given state
+         * @param state The state to return the partial likelihood for
+         * @return The partial likelihood for the given state
+         * @throws Likelihood.Likelihood.LikelihoodException Thrown if no likelihood
+         * has been calculated for the given state 
+         */
         public double getLikelihood(String state) throws LikelihoodException
         {
             if (states.containsKey(state))
@@ -304,19 +315,24 @@ public class Likelihood implements Serializable
             }
         }
         
+        /**
+         * Returns the partial likelihood for the state at position i.
+         * Mainly intended to be used internally
+         * @param i The position
+         * @return The likelihood for the state associated with that position
+         * (as defined by the map passed to the constructor)
+         */
         public double getLikelihood(int i)
         {
-            /*for (int j = 0; j < likelihoods.length; j++)
-            {
-                if (i == j)
-                {
-                    return likelihoods[j];
-                }
-            }
-            return Double.NEGATIVE_INFINITY;*/
             return likelihoods[i];
         }
         
+        /**
+         * Returns the partial likelihood for each state as an array.
+         * Mainly intended to be used internally
+         * @return The likelihood for each state.  Position is associated with state
+         * based on the map passed to the constructor.
+         */
         public double[] getLikelihoods()
         {
             return likelihoods;
@@ -330,65 +346,6 @@ public class Likelihood implements Serializable
         private ArrayMap<String,Integer> states;
         private double[] likelihoods;
     }
-    /*{
-        //This constructor creates the initial sate of a node.
-        //Takes the set of all states and the set of setStates. For leaf nodes
-        //that is the possible values given by the alignment.  for internal nodes
-        //thats the set of states we allow at that node which, in the abscence of
-        //any constraints, will be all states.  As per the standard likelihood
-        //calculation set states are given a "likelihood" of 1, all other states
-        //zero.
-        NodeLikelihood(Set<String> states, Set<String> setStates)
-        {
-            likelihoods = new ToDoubleHashMap<>();
-            for (String s: states)
-            {
-                if (setStates.contains(s))
-                {
-                    likelihoods.put(s,1.0);
-                }
-                else
-                {
-                    likelihoods.put(s,0.0);
-                }
-            }
-        }
-
-        //Multiplies the "likelihood" of a state by the appropiate value.  Used 
-        //in the likelihood calculation for internal nodes.  See uses in 
-        //Calculator for a little more on this.
-        void multiply(String state, double by)
-        {
-            likelihoods.multiply(state, by);
-        }*/
-
-        /**
-         * Returns the partial likelihood for a given state
-         * @param state The state to return the partial likelihood for
-         * @return The partial likelihood for the given state
-         * @throws Likelihood.Likelihood.LikelihoodException Thrown if no likelihood
-         * has been calculated for the given state 
-         */
-        /*public Double getLikelihood(String state) throws LikelihoodException
-        {
-            if (likelihoods.containsKey(state))
-            {
-                return likelihoods.get(state);
-            }
-            else
-            {
-                throw new LikelihoodException("No result for state: " + state);
-            }
-        }
-        
-        public String toString()
-        {
-            return likelihoods.toString();
-        }
-
-        private ToDoubleHashMap<String> likelihoods;
-        private static final long serialVersionUID = 1;
-    }*/
     
     /**
      * Exception related to a likelihood calculation

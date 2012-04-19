@@ -2,7 +2,7 @@ package Ancestral;
 
 import java.util.HashSet;
 import Alignments.Alignment;
-import Alignments.SequenceAlignment;
+import Alignments.PhylipAlignment;
 import Alignments.Site;
 import Ancestors.AncestralMarginal;
 import Ancestors.AncestralMarginal.Result;
@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
 /**
  * Tests the marginal reconstruction method
  * @author Daniel Money
- * @version 1.0
+ * @version 1.2
  */
 public class MarginalTest
 {
@@ -42,7 +42,7 @@ public class MarginalTest
         SquareMatrix.setExpMethod(Calculation.EIGEN);
         
         Tree t = Tree.fromNewickString("(((Human: 0.056428, Chimpanzee: 0.070879)A: 0.029155, Gorilla: 0.073129)B: 0.102499, Orangutan: 0.274348, Gibbon: 0.433137)C;");
-        Alignment a = new SequenceAlignment(new File("test\\PAML\\MarginalReconstruction\\brown.nuc"));
+        Alignment a = new PhylipAlignment(new File("test\\PAML\\MarginalReconstruction\\brown.nuc"));
 
         String[][] ma = new String[4][4];
 

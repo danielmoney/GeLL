@@ -31,7 +31,7 @@ import java.util.Set;
  * Class to perform marginal reconstruction of internal nodes.  Uses the principles of
  * Yang, Kurma and Nei 1995.
  * @author Daniel Money
- * @version 1.1
+ * @version 1.2
  */
 public class AncestralMarginal
 {
@@ -228,26 +228,26 @@ public class AncestralMarginal
             Map<String,NodeLikelihood> l = new HashMap<>();
             for (String n: t.getLeaves())
             {
-                l.put(n, new NodeLikelihood(P.getAllStates(), s.getCharacter(n)));
+                l.put(n, new NodeLikelihood(P.getAllStatesAsList(), s.getCharacter(n)));
             }
 
             for (String n: t.getInternal())
             {
-                l.put(n, new NodeLikelihood(P.getAllStates(), siteCon.getConstraint(n)));
+                l.put(n, new NodeLikelihood(P.getAllStatesAsList(), siteCon.getConstraint(n)));
             }
 
             //Traverse the normal branches in the same manner as for a normal
             //likelihood calculation
             for (Branch b: normal)
             {
-                for (String endState: P.getAllStates())
+                for (String endState: P.getAllStatesAsList())
                 {
                     double li = 0.0;
-                    for (String startState: P.getAllStates())
+                    for (String startState: P.getAllStatesAsList())
                     {
-                        //li += l.get(b.getChild()).getLikelihood(startState) * P.getP(r, b, startState, endState);
-                        //THIS WILL BE SLOW
-                        //li += l.get(b.getChild()).getLikelihood(startState) * P.getP(r).getP(b).getP(startState, endState);
+                        //This will be a little slow but given that we don't optimise
+                        //using this it will never get called that often so speeding
+                        //it up is not a priority
                         li += l.get(b.getChild()).getLikelihood(startState) * P.getP(r).getP(b, startState, endState);
                     }
                     l.get(b.getParent()).multiply(endState,li);
@@ -255,7 +255,7 @@ public class AncestralMarginal
             }
 
             //Apply the root frequencies to the original root
-            for (String st: P.getAllStates())
+            for (String st: P.getAllStatesAsList())
             {
                 l.get(t.getRoot()).multiply(st, P.getFreq(r, st));
             }
@@ -264,14 +264,14 @@ public class AncestralMarginal
             //excpet the start and end states are swapper
             for (Branch b: reverse)
             {
-                for (String endState: P.getAllStates())
+                for (String endState: P.getAllStatesAsList())
                 {
                     double li = 0.0;
-                    for (String startState: P.getAllStates())
+                    for (String startState: P.getAllStatesAsList())
                     {
-                        //li += l.get(b.getParent()).getLikelihood(startState) * P.getP(r, b, endState, startState);
-                        //THIS WILL BE SLOW
-                        //li += l.get(b.getParent()).getLikelihood(startState) * P.getP(r).getP(b).getP(endState, startState);
+                        //This will be a little slow but given that we don't optimise
+                        //using this it will never get called that often so speeding
+                        //it up is not a priority
                         li += l.get(b.getParent()).getLikelihood(startState) * P.getP(r).getP(b, endState, startState);
                     }
                     l.get(b.getChild()).multiply(endState,li);
@@ -286,7 +286,7 @@ public class AncestralMarginal
         //Also calculate the total likelihood.
         double total = 0.0;
         ToDoubleHashMap<String> sl = new ToDoubleHashMap<>();
-        for (String st : P.getAllStates())
+        for (String st : P.getAllStatesAsList())
         {
             sl.put(st, 0.0);
             for (RateCategory r: m.get(s.getSiteClass()))
@@ -299,7 +299,7 @@ public class AncestralMarginal
         //Divide each state probability by the total probability to get the
         //likelihood of a state
         ToDoubleHashMap<String> sP = new ToDoubleHashMap<>();
-        for (String st: P.getAllStates())
+        for (String st: P.getAllStatesAsList())
         {
             sP.put(st, sl.get(st)/total);
         }

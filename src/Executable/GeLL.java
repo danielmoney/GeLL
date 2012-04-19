@@ -3,7 +3,7 @@ package Executable;
 import Alignments.Alignment;
 import Alignments.Ambiguous;
 import Alignments.DuplicationAlignment;
-import Alignments.SequenceAlignment;
+import Alignments.PhylipAlignment;
 import Ancestors.AncestralJoint;
 import Ancestors.AncestralMarginal;
 import Exceptions.GeneralException;
@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
  * the distribution for information on how to run this driver.
  * 
  * @author Daniel Money
- * @version 1.1
+ * @version 1.2
  */
 public class GeLL
 {
@@ -358,7 +358,7 @@ public class GeLL
         }
         if (type.equals("Sequence"))
         {
-            a = new SequenceAlignment(new File(file));
+            a = new PhylipAlignment(new File(file));
         }
         if (a == null)
         {
@@ -377,7 +377,7 @@ public class GeLL
         }
         if (type.equals("Sequence"))
         {
-            missing = new SequenceAlignment(new File(file));
+            missing = new PhylipAlignment(new File(file));
         }
         if (missing == null)
         {
@@ -647,7 +647,7 @@ public class GeLL
         }
         if (type.equals("Sequence"))
         {
-            SequenceAlignment.writeFile(a, new File(file));
+            PhylipAlignment.writeFile(a, new File(file));
         }
     }
     
