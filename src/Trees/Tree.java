@@ -34,11 +34,15 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Represents a phylogenetic tree.  Trees are defined as a list of {@link Branch}.
@@ -581,6 +585,111 @@ public class Tree implements Iterable<Branch>
         ArrayList<Branch> revBranches = new ArrayList<>(branches);
         Collections.reverse(revBranches);
         return revBranches;
+    }
+    
+    public Set<Split> getSplits() throws TreeException
+    {
+        Map<String, TreeSet<String>> working = new HashMap<>();
+        for (String l: getLeaves())
+        {
+            working.put(l,new TreeSet<String>());
+        }
+        for (String i: getInternal())
+        {
+            if (!i.equals(root))
+            {
+                working.put(i,new TreeSet<String>());
+            }
+        }
+        for (String s: getLeaves())
+        {
+            String c = s;
+            while (!c.equals(root))
+            {
+                working.get(c).add(s);
+                c = getParent(c);
+            }
+        }
+        
+        Set<Split> ret = new HashSet<>();
+        for (Entry<String,TreeSet<String>> e: working.entrySet())
+        {
+            ret.add(new Split(e.getValue(),getInverse(e.getValue()),getBranchByChild(e.getKey()).getLength()));
+        }
+        return ret;
+    }
+    
+    private TreeSet<String> getInverse(Set<String> members)
+    {
+        TreeSet<String> inverse = new TreeSet<>();
+        for (String l: getLeaves())
+        {
+            if (!members.contains(l))
+            {
+                inverse.add(l);
+            }
+        }
+        return inverse;
+    }
+    
+    public int RF(Tree t) throws TreeException
+    {
+        int rf = 0;
+        for (Split s: getSplits())
+        {
+            Split es = t.getEquivilantSplit(s);
+            rf = (es == null) ? rf + 1 : rf;
+        }
+        for (Split s: t.getSplits())
+        {
+            Split es = getEquivilantSplit(s);
+            rf = (es == null) ? rf + 1 : rf;
+        }
+        return rf;
+    }
+    
+    public double weightedRF(Tree t) throws TreeException
+    {
+        double rf = 0.0;
+        for (Split s: getSplits())
+        {
+            Split es = t.getEquivilantSplit(s);
+            rf = (es == null) ? rf + s.getLength() : rf + Math.abs(s.getLength() - es.getLength());
+        }
+        for (Split s: t.getSplits())
+        {
+            Split es = getEquivilantSplit(s);
+            rf = (es == null) ? rf + s.getLength() : rf + Math.abs(s.getLength() - es.getLength());
+        }
+        return rf;
+    }
+    
+    public double branhScore(Tree t) throws TreeException
+    {
+        double bs = 0.0;
+        for (Split s: getSplits())
+        {
+            Split es = t.getEquivilantSplit(s);
+            bs = (es == null) ? bs + Math.pow(s.getLength(),2) : bs + Math.pow(Math.abs(s.getLength() - es.getLength()),2);
+        }
+        for (Split s: t.getSplits())
+        {
+            Split es = getEquivilantSplit(s);
+            bs = (es == null) ? bs + Math.pow(s.getLength(),2) : bs + Math.pow(Math.abs(s.getLength() - es.getLength()),2);
+        }
+        return Math.sqrt(bs);
+    }    
+    
+    private Split getEquivilantSplit(Split s) throws TreeException
+    {
+        for (Split os: getSplits())
+        {
+            if (s.equalExceptLength(os))
+            {
+                return os;
+            }
+        }
+        return null;
     }
 
     public String toString()
