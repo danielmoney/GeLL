@@ -190,4 +190,48 @@ public class PhylipAlignment extends Alignment
 	    throw new OutputException(f.getAbsolutePath(),"Unable to write out sequence alignment",e);
 	}
     }
+    
+    /**
+     * Writes a alignment to a file in the format described in 
+     * {@link #PhylipAlignment(java.io.File)}.
+     * @param a The alignment to write to the file. Need not be a sequence alignment
+     * @param f The file to write to
+     * @throws OutputException Thrown if there is a problem creating the file
+     */
+    public static void writeFilePAML(Alignment a, File f) throws OutputException
+    {
+        try
+        {
+            PrintStream out = new PrintStream(new FileOutputStream(f));
+
+            out.println("     " + a.getNumber() + "    " + a.getLength());
+            out.println();
+            for (String taxa: a.getTaxa())
+            {
+                out.print(taxa.subSequence(0, Math.min(25,taxa.length())) + "     ");
+                for (int j=0; j < a.getLength(); j++)
+                {
+                    out.print(a.getSite(j).getRawCharacter(taxa));
+                }
+                out.println();
+            }
+            
+            if (a.hasClasses)
+            {
+                out.println();
+                out.print("*Class*     ");
+                for (int j=0; j < a.getLength(); j++)
+                {
+                    out.print(a.getSite(j).getSiteClass());
+                }
+                out.println();
+            }
+            
+            out.close();
+        }
+	catch (FileNotFoundException e)
+	{
+	    throw new OutputException(f.getAbsolutePath(),"Unable to write out sequence alignment",e);
+	}
+    }
 }

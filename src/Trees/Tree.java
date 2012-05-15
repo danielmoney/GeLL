@@ -704,6 +704,11 @@ public class Tree implements Iterable<Branch>
      */
     public String toString(boolean nameInternal)
     {
+        return toString(nameInternal,Integer.MAX_VALUE);
+    }
+            
+    private String toString(boolean nameInternal, int limit)     
+    {
         String text = "$" + root + "$;";
         
         List<String> revin = new ArrayList<>(internal);
@@ -720,7 +725,7 @@ public class Tree implements Iterable<Branch>
                 {
                     if (isExternal(b))
                     {
-                        inner.append(b.getChild());
+                        inner.append(b.getChild().substring(0, Math.min(limit,b.getChild().length())));
                     }
                     else
                     {
@@ -785,6 +790,21 @@ public class Tree implements Iterable<Branch>
 	}
 	out.print(toString(nameInternal));
 	out.close();
+    }
+    
+    public void toFilePAML(File f) throws OutputException
+    {
+	PrintStream out;
+	try
+	{
+	    out = new PrintStream(new FileOutputStream(f));
+	}
+	catch (FileNotFoundException e)
+	{
+	    throw new OutputException("File can not be created", f.getAbsolutePath(),e);
+	}
+	out.print(toString(false,25));
+	out.close();        
     }
     
     private List<Branch> branches;

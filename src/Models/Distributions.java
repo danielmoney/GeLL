@@ -153,7 +153,7 @@ public class Distributions
 	    }
 	    reps++;
 	}
-	while (test(res,nf));
+	while (test(res,nf,1));
 
         return nf;
     }
@@ -254,7 +254,7 @@ public class Distributions
 	    }
 	    reps++;            
 	}
-	while (test(res,nf));
+	while (test(res,nf,0));
 
 	return nf;
     }
@@ -268,12 +268,12 @@ public class Distributions
 	method = m;
     }
 
-    private static boolean test(double[] a, double[] b)
+    private static boolean test(double[] a, double[] b, int start)
     {
         //Tests whether the difference between two distributions is small
         //in relative terms for each state.
         boolean test = true;
-        for (int i = 0; i < a.length; i++)
+        for (int i = start; i < a.length; i++)
 	{
             test = test && (Math.abs(Math.log(a[i]/b[i])) < Math.pow(10,-10));
         }
