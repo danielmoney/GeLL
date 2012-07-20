@@ -29,6 +29,7 @@ import Maths.NoSuchVariable;
 import Maths.WrongNumberOfVariables;
 import Models.RateCategory.RateException;
 import Parameters.Parameters;
+import Parameters.Parameters.ParameterException;
 import Utils.ArrayMap;
 import java.io.BufferedReader;
 import java.io.File;
@@ -189,8 +190,10 @@ public class Model implements Iterable<RateCategory>
      * values for one of the rate classes.
      * @throws ModelException If there is an error while setting the parameter
      * values for the frequency of the rate classes.
+     * @throws Parameters.Parameters.ParameterException If a parameter that needs to be set for this
+     * model has not been passed 
      */
-    public void setParameters(Parameters p) throws RateException, ModelException
+    public void setParameters(Parameters p) throws RateException, ModelException, ParameterException
     {
 	HashMap<String,Double> values = p.getValues();
 	for (RateCategory r: freq.keySet())
@@ -229,25 +232,25 @@ public class Model implements Iterable<RateCategory>
 	    f.put(r, f.get(r) / total);
 	}
 
-
-	if (p.recalculateMatrix())
-	{
-	    total = 0.0;
-	    for (RateCategory r :  freq.keySet())
-	    {
-		r.setParameters(p);
-		total += f.get(r) * r.getTotalRate();
-	    }
-            if (rescale)
+        //THIS NEEDS A MAJOR RETHINK!!!!!!
+	//if (p.recalculateMatrix())
+	//{
+        total = 0.0;
+        for (RateCategory r :  freq.keySet())
+        {
+            r.setParameters(p);
+            total += f.get(r) * r.getTotalRate();
+        }
+        if (rescale)
+        {
+            scale = 1.0/total;
+            for (RateCategory r :  freq.keySet())
             {
-                scale = 1.0/total;
-                for (RateCategory r :  freq.keySet())
-                {
-                    r.setScale(scale);
-                }
-                p.calculated();
+                r.setScale(scale);
             }
-	}
+            //p.calculated();
+        }
+	//}
     }
 
     /**

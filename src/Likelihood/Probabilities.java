@@ -75,6 +75,10 @@ public class Probabilities
             ArrayMap<Branch,SquareMatrix> bP = new ArrayMap<>(Branch.class,SquareMatrix.class,nt.getNumberBranches());
             for (Branch b: nt)
             {
+                if (b.getLength() < 0)
+                {
+                    throw new TreeException("Can't do Likelihood calculations with negative branch lengths");
+                }
                 bP.put(b, rc.getP(b.getLength()));
             }
             P.put(rc, new RateProbabilities(bP));

@@ -277,22 +277,28 @@ public class Likelihood implements Serializable
          * @param states Map from a state to it's position in the array
          * @param allowedStates The allowed states at this state
          */
-        public NodeLikelihood(ArrayMap<String,Integer> states, Set<String> allowedStates)
+        public NodeLikelihood(ArrayMap<String,Integer> states, Set<String> allowedStates) throws LikelihoodException
         {
             likelihoods = new double[states.size()];
             this.states = states;
             //for (Entry<String,Integer> s: states.entryList())
+            boolean onz = false;
             for (int i = 0; i < states.size(); i ++)
             {
                 Entry<String,Integer> s = states.getEntry(i);
                 if (allowedStates.contains(s.getKey()))
                 {
                     likelihoods[s.getValue()] = 1.0;
+                    onz = true;
                 }
                 else
                 {
                     likelihoods[s.getValue()] = 0.0;
                 }
+            }
+            if (!onz)
+            {
+                throw new LikelihoodException("No non-zero probabilities at leaves - alignment state not in model?");
             }
         }
         

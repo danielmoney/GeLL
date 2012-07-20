@@ -6,7 +6,9 @@ import Constraints.Constrainer;
 import Constraints.NoConstraints;
 import Exceptions.OutputException;
 import Likelihood.Calculator;
+import Likelihood.Calculator.CalculatorException;
 import Likelihood.Likelihood;
+import Likelihood.Likelihood.LikelihoodException;
 import Models.Model;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
@@ -87,7 +89,7 @@ public class HypothesisTest
      */
     public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams)
             throws RateException, ModelException, TreeException, ParameterException,
-            OutputException, AlignmentException, SimulationException
+            OutputException, AlignmentException, SimulationException, CalculatorException, LikelihoodException
     {
         return test(t,a,unobserved,nullParams,altParams,null);
     }
@@ -120,7 +122,7 @@ public class HypothesisTest
     public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams,
             Map<String,String> recode)
             throws RateException, ModelException, TreeException, ParameterException,
-            OutputException, AlignmentException, SimulationException
+            OutputException, AlignmentException, SimulationException, CalculatorException, LikelihoodException
     {
         //Calculate the difference in likelihood between the two models for the given alignment
         Calculator nullCalc = new Calculator(nullModel, a, t, unobserved, nullConstrainer);
@@ -150,7 +152,7 @@ public class HypothesisTest
             Parameters simParams, Parameters nullParams, Parameters altParams,
             Map<String,String> rec) 
             throws RateException, ModelException, TreeException, ParameterException,
-            OutputException, AlignmentException, SimulationException
+            OutputException, AlignmentException, SimulationException, CalculatorException, LikelihoodException
     {
         //Stores the distribution
         double[] dist = new double[reps];

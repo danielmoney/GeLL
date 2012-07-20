@@ -24,6 +24,7 @@ import Alignments.AlignmentException;
 import Alignments.Site;
 import Constraints.Constrainer;
 import Constraints.NoConstraints;
+import Exceptions.GeneralException;
 import Exceptions.UnexpectedError;
 import Likelihood.Likelihood.LikelihoodException;
 import Likelihood.Likelihood.NodeLikelihood;
@@ -70,7 +71,7 @@ public class Calculator
      * @param t The tree
      * @throws TreeException If there is a problem with the tree 
      */
-    public Calculator(Model m, Alignment a, Tree t) throws TreeException
+    public Calculator(Model m, Alignment a, Tree t) throws TreeException, LikelihoodException, AlignmentException
     {
         this(m,a,t,null,new NoConstraints(m.getStates()));
     }
@@ -84,7 +85,7 @@ public class Calculator
      * @param unobserved Unobserved data given as another alignment
      * @throws TreeException If there is a problem with the tree
      */    
-    public Calculator(Model m, Alignment a, Tree t, Alignment unobserved) throws TreeException
+    public Calculator(Model m, Alignment a, Tree t, Alignment unobserved) throws TreeException, LikelihoodException, AlignmentException
     {
         this(m,a,t,unobserved,new NoConstraints(m.getStates()));
     }
@@ -98,7 +99,7 @@ public class Calculator
      * @param con Any constraints
      * @throws TreeException If there is a problem with the tree
      */
-    public Calculator(Model m, Alignment a, Tree t, Constrainer con) throws TreeException
+    public Calculator(Model m, Alignment a, Tree t, Constrainer con) throws TreeException, LikelihoodException, AlignmentException
     {
         this(m,a,t,null,con);
     }
@@ -114,7 +115,7 @@ public class Calculator
      * @param con Any constraints
      * @throws TreeException If there is a problem with the tree
      */
-    public Calculator(Model m, Alignment a, Tree t, Alignment unobserved, Constrainer con) throws TreeException
+    public Calculator(Model m, Alignment a, Tree t, Alignment unobserved, Constrainer con) throws TreeException, LikelihoodException, AlignmentException
     {
         this.m = new HashMap<>();
         this.m.put(null,m);
@@ -156,7 +157,7 @@ public class Calculator
      * in the alignment
      * @throws TreeException If there is a problem with the tree
      */
-    public Calculator(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException, TreeException
+    public Calculator(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException, TreeException, LikelihoodException
     {
         this.m = m;
         this.a = a;
@@ -203,7 +204,7 @@ public class Calculator
      * in the alignment 
      * @throws TreeException If there is a problem with the tree
      */
-    public Calculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved) throws AlignmentException, TreeException
+    public Calculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved) throws AlignmentException, TreeException, LikelihoodException
     {
         this.m = m;
         this.a = a;
@@ -272,7 +273,7 @@ public class Calculator
      * for each site class in the alignment
      * @throws TreeException If there is a problem with the tree
      */
-    public Calculator(Map<String,Model> m, Alignment a, Tree t, Map<String,Constrainer> con) throws AlignmentException, TreeException
+    public Calculator(Map<String,Model> m, Alignment a, Tree t, Map<String,Constrainer> con) throws AlignmentException, TreeException, LikelihoodException
     {
         this(m,a,t,null,con);
     }
@@ -290,7 +291,7 @@ public class Calculator
      * for each site class in the alignment
      * @throws TreeException If there is a problem with the tree
      */
-    public Calculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved, Map<String,Constrainer> con) throws AlignmentException, TreeException
+    public Calculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved, Map<String,Constrainer> con) throws AlignmentException, TreeException, LikelihoodException
     {
         this.m = m;
         this.a = a;
@@ -365,7 +366,7 @@ public class Calculator
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
      * with the parameters (e.g. a requied parameter is not present) 
      */
-    public Likelihood calculate(Parameters p) throws TreeException, RateException, ModelException, ParameterException
+    public Likelihood calculate(Parameters p) throws TreeException, RateException, ModelException, ParameterException, CalculatorException
     {
         //If the parameters setting doesn't include branch lengths parameters then
         //add them from the tree.  The paramter / branch length interaction is a
@@ -478,8 +479,9 @@ public class Calculator
             }
             
             //Get the result for each site and calculate the total likelihood (m)
-            //of the unobserved date.  Follows Felsenstein 1992.
-            double ml = 0.0;
+            //of the unobserved data.  Follows Felsenstein 1992.
+            //double ml = 0.0;
+            HashMap<String, Double> ml = new HashMap<>();
             for (int i = 0; i < miss.size(); i++)
             {
                 Entry<UniqueSite,SiteCalculator> e = miss.getEntry(i);
@@ -487,7 +489,15 @@ public class Calculator
                 {
                     SiteLikelihood sl = e.getValue().getResult();
                     missingLikelihoods.put(e.getKey(),sl);
-                    ml += sl.getLikelihood();
+                    String sc = e.getKey().getSiteClass();
+                    if (ml.containsKey(sc))
+                    {
+                        ml.put(sc, ml.get(sc) + sl.getLikelihood());
+                    }
+                    else
+                    {
+                        ml.put(sc, sl.getLikelihood());
+                    }
                 }
                 catch(ResultNotComputed ex)
                 {
@@ -498,7 +508,18 @@ public class Calculator
             }
             //Now modify the alignment likelihood to account for unobserved data,
             //again per Felsenstein 1992
-            l = l - (a.getLength() * Math.log(1 - ml));
+            for (String sc: ml.keySet())
+            {
+                l = l - (a.getClassSize(sc) * Math.log(1 - ml.get(sc)));
+            }
+            if (l > 0)
+            {
+                throw new CalculatorException("Positive Log Likelihood");
+            }
+            if (Double.isNaN(l))
+            {
+                throw new CalculatorException("NaN Log Likelihood");
+            }
         }
         catch(InterruptedException ex)
         {
@@ -559,7 +580,7 @@ public class Calculator
          * @param con Constraints on the site
          * @param tp Pre-computed datastructure containing probabilities
          */
-        public SiteCalculator(Site s, Tree t, SiteConstraints con, Probabilities tp)
+        public SiteCalculator(Site s, Tree t, SiteConstraints con, Probabilities tp) throws LikelihoodException
         {
             this.t = t;
             this.tp = tp;
@@ -704,5 +725,22 @@ public class Calculator
     private static class ResultNotComputed extends Exception
     {
         
+    }
+    
+    /**
+     * Exception thrown when there is a problem with the calculation
+     */
+    public static class CalculatorException extends GeneralException
+    {
+        /**
+         * Constructor when there is no underlying Throwable that caused the problem.
+         * Currnetly used when there is a problem constructing the model,
+         * e.g. different number of states in the RateClasses.
+         * @param reason The reason for the exception
+         */
+        public CalculatorException(String reason)
+        {
+            super("Rates Exception\n\tReason:\t" + reason,null);
+        }
     }
 }

@@ -215,11 +215,20 @@ public class Distributions
     
     private static double[] stationary_Repeat(SquareMatrix m) throws DistributionsException
     {
+        double max = -Double.MAX_VALUE;
+        for (int i = 0; i < m.size(); i++)
+        {
+            for (int j = 0; j < m.size(); j++)
+            {
+                max = Math.max(max, m.getPosition(i, j));
+            }
+        }
+        
         //Similar to quasi-stationary except the rescaling step is unneccessary.
 	double[][] p;
 	try
 	{
-	    p = m.scalarMultiply(8.0).exp().getArray();
+	    p = m.scalarMultiply(1/max).exp().getArray();
 	}
 	catch (SquareMatrixException e)
 	{
@@ -239,7 +248,7 @@ public class Distributions
 	{
 	    if (reps > 2000000)
 	    {
-		throw new DistributionsException("Cannot calculate stationary distribution - no convergence");
+ 		throw new DistributionsException("Cannot calculate stationary distribution - no convergence");
 	    }
 	    res = nf;
 	    nf = new double[res.length];

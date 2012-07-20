@@ -2,6 +2,7 @@ package Alignments;
 
 import Exceptions.InputException;
 import Exceptions.OutputException;
+import Exceptions.UnexpectedError;
 import java.io.File;
 import java.util.HashMap;
 import java.io.BufferedReader;
@@ -91,7 +92,7 @@ public class FastaAlignment extends Alignment
                         }
                         sequence = "";
                         String[] parts = line.split("\\|");
-                        name = parts[0].substring(1);
+                        name = parts[0].substring(1).trim();
                     }
                     else
                     {
@@ -201,7 +202,15 @@ public class FastaAlignment extends Alignment
                     {
                         out.println();
                     }
-                    out.print(a.getSite(j).getRawCharacter(taxa));
+                    try
+                    {
+                        out.print(a.getSite(j).getRawCharacter(taxa));
+                    }
+                    catch (AlignmentException e)
+                    {
+                        //Should never reach here as we're looping over the known taxa hence...
+                        throw new UnexpectedError(e);
+                    }
                 }
                 out.println();
             }

@@ -19,6 +19,7 @@ package Alignments;
 
 import Exceptions.InputException;
 import Exceptions.OutputException;
+import Exceptions.UnexpectedError;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -125,7 +126,7 @@ public class DuplicationAlignment extends Alignment
                         c = split[j];
                     }
                 }
-                data.add(new Site(sizes,ambig,c));
+                data.add(new Site(split[0],sizes,ambig,c));
 	    }
 	    ain.close();
             
@@ -164,13 +165,28 @@ public class DuplicationAlignment extends Alignment
 	    out.println();
 	    for (int i=0; i < a.getLength(); i++)
 	    {
-		out.print(i);
+                if (a.getSite(i).getID() != null)
+                {
+                    out.print(a.getSite(i).getID());
+                }
+                else
+                {
+                    out.print(i);
+                }
 		for (String taxa: a.getTaxa())
 		{
-		    out.print("\t" + a.getSite(i).getRawCharacter(taxa));
-                    if (a.hasClasses)
+                    try
                     {
-                        out.print("\t" + a.getSite(i).getSiteClass());
+                        out.print("\t" + a.getSite(i).getRawCharacter(taxa));
+                        if (a.hasClasses)
+                        {
+                            out.print("\t" + a.getSite(i).getSiteClass());
+                        }
+                    }
+                    catch (AlignmentException e)
+                    {
+                        //Should never reach here as we're looping over the known taxa hence...
+                        throw new UnexpectedError(e);
                     }
 		}
 		out.println();

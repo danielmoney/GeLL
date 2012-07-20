@@ -20,6 +20,7 @@ package Optimizers;
 import Exceptions.InputException;
 import Exceptions.OutputException;
 import Likelihood.Calculator;
+import Likelihood.Calculator.CalculatorException;
 import Likelihood.Likelihood;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
@@ -95,12 +96,12 @@ public class GoldenSection implements Optimizer
     }
     
 
-    public Likelihood maximise(Calculator l, Parameters params) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException
+    public Likelihood maximise(Calculator l, Parameters params) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
     {
 	return maximise(l,System.out,new Data(params));
     }
 
-    public Likelihood maximise(Calculator l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException
+    public Likelihood maximise(Calculator l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
     {
         try
         {
@@ -118,7 +119,7 @@ public class GoldenSection implements Optimizer
     //See the Data class for a fuller description but effectively this stores
     //the state of the optimizer.  When created the parameters within it are
     //initalised.
-    private Likelihood maximise(Calculator l, PrintStream out, Data data) throws RateException, ModelException, TreeException, ParameterException, OutputException
+    private Likelihood maximise(Calculator l, PrintStream out, Data data) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
     {
         //In this function two levels of progress output are the same so create
         //a boolean as to whether we're using one of those progress levels.
@@ -140,7 +141,11 @@ public class GoldenSection implements Optimizer
 		out.println("\t" + data.e_diff);
 	    }
 	    data.oldML = data.newML;
-	    for (Parameter p : data.params)
+            
+            Parameters np = new Parameters();
+            np.addParameters(data.params);
+            for (Parameter p : np)
+	    //for (Parameter p : data.params)
 	    {
                 //For each estimated parameter maximise that parameter singularly
 		if (p.getEstimate())
@@ -177,7 +182,7 @@ public class GoldenSection implements Optimizer
 	return data.newML;
     }
 
-    private Likelihood maximiseSingle(Parameters pp, Parameter p, Calculator l, double diff, double e_diff, ProgressLevel progresslevel, PrintStream out) throws RateException, ModelException, TreeException, ParameterException
+    private Likelihood maximiseSingle(Parameters pp, Parameter p, Calculator l, double diff, double e_diff, ProgressLevel progresslevel, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, CalculatorException
     {
         //Maximises a single parameter by golden section search
 	boolean progress = (progresslevel == ProgressLevel.CALCULATION);
@@ -349,12 +354,12 @@ public class GoldenSection implements Optimizer
 	}
     }
     
-    public Likelihood restart(Calculator l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException
+    public Likelihood restart(Calculator l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
     {
         return restart(l, checkPoint, System.out);
     }
     
-    public Likelihood restart(Calculator l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException
+    public Likelihood restart(Calculator l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
     {
         try
         {
@@ -369,7 +374,7 @@ public class GoldenSection implements Optimizer
         }
     }   
     
-    private Likelihood restart(Calculator l, File f, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException
+    private Likelihood restart(Calculator l, File f, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, CalculatorException
     {
         Object o;
         try

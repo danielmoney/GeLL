@@ -587,6 +587,11 @@ public class Tree implements Iterable<Branch>
         return revBranches;
     }
     
+    /**
+     * Gets the splits that represent the tree
+     * @return A set of splites
+     * @throws TreeException If the tree is invalid
+     */
     public Set<Split> getSplits() throws TreeException
     {
         Map<String, TreeSet<String>> working = new HashMap<>();
@@ -632,6 +637,12 @@ public class Tree implements Iterable<Branch>
         return inverse;
     }
     
+    /**
+     * Calculates the RF distance between this tree and another tree
+     * @param t The other tree
+     * @return The RF distance
+     * @throws TreeException If one tree or the other is not valud
+     */
     public int RF(Tree t) throws TreeException
     {
         int rf = 0;
@@ -648,6 +659,12 @@ public class Tree implements Iterable<Branch>
         return rf;
     }
     
+    /**
+     * Calculates the weighted (by branch length) RF distance between this tree and another tree
+     * @param t The other tree
+     * @return The weighted RF distance
+     * @throws TreeException If one tree or the other is not valud
+     */
     public double weightedRF(Tree t) throws TreeException
     {
         double rf = 0.0;
@@ -664,7 +681,13 @@ public class Tree implements Iterable<Branch>
         return rf;
     }
     
-    public double branhScore(Tree t) throws TreeException
+    /**
+     * Calculates the branch score distance between this tree and another tree
+     * @param t The other tree
+     * @return The branch score distance
+     * @throws TreeException If one tree or the other is not valud
+     */
+    public double branchScore(Tree t) throws TreeException
     {
         double bs = 0.0;
         for (Split s: getSplits())
@@ -792,6 +815,13 @@ public class Tree implements Iterable<Branch>
 	out.close();
     }
     
+    /**
+     * Wrtites the tree to a file with taxa names limited to 25 characters
+     * for use in PAML.  At the moment no checking is done for any duplicated
+     * taxa names that may be created.
+     * @param f The file to write the tree to
+     * @throws OutputException Thrown if there is a problem writing the file
+     */
     public void toFilePAML(File f) throws OutputException
     {
 	PrintStream out;

@@ -2,6 +2,7 @@ package Alignments;
 
 import Exceptions.InputException;
 import Exceptions.OutputException;
+import Exceptions.UnexpectedError;
 import java.io.File;
 import java.util.HashMap;
 import java.io.BufferedReader;
@@ -167,7 +168,15 @@ public class PhylipAlignment extends Alignment
                 out.print(taxa + "     ");
                 for (int j=0; j < a.getLength(); j++)
                 {
-                    out.print(a.getSite(j).getRawCharacter(taxa));
+                    try
+                    {
+                        out.print(a.getSite(j).getRawCharacter(taxa));
+                    }
+                    catch (AlignmentException e)
+                    {
+                        //Should never reach here as we're looping over the known taxa hence...
+                        throw new UnexpectedError(e);
+                    }
                 }
                 out.println();
             }
@@ -211,7 +220,15 @@ public class PhylipAlignment extends Alignment
                 out.print(taxa.subSequence(0, Math.min(25,taxa.length())) + "     ");
                 for (int j=0; j < a.getLength(); j++)
                 {
-                    out.print(a.getSite(j).getRawCharacter(taxa));
+                    try
+                    {
+                        out.print(a.getSite(j).getRawCharacter(taxa));
+                    }
+                    catch (AlignmentException e)
+                    {
+                        //Should never reach here as we're looping over the known taxa hence...
+                        throw new UnexpectedError(e);
+                    }
                 }
                 out.println();
             }

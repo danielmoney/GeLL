@@ -20,6 +20,7 @@ package Optimizers;
 import Exceptions.InputException;
 import Exceptions.OutputException;
 import Likelihood.Calculator;
+import Likelihood.Calculator.CalculatorException;
 import Likelihood.Likelihood;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
@@ -66,12 +67,12 @@ public class NelderMead implements Optimizer
         timePassed = new TimePassed(365,TimeUnit.DAYS);
     }
     
-    public Likelihood maximise(Calculator l, Parameters params) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException
+    public Likelihood maximise(Calculator l, Parameters params) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
     {
 	return maximise(l,System.out,new Data(params,l));
     }
 
-    public Likelihood maximise(Calculator l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException
+    public Likelihood maximise(Calculator l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
     {
         try
         {
@@ -89,7 +90,7 @@ public class NelderMead implements Optimizer
     //See the Data class for a fuller description but effectively this stores
     //the state of the optimizer.  When created the parameters within it are
     //initalised.
-    private Likelihood maximise(Calculator l, PrintStream out, Data data) throws RateException, ModelException, TreeException, ParameterException, OutputException
+    private Likelihood maximise(Calculator l, PrintStream out, Data data) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
     {
         //Reset the timer
         timePassed.reset();
@@ -220,7 +221,7 @@ public class NelderMead implements Optimizer
 	return data.vnew;
     }
 
-    private static Likelihood evaluate(double[] params, Data data, Calculator l) throws RateException, ModelException, TreeException, ParameterException
+    private static Likelihood evaluate(double[] params, Data data, Calculator l) throws RateException, ModelException, TreeException, ParameterException, CalculatorException
     {
 	for (int i = 0; i < params.length; i++)
 	{
@@ -274,12 +275,12 @@ public class NelderMead implements Optimizer
 	return index;
     }
     
-    public Likelihood restart(Calculator l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException
+    public Likelihood restart(Calculator l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
     {
         return restart(l, checkPoint, System.out);
     }
     
-    public Likelihood restart(Calculator l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException
+    public Likelihood restart(Calculator l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
     {
         try
         {
@@ -294,7 +295,7 @@ public class NelderMead implements Optimizer
         }
     }   
     
-    private Likelihood restart(Calculator l, File f, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException
+    private Likelihood restart(Calculator l, File f, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, CalculatorException
     {
         Object o;
         try
@@ -389,7 +390,7 @@ public class NelderMead implements Optimizer
     private static class Data implements Serializable
     {
         //Constructer initialises various parameters.
-        private Data(Parameters p, Calculator l) throws RateException, ModelException, TreeException, ParameterException
+        private Data(Parameters p, Calculator l) throws RateException, ModelException, TreeException, ParameterException, CalculatorException
         {
             params = p.clone();
             num = params.numberEstimate();

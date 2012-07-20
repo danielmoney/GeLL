@@ -195,7 +195,7 @@ public class AncestralMarginal
      * each state at each node
      * @throws TreeException Thrown if there is a problem with the tree. 
      */
-    SiteResult calculateSite(Site s, Probabilities P) throws TreeException
+    SiteResult calculateSite(Site s, Probabilities P) throws TreeException, AlignmentException
     {
         //Calculalate the probability of each state for each node...
         Map<String,ToDoubleHashMap<String>> nr = new HashMap<>();
@@ -210,7 +210,7 @@ public class AncestralMarginal
         return new SiteResult(nr,s);
     }
     
-    private ToDoubleHashMap<String> calculateNode(Site s, Probabilities P, String node) throws TreeException
+    private ToDoubleHashMap<String> calculateNode(Site s, Probabilities P, String node) throws TreeException, AlignmentException
     {
         //As we want to be able to use non-time reversible models we can't use
         //the normal re-root the tree at this node trick.  Instead we do a variation
@@ -432,7 +432,7 @@ public class AncestralMarginal
      */
     public class SiteResult
     {
-        private SiteResult(Map<String, ToDoubleHashMap<String>> nr, Site os)
+        private SiteResult(Map<String, ToDoubleHashMap<String>> nr, Site os) throws AlignmentException
         {
             this.nr = nr;
             

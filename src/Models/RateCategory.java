@@ -31,6 +31,7 @@ import Maths.SquareMatrix;
 import Maths.SquareMatrix.SquareMatrixException;
 import Models.Distributions.DistributionsException;
 import Parameters.Parameter;
+import Parameters.Parameters.ParameterException;
 import Utils.ArrayMap;
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,6 +43,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
@@ -205,14 +207,18 @@ public class RateCategory implements Serializable
 
     private void setNeeded() throws RateException
     {
-        neededParams = new TreeSet<>(); 
+        paramValues = new TreeMap<>(); 
 	for (int i = 0; i < rates.length; i++)
 	{
 	    for (int j = 0; j < rates.length; j++)
 	    {
                 if (i != j)
                 {
-                    neededParams.addAll(rates[i][j].neededParams());
+                    //paramValues.addAll(rates[i][j].neededParams());
+                    for (String p: rates[i][j].neededParams())
+                    {
+                        paramValues.put(p, Double.NaN);
+                    }
                 }
             }
         }
@@ -220,11 +226,15 @@ public class RateCategory implements Serializable
 	{
 	    for (int i = 0; i < freq.length; i++)
 	    {
-		neededParams.addAll(freq[i].neededParams());
+		//paramValues.addAll(freq[i].neededParams());
+                for (String p: freq[i].neededParams())
+                {
+                    paramValues.put(p, Double.NaN);
+                }
 	    }
 	}
         
-        for (String p: neededParams)
+        for (String p: paramValues.keySet())
         {
             if (p.startsWith("_"))
             {
@@ -241,17 +251,19 @@ public class RateCategory implements Serializable
     }
 
     /**
-     * Updates the parameters in the RateCategory.  Should only be called if
-     * a parameter in the matrix / frequency defintion has chnaged.
+     * Updates the parameters in the RateCategory and recalculates matrices /
+     * frequencies if neccessary.
      * @param p The new parameters
      * @throws Models.RateCategory.RateException If the parameters passed does not
      * include all the parameters in the model.
+     * @throws Parameters.Parameters.ParameterException If a parameter that needs to be set for this
+     * rate category has not been passed
      */
-    public void setParameters(Parameters p) throws RateException
+    public void setParameters(Parameters p) throws RateException, ParameterException
     {
         //Check if there are missing parameters...
         Set<String> missing = new TreeSet<>();
-	for (String s : neededParams)
+	for (String s : paramValues.keySet())
 	{
 	    boolean has = false;
 	    for (Parameter pp : p)
@@ -280,33 +292,46 @@ public class RateCategory implements Serializable
                     "Parameters " + miss.substring(0, miss.length() - 2) + " have not been passed");
 	}
         
-        //Calculate and store the rate matrix and frequency
-        //If freq type is MODEL then we want to update the frequencies first so
-        //they can be used in the matrix.  Else we need to update the matrix first
-        //so that the (quasi-)stationary distribution is calculated on the right
-        //matrix
-        if (freqType == FrequencyType.MODEL)
+        boolean recalc = false;
+        for (Entry<String,Double> e: paramValues.entrySet())
         {
-            f = calculateFreq(p);
-            m = calculateMatrix(p);
+            double cv = p.getValue(e.getKey());
+            if (cv != e.getValue())
+            {
+                recalc = true;
+                e.setValue(cv);
+            }
         }
-        else
+        if (recalc || (m == null))
         {
-            m = calculateMatrix(p);
-            f = calculateFreq(p);
+            //Calculate and store the rate matrix and frequency
+            //If freq type is MODEL then we want to update the frequencies first so
+            //they can be used in the matrix.  Else we need to update the matrix first
+            //so that the (quasi-)stationary distribution is calculated on the right
+            //matrix
+            if (freqType == FrequencyType.MODEL)
+            {
+                f = calculateFreq(p);
+                m = calculateMatrix(p);
+            }
+            else
+            {
+                m = calculateMatrix(p);
+                f = calculateFreq(p);
+            }
+
+            //Since we have a new rate matrix we need a new cache.  This effectively
+            //stores P matrices for given lengths.  GoldenSection search will only
+            //update one length at a time why the others stay the same so no point
+            //recaluclating them all
+            cache = new HashMap<>();
+
+            //Set the scaled matrix to the same as the normal matrix.  We need to set
+            //the parameters, then calculate the rate at the model level (across all
+            //categories) before setting the scale so we can't set this to it's final
+            //value here
+            sm = m;
         }
-        
-        //Since we have a new rate matrix we need a new cache.  This effectively
-        //stores P matrices for given lengths.  GoldenSection search will only
-        //update one length at a time why the others stay the same so no point
-        //recaluclating them all
-        cache = new HashMap<>();
-        
-        //Set the scaled matrix to the same as the normal matrix.  We need to set
-        //the parameters, then calculate the rate at the model level (across all
-        //categories) before setting the scale so we can't set this to it's final
-        //value here
-        sm = m;
     }
     
     /**
@@ -433,7 +458,7 @@ public class RateCategory implements Serializable
 		catch (DistributionsException e)
 		{
 		    throw new RateException("Problem "
-                            + "calculating stationary distribution", e);
+                            + "calculating quasi-stationary distribution", e);
 		}
 	    case MODEL:
 	    default:
@@ -600,7 +625,7 @@ public class RateCategory implements Serializable
 
     private SquareMatrix sm;    
     private Map<Double,SquareMatrix> cache;
-    private TreeSet<String> neededParams;
+    private TreeMap<String,Double> paramValues;
     private SquareMatrix m;
     private double[] f;
     private CompiledFunction[] freq;

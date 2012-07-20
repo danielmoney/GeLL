@@ -21,6 +21,7 @@ import Exceptions.GeneralException;
 import Exceptions.InputException;
 import Exceptions.OutputException;
 import Likelihood.Calculator;
+import Likelihood.Calculator.CalculatorException;
 import Likelihood.Likelihood;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
@@ -53,7 +54,7 @@ public interface Optimizer
      * with the parameters (e.g. a requied parameter is not present)
      * @throws OutputException Thrown if unable to write a checkpoint file 
      */
-    public Likelihood maximise(Calculator l, Parameters p) throws RateException, ModelException, TreeException, ParameterException, OutputException;
+    public Likelihood maximise(Calculator l, Parameters p) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException;
 
     /**
      * Maximises the likelihood, logging to a file.  Logging level sould be
@@ -72,7 +73,7 @@ public interface Optimizer
      * with the parameters (e.g. a requied parameter is not present)
      * @throws OutputException Thrown if unable to write a checkpoint file 
      */
-    public Likelihood maximise(Calculator l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException;
+    public Likelihood maximise(Calculator l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException;
 
     /**
      * Maximises the likelihood starting from a checkpoint file (see {@link #setCheckPointFile(java.io.File)}, 
@@ -93,7 +94,7 @@ public interface Optimizer
      * @throws Optimizers.Optimizer.OptimizerException Thrown if optomizer is unable
      * to restart from a checkpoint file
      */
-    public Likelihood restart(Calculator l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException;
+    public Likelihood restart(Calculator l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException;
     
     /**
      * Maximises the likelihood starting from a checkpoint file (see {@link #setCheckPointFile(java.io.File)}, 
@@ -115,7 +116,7 @@ public interface Optimizer
      * @throws Optimizers.Optimizer.OptimizerException Thrown if optomizer is unable
      * to restart from a checkpoint file
      */
-    public Likelihood restart(Calculator l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException;
+    public Likelihood restart(Calculator l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException;
     
     /**
      * Sets a checkpoint file.  If set will write a checkpoint file of the
