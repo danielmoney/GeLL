@@ -153,7 +153,7 @@ public class Distributions
 	    }
 	    reps++;
 	}
-	while (test(res,nf));
+	while (test(res,nf,1));
 
         return nf;
     }
@@ -215,11 +215,20 @@ public class Distributions
     
     private static double[] stationary_Repeat(SquareMatrix m) throws DistributionsException
     {
+        double max = -Double.MAX_VALUE;
+        for (int i = 0; i < m.size(); i++)
+        {
+            for (int j = 0; j < m.size(); j++)
+            {
+                max = Math.max(max, m.getPosition(i, j));
+            }
+        }
+        
         //Similar to quasi-stationary except the rescaling step is unneccessary.
 	double[][] p;
 	try
 	{
-	    p = m.scalarMultiply(8.0).exp().getArray();
+	    p = m.scalarMultiply(1/max).exp().getArray();
 	}
 	catch (SquareMatrixException e)
 	{
@@ -239,7 +248,7 @@ public class Distributions
 	{
 	    if (reps > 2000000)
 	    {
-		throw new DistributionsException("Cannot calculate stationary distribution - no convergence");
+ 		throw new DistributionsException("Cannot calculate stationary distribution - no convergence");
 	    }
 	    res = nf;
 	    nf = new double[res.length];
@@ -254,7 +263,7 @@ public class Distributions
 	    }
 	    reps++;            
 	}
-	while (test(res,nf));
+	while (test(res,nf,0));
 
 	return nf;
     }
@@ -268,12 +277,12 @@ public class Distributions
 	method = m;
     }
 
-    private static boolean test(double[] a, double[] b)
+    private static boolean test(double[] a, double[] b, int start)
     {
         //Tests whether the difference between two distributions is small
         //in relative terms for each state.
         boolean test = true;
-        for (int i = 0; i < a.length; i++)
+        for (int i = start; i < a.length; i++)
 	{
             test = test && (Math.abs(Math.log(a[i]/b[i])) < Math.pow(10,-10));
         }

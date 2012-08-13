@@ -113,8 +113,10 @@ public class Parameters implements Iterable<Parameter>, Serializable
      * Sets the value of a parameter
      * @param p The parameter
      * @param v The value
+     * @throws Parameters.Parameters.ParameterException Thrown if an attempt 
+     *      is made to set the parameter to a value outside it's bounds 
      */
-    public void setValue(Parameter p, double v)
+    public void setValue(Parameter p, double v) throws ParameterException
     {
 	p.setValue(v);
 	recalc = (recalc || p.matrix());
@@ -205,14 +207,27 @@ public class Parameters implements Iterable<Parameter>, Serializable
 	}
 	return i;
     }
-
+    
     public String toString()
+    {
+        return toString(true);
+    }
+
+    /**
+     * Returns a string representation of the parameters
+     * @param fixed Whether to include fixed parameters in the output
+     * @return A string representation of the parameters
+     */
+    public String toString(boolean fixed)
     {
 	StringBuilder s = new StringBuilder();
 	for (Parameter p : params)
 	{
-	    s.append(p.toString());
-	    s.append("\n");
+            if (fixed || p.getEstimate())
+            {
+                s.append(p.toString());
+                s.append("\n");
+            }
 	}
 	return s.toString();
     }
@@ -328,7 +343,7 @@ public class Parameters implements Iterable<Parameter>, Serializable
     /**
      * Exception related to the parameters
      */
-    public class ParameterException extends GeneralException
+    public static class ParameterException extends GeneralException
     {
         /**
          * Constructor

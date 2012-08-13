@@ -21,6 +21,7 @@ import Exceptions.GeneralException;
 import Exceptions.InputException;
 import Exceptions.OutputException;
 import Likelihood.Calculator;
+import Likelihood.Calculator.CalculatorException;
 import Likelihood.Likelihood;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
@@ -51,9 +52,10 @@ public interface Optimizer
      * @throws TreeException Thrown if there is a problem with the tree.
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
      * with the parameters (e.g. a requied parameter is not present)
-     * @throws OutputException Thrown if unable to write a checkpoint file 
+     * @throws OutputException Thrown if unable to write a checkpoint file
+     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
      */
-    public Likelihood maximise(Calculator l, Parameters p) throws RateException, ModelException, TreeException, ParameterException, OutputException;
+    public Likelihood maximise(Calculator l, Parameters p) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException;
 
     /**
      * Maximises the likelihood, logging to a file.  Logging level sould be
@@ -70,9 +72,10 @@ public interface Optimizer
      * @throws TreeException Thrown if there is a problem with the tree.
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
      * with the parameters (e.g. a requied parameter is not present)
-     * @throws OutputException Thrown if unable to write a checkpoint file 
+     * @throws OutputException Thrown if unable to write a checkpoint file
+     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
      */
-    public Likelihood maximise(Calculator l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException;
+    public Likelihood maximise(Calculator l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException;
 
     /**
      * Maximises the likelihood starting from a checkpoint file (see {@link #setCheckPointFile(java.io.File)}, 
@@ -92,8 +95,9 @@ public interface Optimizer
      * @throws InputException Thrown if there is a problem with the checkpoint file
      * @throws Optimizers.Optimizer.OptimizerException Thrown if optomizer is unable
      * to restart from a checkpoint file
+     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
      */
-    public Likelihood restart(Calculator l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException;
+    public Likelihood restart(Calculator l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException;
     
     /**
      * Maximises the likelihood starting from a checkpoint file (see {@link #setCheckPointFile(java.io.File)}, 
@@ -114,8 +118,9 @@ public interface Optimizer
      * @throws InputException Thrown if there is a problem with the checkpoint file
      * @throws Optimizers.Optimizer.OptimizerException Thrown if optomizer is unable
      * to restart from a checkpoint file
+     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
      */
-    public Likelihood restart(Calculator l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException;
+    public Likelihood restart(Calculator l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException;
     
     /**
      * Sets a checkpoint file.  If set will write a checkpoint file of the

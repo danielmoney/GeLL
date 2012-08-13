@@ -35,6 +35,7 @@ public class PossibleSettings
     public PossibleSettings()
     {
 	groups = new HashMap<>();
+        groups.put(null,false);
 	settings = new HashMap<>();
 	defaults = new HashMap<>();
 	settings.put(null,new HashMap<String,Boolean>());

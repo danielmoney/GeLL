@@ -1,6 +1,7 @@
 package Alignments;
 
 import Constraints.SiteConstraints;
+import Likelihood.Likelihood.LikelihoodException;
 import Likelihood.Likelihood.NodeLikelihood;
 import Trees.Tree;
 import Utils.ArrayMap;
@@ -24,7 +25,7 @@ public class Site implements Serializable
      */
     public Site(LinkedHashMap<String, String> sites)
     {
-        this(sites,new Ambiguous(), null);
+        this(null,sites,new Ambiguous(), null);
     }
     
     /**
@@ -36,7 +37,7 @@ public class Site implements Serializable
      */
     public Site(LinkedHashMap<String,String> sites, String siteClass)
     {
-        this(sites,new Ambiguous(), siteClass);
+        this(null,sites,new Ambiguous(), siteClass);
     }
     
     /**
@@ -46,7 +47,7 @@ public class Site implements Serializable
      */
     public Site(LinkedHashMap<String,String> sites, Ambiguous ambig)
     {
-        this(sites,ambig,null);
+        this(null,sites,ambig,null);
     }
     
     /**
@@ -59,9 +60,58 @@ public class Site implements Serializable
      */
     public Site(LinkedHashMap<String,String> sites, Ambiguous ambig, String siteClass)
     {
+        this(null, sites, ambig, siteClass);
+    }
+    
+    /**
+     * Creates a site in a alignment with no ambiguous data
+     * @param id An ID for the site
+     * @param sites Map from taxa name to state
+     */
+    public Site(String id, LinkedHashMap<String, String> sites)
+    {
+        this(id, sites,new Ambiguous(), null);
+    }
+    
+    /**
+     * Creates a site in a alignment with no ambiguous data and with the given
+     * class.  <b>Note that either all sites in an alignment must have a class or
+     * none should.</b>
+     * @param id An ID for the site
+     * @param sites Map from taxa name to state
+     * @param siteClass The class of this site
+     */
+    public Site(String id, LinkedHashMap<String,String> sites, String siteClass)
+    {
+        this(id, sites,new Ambiguous(), siteClass);
+    }
+    
+    /**
+     * Creates a site in a alignment with ambiguous data
+     * @param id An ID for the site
+     * @param sites Map from taxa name to state
+     * @param ambig Description of ambiguous data
+     */
+    public Site(String id, LinkedHashMap<String,String> sites, Ambiguous ambig)
+    {
+        this(sites,ambig,null);
+    }
+    
+    /**
+     * Creates a site in a alignment with ambiguous data and with the given
+     * class.  <b>Note that either all sites in an alignment must have a class or
+     * none should.</b>
+     * @param id An ID for the site
+     * @param sites Map from taxa name to state
+     * @param ambig Description of ambiguous data
+     * @param siteClass The class of this site
+     */
+    public Site(String id, LinkedHashMap<String,String> sites, Ambiguous ambig, String siteClass)
+    {
         this.sites = sites;
         this.ambig = ambig;
         this.siteClass = siteClass;
+        this.id = id;
     }
     
     Site(Site s)
@@ -69,6 +119,7 @@ public class Site implements Serializable
         this.sites = s.sites;
         this.ambig = s.ambig;
         this.siteClass = s.siteClass;
+        this.id = s.id;
     }
     
     /**
@@ -89,10 +140,20 @@ public class Site implements Serializable
      * data and will just return the raw character
      * @param taxa Taxa to return the character for
      * @return The character for the given taxa
+     * @throws AlignmentException If the passed taxa name is not valid     
      */
-    public String getRawCharacter(String taxa)
+    public String getRawCharacter(String taxa) throws AlignmentException
     {
-        return sites.get(taxa);
+        //return sites.get(taxa);
+        String rc = sites.get(taxa);
+        if (rc == null)
+        {
+            throw new AlignmentException("No such taxa: " + taxa);            
+        }
+        else
+        {
+            return rc;
+        }
     }
     
     /**
@@ -142,6 +203,15 @@ public class Site implements Serializable
         
         return (sc && sites.equals(c.sites));
     }
+    
+    /**
+     * Gets the ID of the site
+     * @return The ID
+     */
+    public String getID()
+    {
+        return id;
+    }
 
     public int hashCode()
     {
@@ -172,8 +242,9 @@ public class Site implements Serializable
      * @param scon Any constraints on the site
      * @return An ArrayMap of NodeLikelihoods which can be used to initialise
      * likelihood calculations
+     * @throws Likelihood.Likelihood.LikelihoodException Thrown if all states are initialised to a zero likelihood 
      */
-    public ArrayMap<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t,  ArrayMap<String,Integer> map, SiteConstraints scon)
+    public ArrayMap<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t,  ArrayMap<String,Integer> map, SiteConstraints scon) throws LikelihoodException
     {        
         ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
         for (String l: t.getLeaves())
@@ -272,4 +343,5 @@ public class Site implements Serializable
     private LinkedHashMap<String,String> sites;
     private Ambiguous ambig;
     private String siteClass;
+    private String id;
 }

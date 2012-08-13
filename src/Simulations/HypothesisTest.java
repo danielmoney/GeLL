@@ -6,7 +6,9 @@ import Constraints.Constrainer;
 import Constraints.NoConstraints;
 import Exceptions.OutputException;
 import Likelihood.Calculator;
+import Likelihood.Calculator.CalculatorException;
 import Likelihood.Likelihood;
+import Likelihood.Likelihood.LikelihoodException;
 import Models.Model;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
@@ -84,10 +86,13 @@ public class HypothesisTest
      * @throws OutputException Should not currently be thrown as would only be thrown
      * when an optimizer try to write a checkpoint file and that isn't currently supported
      * in this class.  Included as should be in a future version.
+     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated
+     * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     *      (most probably due to the state at the node not being in the model).  
      */
     public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams)
             throws RateException, ModelException, TreeException, ParameterException,
-            OutputException, AlignmentException, SimulationException
+            OutputException, AlignmentException, SimulationException, CalculatorException, LikelihoodException
     {
         return test(t,a,unobserved,nullParams,altParams,null);
     }
@@ -116,11 +121,14 @@ public class HypothesisTest
      * @throws OutputException Should not currently be thrown as would only be thrown
      * when an optimizer try to write a checkpoint file and that isn't currently supported
      * in this class.  Included as should be in a future version.
+     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated
+     * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     *      (most probably due to the state at the node not being in the model).  
      */
     public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams,
             Map<String,String> recode)
             throws RateException, ModelException, TreeException, ParameterException,
-            OutputException, AlignmentException, SimulationException
+            OutputException, AlignmentException, SimulationException, CalculatorException, LikelihoodException
     {
         //Calculate the difference in likelihood between the two models for the given alignment
         Calculator nullCalc = new Calculator(nullModel, a, t, unobserved, nullConstrainer);
@@ -150,7 +158,7 @@ public class HypothesisTest
             Parameters simParams, Parameters nullParams, Parameters altParams,
             Map<String,String> rec) 
             throws RateException, ModelException, TreeException, ParameterException,
-            OutputException, AlignmentException, SimulationException
+            OutputException, AlignmentException, SimulationException, CalculatorException, LikelihoodException
     {
         //Stores the distribution
         double[] dist = new double[reps];

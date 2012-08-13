@@ -17,6 +17,7 @@
 
 package Constraints;
 
+import Alignments.AlignmentException;
 import Alignments.Site;
 import Trees.Tree;
 import Trees.TreeException;
@@ -38,6 +39,7 @@ public interface Constrainer
      * @return Constraints on that site
      * @throws TreeException Thrown if the constraints on that site can't be
      * calculated due to problems with the tree.
+     * @throws AlignmentException Thrown if the tree and site have incomptiable taxa 
      */
-    public SiteConstraints getConstraints(Tree t, Site s) throws TreeException;
+    public SiteConstraints getConstraints(Tree t, Site s) throws TreeException, AlignmentException;
 }

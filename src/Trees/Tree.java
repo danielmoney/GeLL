@@ -34,11 +34,15 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Represents a phylogenetic tree.  Trees are defined as a list of {@link Branch}.
@@ -582,6 +586,134 @@ public class Tree implements Iterable<Branch>
         Collections.reverse(revBranches);
         return revBranches;
     }
+    
+    /**
+     * Gets the splits that represent the tree
+     * @return A set of splites
+     * @throws TreeException If the tree is invalid
+     */
+    public Set<Split> getSplits() throws TreeException
+    {
+        Map<String, TreeSet<String>> working = new HashMap<>();
+        for (String l: getLeaves())
+        {
+            working.put(l,new TreeSet<String>());
+        }
+        for (String i: getInternal())
+        {
+            if (!i.equals(root))
+            {
+                working.put(i,new TreeSet<String>());
+            }
+        }
+        for (String s: getLeaves())
+        {
+            String c = s;
+            while (!c.equals(root))
+            {
+                working.get(c).add(s);
+                c = getParent(c);
+            }
+        }
+        
+        Set<Split> ret = new HashSet<>();
+        for (Entry<String,TreeSet<String>> e: working.entrySet())
+        {
+            ret.add(new Split(e.getValue(),getInverse(e.getValue()),getBranchByChild(e.getKey()).getLength()));
+        }
+        return ret;
+    }
+    
+    private TreeSet<String> getInverse(Set<String> members)
+    {
+        TreeSet<String> inverse = new TreeSet<>();
+        for (String l: getLeaves())
+        {
+            if (!members.contains(l))
+            {
+                inverse.add(l);
+            }
+        }
+        return inverse;
+    }
+    
+    /**
+     * Calculates the RF distance between this tree and another tree
+     * @param t The other tree
+     * @return The RF distance
+     * @throws TreeException If one tree or the other is not valud
+     */
+    public int RF(Tree t) throws TreeException
+    {
+        int rf = 0;
+        for (Split s: getSplits())
+        {
+            Split es = t.getEquivilantSplit(s);
+            rf = (es == null) ? rf + 1 : rf;
+        }
+        for (Split s: t.getSplits())
+        {
+            Split es = getEquivilantSplit(s);
+            rf = (es == null) ? rf + 1 : rf;
+        }
+        return rf;
+    }
+    
+    /**
+     * Calculates the weighted (by branch length) RF distance between this tree and another tree
+     * @param t The other tree
+     * @return The weighted RF distance
+     * @throws TreeException If one tree or the other is not valud
+     */
+    public double weightedRF(Tree t) throws TreeException
+    {
+        double rf = 0.0;
+        for (Split s: getSplits())
+        {
+            Split es = t.getEquivilantSplit(s);
+            rf = (es == null) ? rf + s.getLength() : rf + Math.abs(s.getLength() - es.getLength());
+        }
+        for (Split s: t.getSplits())
+        {
+            Split es = getEquivilantSplit(s);
+            rf = (es == null) ? rf + s.getLength() : rf + Math.abs(s.getLength() - es.getLength());
+        }
+        return rf;
+    }
+    
+    /**
+     * Calculates the branch score distance between this tree and another tree
+     * @param t The other tree
+     * @return The branch score distance
+     * @throws TreeException If one tree or the other is not valud
+     */
+    public double branchScore(Tree t) throws TreeException
+    {
+        double bs = 0.0;
+        for (Split s: getSplits())
+        {
+            Split es = t.getEquivilantSplit(s);
+            bs = (es == null) ? bs + Math.pow(s.getLength(),2) : bs + Math.pow(Math.abs(s.getLength() - es.getLength()),2);
+        }
+        for (Split s: t.getSplits())
+        {
+            Split es = getEquivilantSplit(s);
+            bs = (es == null) ? bs + Math.pow(s.getLength(),2) : bs + Math.pow(Math.abs(s.getLength() - es.getLength()),2);
+        }
+        return Math.sqrt(bs);
+    }    
+    
+    private Split getEquivilantSplit(Split s) throws TreeException
+    {
+        for (Split os: getSplits())
+        {
+            if (s.equalExceptLength(os))
+            {
+                return os;
+            }
+        }
+        return null;
+    }
 
     public String toString()
     {
@@ -594,6 +726,11 @@ public class Tree implements Iterable<Branch>
      * @return A Newick string representing the tree
      */
     public String toString(boolean nameInternal)
+    {
+        return toString(nameInternal,Integer.MAX_VALUE);
+    }
+            
+    private String toString(boolean nameInternal, int limit)     
     {
         String text = "$" + root + "$;";
         
@@ -611,7 +748,7 @@ public class Tree implements Iterable<Branch>
                 {
                     if (isExternal(b))
                     {
-                        inner.append(b.getChild());
+                        inner.append(b.getChild().substring(0, Math.min(limit,b.getChild().length())));
                     }
                     else
                     {
@@ -676,6 +813,28 @@ public class Tree implements Iterable<Branch>
 	}
 	out.print(toString(nameInternal));
 	out.close();
+    }
+    
+    /**
+     * Wrtites the tree to a file with taxa names limited to 25 characters
+     * for use in PAML.  At the moment no checking is done for any duplicated
+     * taxa names that may be created.
+     * @param f The file to write the tree to
+     * @throws OutputException Thrown if there is a problem writing the file
+     */
+    public void toFilePAML(File f) throws OutputException
+    {
+	PrintStream out;
+	try
+	{
+	    out = new PrintStream(new FileOutputStream(f));
+	}
+	catch (FileNotFoundException e)
+	{
+	    throw new OutputException("File can not be created", f.getAbsolutePath(),e);
+	}
+	out.print(toString(false,25));
+	out.close();        
     }
     
     private List<Branch> branches;

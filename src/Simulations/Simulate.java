@@ -24,6 +24,7 @@ import Alignments.Ambiguous;
 import Constraints.Constrainer;
 import Constraints.NoConstraints;
 import Exceptions.GeneralException;
+import Exceptions.UnexpectedError;
 import Likelihood.Probabilities;
 import Parameters.Parameters;
 import Models.RateCategory;
@@ -391,71 +392,81 @@ public class Simulate
             throw new SimulationException("No constraints defineed for requested class");
         }
 	Site site, loSite;
-	do
-	{
-            HashMap<String,String> assign = new HashMap<>();
+        try
+        {
+            do
+            {
+                HashMap<String,String> assign = new HashMap<>();
 
-	    RateCategory r = getRandomRate(P.get(siteClass).getRateCategory(),siteClass);
+                RateCategory r = getRandomRate(P.get(siteClass).getRateCategory(),siteClass);
 
-            //Assign the root
-            assign.put(t.getRoot(), getRandomStart(r, siteClass));
+                //Assign the root
+                assign.put(t.getRoot(), getRandomStart(r, siteClass));
 
-            //Traverse the tree, assign values to nodes
-            for (Branch b: t.getBranchesReversed())
-            {
-                assign.put(b.getChild(), getRandomChar(
-                        r,b,assign.get(b.getParent()),siteClass));
-            }
-            
-            //Done like this so things are in a sensible order if written out
-            //Keeps a leaf only and all nodes copy.
-            LinkedHashMap<String,String> all = new LinkedHashMap<>();
-            LinkedHashMap<String,String> lo = new LinkedHashMap<>();
-            
-            for (String l: t.getLeaves())
-            {
-                all.put(l, assign.get(l));
-                lo.put(l, assign.get(l));
-            }
-            for (String i: t.getInternal())
-            {
-                all.put(i, assign.get(i));
-            }
-            
-            //This deals with recoding as discussed in the javadoc.  If there
-            //is none simply ceate the site
-            if (recode == null)
-            {
-                site = new Site(all,siteClass);
-                loSite = new Site(lo,siteClass);
-            }           
-            else
-            {
-                //Else make an ambiguous data structure
-                Map<String,Set<String>> ambig = new HashMap<>();
-                //Step through the recodings and add the apropiate date to
-                //ambig
-                for (Entry<String,String> e: recode.entrySet())
+                //Traverse the tree, assign values to nodes
+                for (Branch b: t.getBranchesReversed())
                 {
-                    if (!ambig.containsKey(e.getValue()))
-                    {
-                        ambig.put(e.getValue(),new HashSet<String>());
-                    }
-                    ambig.get(e.getValue()).add(e.getKey());
+                    assign.put(b.getChild(), getRandomChar(
+                            r,b,assign.get(b.getParent()),siteClass));
                 }
-                
-                //Create the sites
-                site = new Site(all, new Ambiguous(ambig));
-                loSite = new Site(lo, new Ambiguous(ambig));
-                
-                //Now recode them
-                site = site.recode(recode);
-                loSite = site.recode(recode);
-            }            
-	}
-        //While the site is missing or it does not meet the constraints generate
-        //another site
-	while (isMissing(loSite) || !con.get(siteClass).getConstraints(t, loSite).meetsConstrains(site));
+
+                //Done like this so things are in a sensible order if written out
+                //Keeps a leaf only and all nodes copy.
+                LinkedHashMap<String,String> all = new LinkedHashMap<>();
+                LinkedHashMap<String,String> lo = new LinkedHashMap<>();
+
+                for (String l: t.getLeaves())
+                {
+                    all.put(l, assign.get(l));
+                    lo.put(l, assign.get(l));
+                }
+                for (String i: t.getInternal())
+                {
+                    all.put(i, assign.get(i));
+                }
+
+                //This deals with recoding as discussed in the javadoc.  If there
+                //is none simply ceate the site
+                if (recode == null)
+                {
+                    site = new Site(all,siteClass);
+                    loSite = new Site(lo,siteClass);
+                }           
+                else
+                {
+                    //Else make an ambiguous data structure
+                    Map<String,Set<String>> ambig = new HashMap<>();
+                    //Step through the recodings and add the apropiate date to
+                    //ambig
+                    for (Entry<String,String> e: recode.entrySet())
+                    {
+                        if (!ambig.containsKey(e.getValue()))
+                        {
+                            ambig.put(e.getValue(),new HashSet<String>());
+                        }
+                        ambig.get(e.getValue()).add(e.getKey());
+                    }
+
+                    //Create the sites
+                    site = new Site(all, new Ambiguous(ambig), siteClass);
+                    loSite = new Site(lo, new Ambiguous(ambig), siteClass);
+
+                    //Now recode them
+                    site = site.recode(recode);
+                    loSite = loSite.recode(recode);
+                }            
+            }
+            //While the site is missing or it does not meet the constraints generate
+            //another site
+            while (isMissing(loSite) || !con.get(siteClass).getConstraints(t, loSite).meetsConstrains(site));
+        }
+        catch (AlignmentException e)
+        {
+            //This should never happen as this is only thrown if the site and tree
+            //are incompitable.  As the site has been generated using the tree this
+            //shouldn't happen!
+            throw new UnexpectedError(e);
+        }
         
         if (internal)
         {

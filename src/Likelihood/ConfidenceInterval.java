@@ -17,6 +17,7 @@
 
 package Likelihood;
 
+import Likelihood.Calculator.CalculatorException;
 import Maths.Gamma;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
@@ -59,10 +60,11 @@ public class ConfidenceInterval
      * model (e.g. the rate categories differ in their states)
      * @throws TreeException Thrown if there is a problem with the tree.
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present) 
+     * with the parameters (e.g. a requied parameter is not present)
+     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
      */
     public Range getCI(Parameter param, double conf) throws
-	    RateException, ModelException, TreeException, ParameterException
+	    RateException, ModelException, TreeException, ParameterException, CalculatorException
     {
         //Calculate the difference in likelihood that is related to the given
         //confidence value
@@ -82,7 +84,7 @@ public class ConfidenceInterval
     }
     
     private double lower(Parameter param, double o, double m, double ld) throws
-	    RateException, ModelException, TreeException, ParameterException
+	    RateException, ModelException, TreeException, ParameterException, CalculatorException
     {
         //diff is the current step size
         //Think this will breakj if the confidence bound is more than 1 away
@@ -113,7 +115,7 @@ public class ConfidenceInterval
     }
 
     private double upper(Parameter param, double o, double m, double ld) throws 
-	    RateException, ModelException, TreeException, ParameterException
+	    RateException, ModelException, TreeException, ParameterException, CalculatorException
     {
         //Same as for lwoer except the obvious difference!
 	double diff = 1;
@@ -138,7 +140,7 @@ public class ConfidenceInterval
     }
 
     private double single(Parameter param, double target, double a, double b) throws
-	    RateException, ModelException, TreeException, ParameterException
+	    RateException, ModelException, TreeException, ParameterException, CalculatorException
     {
         //Do a golden section search for the likelihood value (max - diff) that we
         //are looking for in the bounds given by a and b

@@ -17,6 +17,7 @@
 
 package Alignments;
 
+import Exceptions.UnexpectedError;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ public class Alignment implements Iterable<Site>
      */
     protected Alignment()
     {
+        this.classSizes = null;
     }
     
     /**
@@ -68,6 +70,7 @@ public class Alignment implements Iterable<Site>
                 throw new AlignmentException("Some sites have a class, some don't");
             }
         }
+        this.classSizes = null;
     }
 
     /**
@@ -234,9 +237,17 @@ public class Alignment implements Iterable<Site>
         {
             for (String t: taxa)
             {
-                if (s.getRawCharacter(t).equals(character))
+                try
                 {
-                    c++;
+                    if (s.getRawCharacter(t).equals(character))
+                    {
+                        c++;
+                    }
+                }
+                catch (AlignmentException e)
+                {
+                    //Should never reach here as we're looping over the known taxa hence...
+                    throw new UnexpectedError(e);
                 }
             }
         }
@@ -262,6 +273,39 @@ public class Alignment implements Iterable<Site>
     }
     
     /**
+     * Gets the size of a class, that is how many sites belong to the given class
+     * @param cl The class
+     * @return How many sites are in that class
+     */
+    public int getClassSize(String cl)
+    {
+        if (classSizes == null)
+        {
+            classSizes = new HashMap<>();
+            for (Site s: data)
+            {
+                String sc = s.getSiteClass();
+                if (classSizes.containsKey(sc))
+                {
+                    classSizes.put(sc,classSizes.get(sc) + 1);
+                }
+                else
+                {
+                    classSizes.put(sc, 1);
+                }
+            }
+        }
+        if (classSizes.containsKey(cl))
+        {
+            return classSizes.get(cl);
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    
+    /**
      * The list of sites in the alignment
      */
     protected List<Site> data = new ArrayList<>();
@@ -277,6 +321,8 @@ public class Alignment implements Iterable<Site>
     protected boolean hasClasses = false;
     
     private List<UniqueSite> us;
+    
+    private Map<String,Integer> classSizes;
     
     /**
      * Used to represent a unique site in an alignment.  Augments the normal site

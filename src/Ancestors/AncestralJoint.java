@@ -21,6 +21,7 @@ import Alignments.Alignment;
 import Alignments.AlignmentException;
 import Alignments.Site;
 import Ancestors.AncestralJointDP.MultipleRatesException;
+import Likelihood.Likelihood.LikelihoodException;
 import Likelihood.Probabilities;
 import Models.Model;
 import Parameters.Parameters;
@@ -55,10 +56,11 @@ public abstract class AncestralJoint
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
      * with the parameters (e.g. a requied parameter is not present)
      * @throws AlignmentException Thrown if there is a problem with the alignment
+     * @throws Likelihood.Likelihood.LikelihoodException Thrown if there is a problem initialise likelihoods 
      */
-    public abstract Alignment calculate(Parameters params) throws RateException, ModelException, AncestralException, TreeException, ParameterException, AlignmentException;
+    public abstract Alignment calculate(Parameters params) throws RateException, ModelException, AncestralException, TreeException, ParameterException, AlignmentException, LikelihoodException;
 
-    abstract Site calculateSite(Site s, Probabilities P) throws AncestralException, TreeException;
+    abstract Site calculateSite(Site s, Probabilities P) throws AncestralException, TreeException, LikelihoodException;
     
     /**
      * Returns an object of this class that can be used for joint reconstruction.

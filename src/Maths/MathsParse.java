@@ -250,7 +250,7 @@ public class MathsParse
             //Calculate the value of a (stored in lv)
 	    CompiledFunction lv;
             //If it's a variable or an already evaluate string get the result
-	    if (left.matches("\\{\\d+\\}") || left.matches(VAR))
+	    if (left.matches("\\{\\d+\\}"))
 	    {
 		lv = results.get(left);
 	    }

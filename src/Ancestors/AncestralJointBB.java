@@ -110,7 +110,7 @@ public class AncestralJointBB extends AncestralJoint
         }
     }
 
-    public Alignment calculate(Parameters p) throws RateException, ModelException, AncestralException, TreeException, ParameterException, AlignmentException
+    public Alignment calculate(Parameters p) throws RateException, ModelException, AncestralException, TreeException, ParameterException, AlignmentException, LikelihoodException
     {
         //If the parameters setting doesn't include branch lengths parameters then
         //add them from the tree.  The paramter / branch length interaction is a
@@ -158,7 +158,7 @@ public class AncestralJointBB extends AncestralJoint
     }
 
     //private String[] calculateSite(int ch, String[][] ca, HashMap<RateClass,SquareMatrix[]> matrices, HashMap<RateClass,double[]> freq,
-    Site calculateSite(Site ca, Probabilities P) throws TreeException, AncestralException
+    Site calculateSite(Site ca, Probabilities P) throws TreeException, AncestralException, LikelihoodException
     {
         //Based on Pupko 2002 but without the second bound metioned.
         //Seems to be efficient without it.  The second bound could be
@@ -217,7 +217,15 @@ public class AncestralJointBB extends AncestralJoint
         //By copying the original site
         for (String s: ca.getTaxa())
         {
-            ret.put(s, ca.getRawCharacter(s));
+            try
+            {
+                ret.put(s, ca.getRawCharacter(s));
+            }
+            catch (AlignmentException e)
+            {
+                //Should never reach here as we're looping over the known taxa hence...
+                throw new UnexpectedError(e);
+            }
         }
         //And then adding the reconstruction
         for (String in: t.getInternal())
@@ -238,7 +246,7 @@ public class AncestralJointBB extends AncestralJoint
         return new Site(ret);
     }
 
-    private Best DFS(Site site, SiteConstraints assign, Best best, Probabilities P, Site ba)
+    private Best DFS(Site site, SiteConstraints assign, Best best, Probabilities P, Site ba) throws LikelihoodException
     {
         //Recursive depth first search of possible reconstructions
      
@@ -288,7 +296,15 @@ public class AncestralJointBB extends AncestralJoint
 	SiteConstraints na = assign.clone();
         
         //First try the best single-rate assignment we calculated above
-        na.addConstraint(b, ba.getRawCharacter(b));
+        try
+        {
+            na.addConstraint(b, ba.getRawCharacter(b));
+        }
+        catch (AlignmentException e)
+        {
+            //Should never reach here as we're looping over the known taxa hence...
+            throw new UnexpectedError(e);
+        }
         //and recurse...
 	best = DFS(site,na,best,P,ba);
 
@@ -296,14 +312,22 @@ public class AncestralJointBB extends AncestralJoint
 	for (String state: P.getAllStatesAsList())
 	{
             //Excpet the one we've already tried
-	    if (!state.equals(ba.getRawCharacter(b)))
-	    {
-                //Clone the assignment and add the current assignment
-                na = assign.clone();
-                na.addConstraint(b, state);
-                //and recurse...
-		best = DFS(site,na,best,P,ba);
-	    }
+            try
+            {
+                if (!state.equals(ba.getRawCharacter(b)))
+                {
+                    //Clone the assignment and add the current assignment
+                    na = assign.clone();
+                    na.addConstraint(b, state);
+                    //and recurse...
+                    best = DFS(site,na,best,P,ba);
+                }
+            }
+            catch (AlignmentException e)
+            {
+                //Should never reach here as we're looping over the known taxa hence...
+                throw new UnexpectedError(e);
+            }
 	}
         //Return the best we've found (used when coming back up the recursion)
 	return best;

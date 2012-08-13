@@ -16,6 +16,7 @@
  */
 
 package Ancestral;
+import Likelihood.Likelihood.LikelihoodException;
 import Likelihood.Likelihood.NodeLikelihood;
 import Utils.ArrayMap;
 import java.util.ArrayList;
@@ -108,7 +109,7 @@ public class JointBBTest
     }
     
     private String[] getBest(Tree t, Probabilities P,
-        Site s)
+        Site s) throws LikelihoodException
     {
         List<String> bases = new ArrayList<>();
         bases.add("A"); bases.add("C"); bases.add("G"); bases.add("T");

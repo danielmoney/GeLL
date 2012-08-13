@@ -1,7 +1,24 @@
+/*
+ * This file is part of GeLL.
+ * 
+ * GeLL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GeLL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GeLL.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package Alignments;
 
 import Exceptions.InputException;
 import Exceptions.OutputException;
+import Exceptions.UnexpectedError;
 import java.io.File;
 import java.util.HashMap;
 import java.io.BufferedReader;
@@ -167,7 +184,67 @@ public class PhylipAlignment extends Alignment
                 out.print(taxa + "     ");
                 for (int j=0; j < a.getLength(); j++)
                 {
-                    out.print(a.getSite(j).getRawCharacter(taxa));
+                    try
+                    {
+                        out.print(a.getSite(j).getRawCharacter(taxa));
+                    }
+                    catch (AlignmentException e)
+                    {
+                        //Should never reach here as we're looping over the known taxa hence...
+                        throw new UnexpectedError(e);
+                    }
+                }
+                out.println();
+            }
+            
+            if (a.hasClasses)
+            {
+                out.println();
+                out.print("*Class*     ");
+                for (int j=0; j < a.getLength(); j++)
+                {
+                    out.print(a.getSite(j).getSiteClass());
+                }
+                out.println();
+            }
+            
+            out.close();
+        }
+	catch (FileNotFoundException e)
+	{
+	    throw new OutputException(f.getAbsolutePath(),"Unable to write out sequence alignment",e);
+	}
+    }
+    
+    /**
+     * Writes a alignment to a file in the format described in 
+     * {@link #PhylipAlignment(java.io.File)}.
+     * @param a The alignment to write to the file. Need not be a sequence alignment
+     * @param f The file to write to
+     * @throws OutputException Thrown if there is a problem creating the file
+     */
+    public static void writeFilePAML(Alignment a, File f) throws OutputException
+    {
+        try
+        {
+            PrintStream out = new PrintStream(new FileOutputStream(f));
+
+            out.println("     " + a.getNumber() + "    " + a.getLength());
+            out.println();
+            for (String taxa: a.getTaxa())
+            {
+                out.print(taxa.subSequence(0, Math.min(25,taxa.length())) + "     ");
+                for (int j=0; j < a.getLength(); j++)
+                {
+                    try
+                    {
+                        out.print(a.getSite(j).getRawCharacter(taxa));
+                    }
+                    catch (AlignmentException e)
+                    {
+                        //Should never reach here as we're looping over the known taxa hence...
+                        throw new UnexpectedError(e);
+                    }
                 }
                 out.println();
             }
