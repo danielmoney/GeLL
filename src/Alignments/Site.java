@@ -119,7 +119,7 @@ public class Site implements Serializable
         this.sites = s.sites;
         this.ambig = s.ambig;
         this.siteClass = s.siteClass;
-        this.id = id;
+        this.id = s.id;
     }
     
     /**
@@ -140,7 +140,7 @@ public class Site implements Serializable
      * data and will just return the raw character
      * @param taxa Taxa to return the character for
      * @return The character for the given taxa
-     * @throws AlignmentException If the taxa passed is not a valid taxa name  
+     * @throws AlignmentException If the passed taxa name is not valid     
      */
     public String getRawCharacter(String taxa) throws AlignmentException
     {

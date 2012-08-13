@@ -17,6 +17,7 @@
 
 package Parameters;
 
+import Parameters.Parameters.ParameterException;
 import java.io.Serializable;
 
 /**
@@ -60,8 +61,12 @@ public class Parameter implements Serializable
 	return value;
     }
     
-    void setValue(double val)
+    void setValue(double val) throws ParameterException
     {
+        if ((val < lbound) || (val > ubound))
+        {
+            throw new ParameterException("Attempt to set parameter to value not within bounds");
+        }
 	value = val;
     }
     

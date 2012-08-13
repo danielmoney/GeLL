@@ -17,11 +17,13 @@
 
 package Optimizers;
 
+import Alignments.Site;
 import Exceptions.InputException;
 import Exceptions.OutputException;
 import Likelihood.Calculator;
 import Likelihood.Calculator.CalculatorException;
 import Likelihood.Likelihood;
+import Likelihood.Likelihood.LikelihoodException;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
 import Parameters.Parameter;
@@ -121,6 +123,8 @@ public class GoldenSection implements Optimizer
     //initalised.
     private Likelihood maximise(Calculator l, PrintStream out, Data data) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
     {
+        //Don't keep Node Likelihoods while we are otimizing
+        Likelihood.optKeepNL(false);
         //In this function two levels of progress output are the same so create
         //a boolean as to whether we're using one of those progress levels.
 	boolean progress = (progresslevel == ProgressLevel.CALCULATION ||
@@ -179,7 +183,10 @@ public class GoldenSection implements Optimizer
 	    }
 	}
 	while ((data.oldML == null) || ((data.e_diff >= rigor) || (data.newML.getLikelihood() - data.oldML.getLikelihood() > rigor)));
-	return data.newML;
+        //Now keep NodeLikelihoods and calculate the resulting NodeLikelihoods
+        Likelihood.optKeepNL(true);
+        return l.calculate(data.newML.getParameters());
+	//return data.newML;
     }
 
     private Likelihood maximiseSingle(Parameters pp, Parameter p, Calculator l, double diff, double e_diff, ProgressLevel progresslevel, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, CalculatorException

@@ -69,7 +69,10 @@ public class Calculator
      * @param m The model
      * @param a The alignment
      * @param t The tree
-     * @throws TreeException If there is a problem with the tree 
+     * @throws TreeException If there is a problem with the tree
+     * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     *      (most probably due to the state at the node not being in the model).
+     * @throws AlignmentException Thrown if the tree and site have incomptiable taxa 
      */
     public Calculator(Model m, Alignment a, Tree t) throws TreeException, LikelihoodException, AlignmentException
     {
@@ -84,6 +87,9 @@ public class Calculator
      * @param t The tree
      * @param unobserved Unobserved data given as another alignment
      * @throws TreeException If there is a problem with the tree
+     * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     *      (most probably due to the state at the node not being in the model).
+     * @throws AlignmentException Thrown if the tree and site have incomptiable taxa 
      */    
     public Calculator(Model m, Alignment a, Tree t, Alignment unobserved) throws TreeException, LikelihoodException, AlignmentException
     {
@@ -98,6 +104,9 @@ public class Calculator
      * @param t The tree
      * @param con Any constraints
      * @throws TreeException If there is a problem with the tree
+     * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     *      (most probably due to the state at the node not being in the model).
+     * @throws AlignmentException Thrown if the tree and site have incomptiable taxa 
      */
     public Calculator(Model m, Alignment a, Tree t, Constrainer con) throws TreeException, LikelihoodException, AlignmentException
     {
@@ -114,6 +123,9 @@ public class Calculator
      * @param unobserved Unobserved data given as another alignment
      * @param con Any constraints
      * @throws TreeException If there is a problem with the tree
+     * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     *      (most probably due to the state at the node not being in the model).
+     * @throws AlignmentException Thrown if the tree and site have incomptiable taxa 
      */
     public Calculator(Model m, Alignment a, Tree t, Alignment unobserved, Constrainer con) throws TreeException, LikelihoodException, AlignmentException
     {
@@ -156,6 +168,8 @@ public class Calculator
      * @throws AlignmentException Thrown if a model isn't given for each site class
      * in the alignment
      * @throws TreeException If there is a problem with the tree
+     * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     *      (most probably due to the state at the node not being in the model). 
      */
     public Calculator(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException, TreeException, LikelihoodException
     {
@@ -203,6 +217,8 @@ public class Calculator
      * @throws AlignmentException Thrown if a model isn't given for each site class
      * in the alignment 
      * @throws TreeException If there is a problem with the tree
+     * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     *      (most probably due to the state at the node not being in the model). 
      */
     public Calculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved) throws AlignmentException, TreeException, LikelihoodException
     {
@@ -272,6 +288,8 @@ public class Calculator
      * @throws AlignmentException Thrown if a model and constrainer isn't given
      * for each site class in the alignment
      * @throws TreeException If there is a problem with the tree
+     * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     *      (most probably due to the state at the node not being in the model). 
      */
     public Calculator(Map<String,Model> m, Alignment a, Tree t, Map<String,Constrainer> con) throws AlignmentException, TreeException, LikelihoodException
     {
@@ -290,6 +308,8 @@ public class Calculator
      * @throws AlignmentException Thrown if a model and constrainer isn't given
      * for each site class in the alignment
      * @throws TreeException If there is a problem with the tree
+     * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     *      (most probably due to the state at the node not being in the model). 
      */
     public Calculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved, Map<String,Constrainer> con) throws AlignmentException, TreeException, LikelihoodException
     {
@@ -364,7 +384,8 @@ public class Calculator
      * @throws Models.Model.ModelException Thrown if there is a problem with the
      * model (e.g. the rate categories differ in their states)
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present) 
+     * with the parameters (e.g. a requied parameter is not present)
+     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated 
      */
     public Likelihood calculate(Parameters p) throws TreeException, RateException, ModelException, ParameterException, CalculatorException
     {
@@ -579,6 +600,8 @@ public class Calculator
          * @param t The tree
          * @param con Constraints on the site
          * @param tp Pre-computed datastructure containing probabilities
+         * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+         *      (most probably due to the state at the node not being in the model). 
          */
         public SiteCalculator(Site s, Tree t, SiteConstraints con, Probabilities tp) throws LikelihoodException
         {

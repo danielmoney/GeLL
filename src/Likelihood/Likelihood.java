@@ -110,12 +110,41 @@ public class Likelihood implements Serializable
         return Double.toString(l);
     }
     
+    /**
+     * Sets whether to store the node likelihoods after they've been used.
+     * Setting this to false can save significant amounts of memory
+     * @param keep Whether to keep the node likelihoods
+     */
+    public static void keepNodeLikelihoods(boolean keep)
+    {
+        publicKeepNL = keep;
+        keepNL = publicKeepNL && optKeepNL;
+    }
+    
+    /**
+     * Similar to {@link #keepNodeLikelihoods(boolean)} but if set to false
+     * overrides the setting set by that function.  Intended to only be used
+     * by optimizers so that the node likelihoods calculated while optimizing
+     * aren't kept.  I.e. should be set to false before optimizing and back to
+     * true for the final calculation.
+     * @param keep Whether to keep the ndoe likelihoods
+     */
+    public static void optKeepNL(boolean keep)
+    {
+        optKeepNL = keep;
+        keepNL = publicKeepNL && optKeepNL;
+    }
+    
     private double l;
     private ArrayMap<Site,SiteLikelihood> siteLikelihoods;
     private ArrayMap<Site,SiteLikelihood> missingLikelihoods;
     private Parameters p;
     
     private static final long serialVersionUID = 1;
+    
+    private static boolean keepNL = true;
+    private static boolean publicKeepNL = true;
+    private static boolean optKeepNL = true;
     
     /**
      * Stored the result of a likelihood calculation for a single site
@@ -218,7 +247,14 @@ public class Likelihood implements Serializable
        RateLikelihood(double l, ArrayMap<String, NodeLikelihood> nodeLikelihoods)
         {
             this.l = l;
-            this.nodeLikelihoods = nodeLikelihoods;
+            if (keepNL)
+            {
+                this.nodeLikelihoods = nodeLikelihoods;
+            }
+            else
+            {
+                this.nodeLikelihoods = null;
+            }
         }
 
         /**
@@ -239,13 +275,20 @@ public class Likelihood implements Serializable
          */
         public NodeLikelihood getNodeLikelihood(String node) throws LikelihoodException
         {
-            if (nodeLikelihoods.containsKey(node))
+            if (nodeLikelihoods != null)
             {
-                return nodeLikelihoods.get(node);
+                if (nodeLikelihoods.containsKey(node))
+                {
+                    return nodeLikelihoods.get(node);
+                }
+                else
+                {
+                    throw new LikelihoodException("No result for node: " + node);
+                }
             }
             else
             {
-                throw new LikelihoodException("No result for node: " + node);
+                throw new LikelihoodException("Node results not kept to safe memory");
             }
         }
         
@@ -276,6 +319,8 @@ public class Likelihood implements Serializable
          * Default constructor
          * @param states Map from a state to it's position in the array
          * @param allowedStates The allowed states at this state
+         * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     *      (most probably due to the state at the node not being in the model).  
          */
         public NodeLikelihood(ArrayMap<String,Integer> states, Set<String> allowedStates) throws LikelihoodException
         {

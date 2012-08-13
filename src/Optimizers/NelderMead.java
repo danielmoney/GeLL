@@ -92,6 +92,8 @@ public class NelderMead implements Optimizer
     //initalised.
     private Likelihood maximise(Calculator l, PrintStream out, Data data) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
     {
+        //Don't keep Node Likelihoods while we are otimizing
+        Likelihood.optKeepNL(false);
         //Reset the timer
         timePassed.reset();
 	do
@@ -218,7 +220,10 @@ public class NelderMead implements Optimizer
 	}
 	while (-data.vold.getLikelihood() - -data.vnew.getLikelihood() > tol);
 
-	return data.vnew;
+        //Now keep NodeLikelihoods and calculate the resulting NodeLikelihoods
+        Likelihood.optKeepNL(true);
+        return l.calculate(data.vnew.getParameters());
+	//return data.vnew;
     }
 
     private static Likelihood evaluate(double[] params, Data data, Calculator l) throws RateException, ModelException, TreeException, ParameterException, CalculatorException
