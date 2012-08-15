@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Interface for different likelihood optimizers
  * @author Daniel Money
- * @version 1.0
+ * @version 1.3
  */
 public interface Optimizer
 {

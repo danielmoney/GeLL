@@ -23,7 +23,7 @@ import java.io.Serializable;
 /**
  * Represents a parameter of a model
  * @author Daniel Money
- * @version 1.0
+ * @version 1.3
  */
 public class Parameter implements Serializable
 {

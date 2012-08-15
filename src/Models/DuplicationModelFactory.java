@@ -158,8 +158,15 @@ public class DuplicationModelFactory
         }
         
         p.addParameter(Parameter.newFixedParameter("b", 1.0));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("d"));
-        p.addParameter(Parameter.newEstimatedBoundedParameter("i",0.0,10.0));
+        //Bound parameters so they can't go to zero as this would create a sink state model
+        p.addParameter(Parameter.newEstimatedBoundedParameter("d",1e-4,Double.MAX_VALUE));
+        //Further bound the innovation parameter, otherwise can go to infinity
+        //on some simulated datasets with very little change.  This is due
+        //to there being zero probability of being in state zero at the root
+        //and very little chance of changing to zero over the tree.  If the
+        //simulated dataset has no zero innovation will go to infinity if
+        //not bound.
+        p.addParameter(Parameter.newEstimatedBoundedParameter("i",1e-4,10.0));
         
         try
         {
@@ -210,9 +217,15 @@ public class DuplicationModelFactory
         }
         
         p.addParameter(Parameter.newFixedParameter("b", 1.0));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("d"));
-        p.addParameter(Parameter.newEstimatedBoundedParameter("i",0.0,10.0));
-        
+        //Bound parameters so they can't go to zero as this would create a sink state model
+        p.addParameter(Parameter.newEstimatedBoundedParameter("d",1e-4,Double.MAX_VALUE));
+        //Further bound the innovation parameter, otherwise can go to infinity
+        //on some simulated datasets with very little change.  This is due
+        //to there being zero probability of being in state zero at the root
+        //and very little chance of changing to zero over the tree.  If the
+        //simulated dataset has no zero innovation will go to infinity if
+        //not bound.
+        p.addParameter(Parameter.newEstimatedBoundedParameter("i",1e-4,10.0));        
         p.addParameter(Parameter.newEstimatedBoundedParameter("g", 0.2, 10.0));
         
         try

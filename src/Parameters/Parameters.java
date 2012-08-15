@@ -36,7 +36,7 @@ import java.util.Iterator;
 /**
  * Represents a set of parameters
  * @author Daniel Money
- * @version 1.0
+ * @version 1.3
  */
 public class Parameters implements Iterable<Parameter>, Serializable
 {
@@ -46,7 +46,6 @@ public class Parameters implements Iterable<Parameter>, Serializable
     public Parameters()
     {
 	params = new ArrayList<>();
-	recalc = true;
     }
 
     /**
@@ -56,7 +55,6 @@ public class Parameters implements Iterable<Parameter>, Serializable
     public Parameters(ArrayList<Parameter> params)
     {
 	this.params = params;
-	recalc = true;
     }
     
     public Parameters clone()
@@ -91,25 +89,6 @@ public class Parameters implements Iterable<Parameter>, Serializable
     }
 
     /**
-     * Tests whether any parameters that would require recalculation of the
-     * probability matrices have been changed since the last call to {@link #calculated()} 
-     * @return Whether the probability matrices need to be recalculated.
-     */
-    public boolean recalculateMatrix()
-    {
-	return recalc;
-    }
-
-    /**
-     * Resets the testfor whether probability matrices need to be recalculalated.
-     * Should be called just after they have been recalculated.
-     */
-    public void calculated()
-    {
-	recalc = false;
-    }
-
-    /**
      * Sets the value of a parameter
      * @param p The parameter
      * @param v The value
@@ -119,7 +98,6 @@ public class Parameters implements Iterable<Parameter>, Serializable
     public void setValue(Parameter p, double v) throws ParameterException
     {
 	p.setValue(v);
-	recalc = (recalc || p.matrix());
     }
 
     /**
@@ -284,7 +262,7 @@ public class Parameters implements Iterable<Parameter>, Serializable
 
     private ArrayList<Parameter> params;
 
-    private boolean recalc;
+    //private boolean recalc;
 
     /**
      * Reads parameters from a file.  Each parameter is a single line and is

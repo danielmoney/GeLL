@@ -27,7 +27,7 @@ import Trees.TreeException;
  * This can be used in both likelihood calculations and simulations to enforce
  * that an internal node is a certain value or one of a range of values.
  * @author Daniel Money
- * @version 1.0
+ * @version 1.3
  */
 public interface Constrainer
 {

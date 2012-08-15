@@ -14,8 +14,10 @@ import java.util.Set;
 
 /**
  * Represents a "site" in an "alignment".  Both terms used generously.
+ * When comparing sites the site ID is ignored so as to allowed counting
+ * of unique sites for caclulation purposes.
  * @author Daniel Money
- * @version 1.2
+ * @version 1.3
  */
 public class Site implements Serializable
 {

@@ -35,7 +35,7 @@ import java.util.Set;
  * {@link SequenceAlignment}.
  * 
  * @author Daniel Money
- * @version 1.2
+ * @version 1.3
  */
 public class Alignment implements Iterable<Site>
 {

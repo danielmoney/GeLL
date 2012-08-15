@@ -47,8 +47,11 @@
                     </ul>
                 </li>
                 <li>
-                    <b>Simulated data</b> - Using the standard methods as described, for example,
+                    <b>Simulated Data</b> - Using the standard methods as described, for example,
                     in Yang 2006<sup>[7]</sup>.
+                </li>
+                <li>
+                    <b>Non-reversible Processes</b> - Using the method described by Boussau and Gouy 2006<sup>[8]</sup>.
                 </li>
             </ul>
             </div>
@@ -152,20 +155,56 @@
             </div>
             <div class="collapseinner" id="notes">
                 <b>1.0</b> <span class="reldate">2 February 2012</span>
-                <ul>
+                <ul class="changes">
                     <li>First release</li>
                 </ul>
                 <b>1.1</b> <span class="reldate">4 April 2012</span>
-                <ul>
+                <ul class="changes">
                     <li><i>Not publically release due to memory problems</i></li>
                     <li>Added support for model hypothesis testing</li>
                     <li>Allow sites to be in different class</li>
                 </ul>
                 <b>1.2</b> <span class="reldate">23 April 2012</span>
-                <ul>
+                <ul class="changes">
                     <li><i>Not (quite) backwards compitabile although only minimal changes should be neccessary</i></li>
                     <li>Changes to internal storage structures to sort memory problems</li>
                     <li>Large amounts of code optimization</li>
+                </ul>
+                <b>1.3</b> <span class="reldate">14 August 2012</span>
+                <ul class="changes">
+                    <li><i>Not (quite) backwards compitabile although only minimal changes should be neccessary</i></li>
+                    <li>Added Conjugate Gradient search</li>
+                    <li>Added an ID field to Site</li>
+                    <li>Added split support to Tree and also the ability to calculate
+                        various distances between trees (RF, weighted RF and branch score).</li>
+                    <li>Minor Changes:
+                    <ul class="minor">
+                        <li>Optimiser don't store node likelihood until after optimization
+                            is complete to save memory.</li>
+                        <li>Attempt to make calculating distributions using the
+                            "repeated" method more stable.</li>
+                        <li>Fixed bugged in test for quasi-stationary distribution
+                            convergence.</li>
+                        <li>Parameters toString method now only outputs estimated
+                            parameters by default.</li>
+                        <li>Ability to write sequence alignments in Phylip Alignments
+                            in PAML format, i.e. taxa names have a maximum of 15 characters.
+                            This is buggy as names are simply truncated and duplicated names
+                            are not checked for.</li>
+                        <li>Fix to PossibleSettings which meant settings in no group did
+                            not work properly.</li>
+                        <li>Parameter now throws an error if an attempt is made to set it
+                            to an invalid value.</li>
+                        <li>Additional error checking in likelihood calculations to check
+                            for probabilities greater than one and other errors.</li>
+                        <li>Various updates to throw statements caused by the above.</li>
+                        <li>Moved the storing of whether matrices need to be recalculated
+                            from Parameters to RateCategory.  This is more inituative as the
+                            what parameters are in the rate category decides when changes to
+                            parameters needs matrix recalculations. Should, hopefully, be largely 
+                            transparent.</li>
+                    </ul>
+                    </li>
                 </ul>
             </div>
             
@@ -229,6 +268,8 @@
                         replacement rate varies among sites: Application to the evolution of five gene families.
                         <i>Bioinformatics</i>, 18:1116–1123.</li>
                     <li>Yang, Z. 2006. <i>Computational molecular evolution</i>. Oxford University Press, USA.</li>
+                    <li>Boussau, B. and Gouy, M. 2006 Efficient Likelihood Computations with Nonreversible 
+                        Models of Evolution.  <i>Systematic Biology</i>, 55:756-768. </li>
                 </ol>
             </div>
         </div>

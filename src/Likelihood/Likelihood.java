@@ -34,7 +34,7 @@ import java.util.Set;
  * likelihood it stores the likelihood of each site and also of each missing
  * site.
  * @author Daniel Money
- * @version 1.2
+ * @version 1.3
  */
 
 public class Likelihood implements Serializable

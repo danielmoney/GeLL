@@ -34,7 +34,7 @@ import java.util.Set;
 /**
  * Represents a sequence alignment in FASTA format
  * @author Daniel Money
- * @version 1.2
+ * @version 1.3
  */
 public class FastaAlignment extends Alignment
 {

@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
  * Implements Nelder-Mead parameter optimization. <BR><BR>
  * Progress information can optionally be printed to either the screen or a file.
  * @author Daniel Money
- * @version 1.0
+ * @version 1.3
  */
 public class NelderMead implements Optimizer
 {

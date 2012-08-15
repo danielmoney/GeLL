@@ -55,7 +55,7 @@ import java.util.regex.Pattern;
  * They may also contain numbers and mathematical operations.  See 
  * {@link FunctionParser} for more on how these rates are evaluated.
  * @author Daniel Money
- * @version 1.2
+ * @version 1.3
  */
 public class Model implements Iterable<RateCategory>
 {

@@ -35,7 +35,7 @@ import java.util.Set;
 /**
  * Represents a sequence alignment
  * @author Daniel Money
- * @version 1.2
+ * @version 1.3
  * @deprecated Replaced by {@link PhylipAlignment} to allow for easier use of
  * multiple formats.
  */

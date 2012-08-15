@@ -59,7 +59,7 @@ import java.util.concurrent.Executors;
  * one case.  Uses the pruning technique of Felenstein 1981 and can account for
  * unobserved states using Felsenstein 1992.
  * @author Daniel Money
- * @version 1.2
+ * @version 1.3
  */
 public class Calculator
 {  

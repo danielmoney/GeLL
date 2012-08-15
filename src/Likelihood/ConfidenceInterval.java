@@ -33,7 +33,7 @@ import Utils.Range;
  * confidence interval we only update the parameter of interest rather than
  * optomising every parameter at each step.
  * @author Daniel Money
- * @version 1.0
+ * @version 1.3
  */
 public class ConfidenceInterval
 {

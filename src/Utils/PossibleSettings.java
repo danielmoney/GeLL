@@ -25,7 +25,7 @@ import java.util.Set;
  * Maintains a list of possible settings.  See {@link Settings} for further
  * details of how settings are structured.
  * @author Daniel Money
- * @version 1.0
+ * @version 1.3
  */
 public class PossibleSettings
 {

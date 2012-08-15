@@ -17,13 +17,11 @@
 
 package Optimizers;
 
-import Alignments.Site;
 import Exceptions.InputException;
 import Exceptions.OutputException;
 import Likelihood.Calculator;
 import Likelihood.Calculator.CalculatorException;
 import Likelihood.Likelihood;
-import Likelihood.Likelihood.LikelihoodException;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
 import Parameters.Parameter;
@@ -53,7 +51,7 @@ import java.util.concurrent.TimeUnit;
  * The amount of logging can be controlled as can the rigor used (the difference
  * in likelihood when the search stops).
  * @author Daniel Money
- * @version 1.0
+ * @version 1.3
  */
 public class GoldenSection implements Optimizer
 {

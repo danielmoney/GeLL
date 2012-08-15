@@ -49,7 +49,7 @@ import java.util.regex.Pattern;
  * Additional functions can be defined by passing instances of classes that
  * implement {@link FunctionParser} to the constructor.
  * @author Daniel Money
- * @version 1.2
+ * @version 1.3
  */
 public class MathsParse
 {

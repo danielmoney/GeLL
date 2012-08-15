@@ -23,7 +23,7 @@ import java.util.TreeSet;
 /**
  * Represents a mahematical function, variable or constant
  * @author Daniel Money
- * @version 1.2
+ * @version 1.3
  */
 public interface CompiledFunction
 {

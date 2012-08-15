@@ -41,7 +41,10 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Tests the simulation method
+ * Tests the simulation method.  Note that this test will occassionally fail due
+ * the random nature of the simulation which means we would expect the simulated
+ * data to have a significant different distribution in 5% of tests (as this is
+ * the significance level we use).
  * @author Daniel Money
  * @version 1.2
  */

@@ -48,7 +48,7 @@ import java.util.Set;
  * Class to perform marginal reconstruction of internal nodes.  Uses the principles of
  * Yang, Kurma and Nei 1995.
  * @author Daniel Money
- * @version 1.2
+ * @version 1.3
  */
 public class AncestralMarginal
 {

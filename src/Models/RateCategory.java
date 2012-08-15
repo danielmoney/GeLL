@@ -49,7 +49,7 @@ import java.util.TreeSet;
 /**
  * Represents a rate category of a phylogenetic model.
  * @author Daniel Money
- * @version 1.2
+ * @version 1.3
  */
 public class RateCategory implements Serializable
 {

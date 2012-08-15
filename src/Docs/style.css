@@ -18,5 +18,7 @@ a { color: blue; text-decoration:none}
 .options td { border-width:1px; border-style:solid; padding:5px; width:75%;
             border-color:lightskyblue}
 .options ul { margin-top:0px; margin-bottom:0px; padding-left:20px}
-.needed {background-color:lavender}
+.needed { background-color:lavender}
+.minor { font-size:small; color:grey}
+.changes {padding-right:40px}
 

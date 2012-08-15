@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * Class to do hypothesis testing using simulation to generate the null distribution.
  * @author Daniel Money
- * @version 1.1
+ * @version 1.3
  */
 public class HypothesisTest
 {

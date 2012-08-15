@@ -50,7 +50,7 @@ import java.util.Map.Entry;
  * Class to perform joint ancestral reconstrion using the method of Pupko 2002
  * slightly modified
  * @author Daniel Money
- * @version 1.2
+ * @version 1.3
  */
 public class AncestralJointBB extends AncestralJoint
 {   

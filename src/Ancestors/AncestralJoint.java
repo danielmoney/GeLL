@@ -37,7 +37,7 @@ import java.util.Map;
  * extend.  By using the static method in tis class users can avoid worrying
  * about whether their model has a single rate category.
  * @author Daniel Money
- * @version 1.1
+ * @version 1.3
  */
 public abstract class AncestralJoint
 {

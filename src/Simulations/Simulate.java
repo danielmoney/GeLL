@@ -49,7 +49,7 @@ import java.util.Set;
 /**
  * Class for constructing simulated data
  * @author Daniel Money
- * @version 1.2
+ * @version 1.3
  */
 public class Simulate
 {
