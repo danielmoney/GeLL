@@ -16,8 +16,8 @@
  */
 
 package Ancestral;
-import Likelihood.Likelihood.LikelihoodException;
-import Likelihood.Likelihood.NodeLikelihood;
+import Likelihood.SiteLikelihood.LikelihoodException;
+import Likelihood.SiteLikelihood.NodeLikelihood;
 import Utils.ArrayMap;
 import java.util.ArrayList;
 import java.util.List;

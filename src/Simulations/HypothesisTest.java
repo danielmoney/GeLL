@@ -8,7 +8,7 @@ import Exceptions.OutputException;
 import Likelihood.Calculator;
 import Likelihood.Calculator.CalculatorException;
 import Likelihood.Likelihood;
-import Likelihood.Likelihood.LikelihoodException;
+import Likelihood.SiteLikelihood.LikelihoodException;
 import Models.Model;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;

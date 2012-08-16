@@ -25,7 +25,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import Likelihood.Likelihood.SiteLikelihood;
 import Alignments.Site;
 import org.junit.Test;
 import org.junit.BeforeClass;

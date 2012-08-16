@@ -1,8 +1,8 @@
 package Alignments;
 
 import Constraints.SiteConstraints;
-import Likelihood.Likelihood.LikelihoodException;
-import Likelihood.Likelihood.NodeLikelihood;
+import Likelihood.SiteLikelihood.LikelihoodException;
+import Likelihood.SiteLikelihood.NodeLikelihood;
 import Trees.Tree;
 import Utils.ArrayMap;
 import java.io.Serializable;

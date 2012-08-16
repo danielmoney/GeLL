@@ -26,11 +26,10 @@ import Constraints.Constrainer;
 import Constraints.NoConstraints;
 import Exceptions.GeneralException;
 import Exceptions.UnexpectedError;
-import Likelihood.Likelihood.LikelihoodException;
-import Likelihood.Likelihood.NodeLikelihood;
-import Likelihood.Likelihood.RateLikelihood;
-import Likelihood.Likelihood.SiteLikelihood;
 import Likelihood.Probabilities.RateProbabilities;
+import Likelihood.SiteLikelihood.LikelihoodException;
+import Likelihood.SiteLikelihood.NodeLikelihood;
+import Likelihood.SiteLikelihood.RateLikelihood;
 import Maths.SquareMatrix;
 import Models.Model;
 import Models.Model.ModelException;
@@ -61,7 +60,7 @@ import java.util.concurrent.Executors;
  * @author Daniel Money
  * @version 1.3
  */
-public class Calculator
+public class Calculator implements CalculatesLikelihood<Likelihood>
 {  
     /**
      * Creates an object to calculate the likelihood for a given model, alignment,
