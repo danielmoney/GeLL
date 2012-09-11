@@ -31,25 +31,15 @@ import java.io.Serializable;
  * @version 1.3
  */
 
-public class Likelihood implements Serializable, HasLikelihood
+public class Likelihood extends BasicLikelihood implements Serializable
 {
     Likelihood(double l, ArrayMap<Site,SiteLikelihood> siteLikelihoods,
             ArrayMap<Site,SiteLikelihood> missingLikelihoods,
             Parameters p)
     {
-        this.l = l;
+        super(l,p);
         this.siteLikelihoods = siteLikelihoods;
         this.missingLikelihoods = missingLikelihoods;
-        this.p = p;
-    }
-    
-    /**
-     * Gets the total likelihood
-     * @return The total likelihood
-     */
-    public double getLikelihood()
-    {
-        return l;
     }
     
     /**
@@ -90,24 +80,8 @@ public class Likelihood implements Serializable, HasLikelihood
         }
     }
     
-    /**
-     * Gets the parameters used to calculate this likelihood
-     * @return The parameters
-     */
-    public Parameters getParameters()
-    {
-        return p;
-    }
-    
-    public String toString()
-    {
-        return Double.toString(l);
-    }
-    
-    private double l;
     private ArrayMap<Site,SiteLikelihood> siteLikelihoods;
     private ArrayMap<Site,SiteLikelihood> missingLikelihoods;
-    private Parameters p;
     
     private static final long serialVersionUID = 1;
 }

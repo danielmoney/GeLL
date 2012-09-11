@@ -19,10 +19,9 @@ package Optimizers;
 
 import Exceptions.InputException;
 import Exceptions.OutputException;
-import Likelihood.CalculatesLikelihood;
-import Likelihood.Calculator.CalculatorException;
-import Likelihood.HasLikelihood;
-import Likelihood.Likelihood;
+import Likelihood.BasicCalculator.CalculatorException;
+import Likelihood.BasicCalculator;
+import Likelihood.BasicLikelihood;
 import Likelihood.SiteLikelihood;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
@@ -98,12 +97,12 @@ public class GoldenSection implements Optimizer
     }
     
 
-    public <R extends HasLikelihood> R maximise(CalculatesLikelihood<R> l, Parameters params) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
+    public <R extends BasicLikelihood> R maximise(BasicCalculator<R> l, Parameters params) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
     {
 	return maximise(l,System.out,new Data(params));
     }
 
-    public <R extends HasLikelihood> R maximise(CalculatesLikelihood<R> l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
+    public <R extends BasicLikelihood> R maximise(BasicCalculator<R> l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
     {
         try
         {
@@ -121,7 +120,7 @@ public class GoldenSection implements Optimizer
     //See the Data class for a fuller description but effectively this stores
     //the state of the optimizer.  When created the parameters within it are
     //initalised.
-    private <R extends HasLikelihood> R maximise(CalculatesLikelihood<R> l, PrintStream out, Data data) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
+    private <R extends BasicLikelihood> R maximise(BasicCalculator<R> l, PrintStream out, Data data) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
     {
         //Don't keep Node Likelihoods while we are otimizing
         SiteLikelihood.optKeepNL(false);
@@ -163,10 +162,10 @@ public class GoldenSection implements Optimizer
 		    {
 			data.diffs.put(p, Math.abs(p.getValue() - oldVal));
 		    }
-		    else
-		    {
-			data.diffs.put(p, data.diffs.get(p) / 2.0);
-		    }
+		    //else
+		    //{
+			//data.diffs.put(p, data.diffs.get(p) / 2.0);
+		    //}
 		    if (progress)
 		    {
 			out.println(p.getName() + "\t" + p.getValue() + "\t" + data.newML.getLikelihood());
@@ -190,7 +189,7 @@ public class GoldenSection implements Optimizer
 	//return data.newML;
     }
 
-    private <R extends HasLikelihood> R maximiseSingle(Parameters pp, Parameter p, CalculatesLikelihood<R> l, double diff, double e_diff, ProgressLevel progresslevel, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, CalculatorException
+    private <R extends BasicLikelihood> R maximiseSingle(Parameters pp, Parameter p, BasicCalculator<R> l, double diff, double e_diff, ProgressLevel progresslevel, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, CalculatorException
     {
         //Maximises a single parameter by golden section search
 	boolean progress = (progresslevel == ProgressLevel.CALCULATION);
@@ -362,12 +361,12 @@ public class GoldenSection implements Optimizer
 	}
     }
     
-    public <R extends HasLikelihood> R restart(CalculatesLikelihood<R> l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
+    public <R extends BasicLikelihood> R restart(BasicCalculator<R> l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
     {
         return restart(l, checkPoint, System.out);
     }
     
-    public <R extends HasLikelihood> R  restart(CalculatesLikelihood<R> l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
+    public <R extends BasicLikelihood> R  restart(BasicCalculator<R> l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
     {
         try
         {
@@ -382,7 +381,7 @@ public class GoldenSection implements Optimizer
         }
     }   
     
-    private <R extends HasLikelihood> R  restart(CalculatesLikelihood<R> l, File f, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, CalculatorException
+    private <R extends BasicLikelihood> R  restart(BasicCalculator<R> l, File f, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, CalculatorException
     {
         Object o;
         try
@@ -501,8 +500,8 @@ public class GoldenSection implements Optimizer
         private Parameters params;
         private double e_diff;
         HashMap<Parameter, Double> diffs;
-        HasLikelihood oldML;
-	HasLikelihood newML;
+        BasicLikelihood oldML;
+	BasicLikelihood newML;
     }
     
     private static final long serialVersionUID = 1;

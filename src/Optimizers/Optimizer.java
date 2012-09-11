@@ -20,10 +20,9 @@ package Optimizers;
 import Exceptions.GeneralException;
 import Exceptions.InputException;
 import Exceptions.OutputException;
-import Likelihood.CalculatesLikelihood;
-import Likelihood.Calculator.CalculatorException;
-import Likelihood.HasLikelihood;
-import Likelihood.Likelihood;
+import Likelihood.BasicCalculator.CalculatorException;
+import Likelihood.BasicCalculator;
+import Likelihood.BasicLikelihood;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
 import Parameters.Parameters;
@@ -56,7 +55,7 @@ public interface Optimizer
      * @throws OutputException Thrown if unable to write a checkpoint file
      * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
      */
-    public <R extends HasLikelihood> R maximise(CalculatesLikelihood<R> l, Parameters p) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException;
+    public <R extends BasicLikelihood> R maximise(BasicCalculator<R> l, Parameters p) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException;
 
     /**
      * Maximises the likelihood, logging to a file.  Logging level sould be
@@ -76,7 +75,7 @@ public interface Optimizer
      * @throws OutputException Thrown if unable to write a checkpoint file
      * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
      */
-    public <R extends HasLikelihood> R maximise(CalculatesLikelihood<R> l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException;
+    public <R extends BasicLikelihood> R maximise(BasicCalculator<R> l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException;
 
     /**
      * Maximises the likelihood starting from a checkpoint file (see {@link #setCheckPointFile(java.io.File)}, 
@@ -98,7 +97,7 @@ public interface Optimizer
      * to restart from a checkpoint file
      * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
      */
-    public <R extends HasLikelihood> R restart(CalculatesLikelihood<R> l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException;
+    public <R extends BasicLikelihood> R restart(BasicCalculator<R> l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException;
     
     /**
      * Maximises the likelihood starting from a checkpoint file (see {@link #setCheckPointFile(java.io.File)}, 
@@ -121,7 +120,7 @@ public interface Optimizer
      * to restart from a checkpoint file
      * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
      */
-    public <R extends HasLikelihood> R restart(CalculatesLikelihood<R> l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException;
+    public <R extends BasicLikelihood> R restart(BasicCalculator<R> l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException;
     
     /**
      * Sets a checkpoint file.  If set will write a checkpoint file of the

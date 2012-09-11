@@ -17,7 +17,7 @@
 
 package Likelihood;
 
-import Likelihood.Calculator.CalculatorException;
+import Likelihood.BasicCalculator.CalculatorException;
 import Maths.Gamma;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;

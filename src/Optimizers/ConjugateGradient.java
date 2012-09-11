@@ -19,10 +19,9 @@ package Optimizers;
 
 import Exceptions.InputException;
 import Exceptions.OutputException;
-import Likelihood.CalculatesLikelihood;
-import Likelihood.Calculator.CalculatorException;
-import Likelihood.HasLikelihood;
-import Likelihood.Likelihood;
+import Likelihood.BasicCalculator.CalculatorException;
+import Likelihood.BasicCalculator;
+import Likelihood.BasicLikelihood;
 import Likelihood.SiteLikelihood;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
@@ -143,12 +142,12 @@ public class ConjugateGradient implements Optimizer
         timePassed = new TimePassed(365,TimeUnit.DAYS);
     }
     
-    public <R extends HasLikelihood> R  maximise(CalculatesLikelihood<R> c, Parameters p) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
+    public <R extends BasicLikelihood> R  maximise(BasicCalculator<R> c, Parameters p) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
     {
         return maximise(c,System.out,new Data(c,p));
     }
 
-    public <R extends HasLikelihood> R maximise(CalculatesLikelihood<R> c, Parameters p, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
+    public <R extends BasicLikelihood> R maximise(BasicCalculator<R> c, Parameters p, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
     {
         try
         {
@@ -163,7 +162,7 @@ public class ConjugateGradient implements Optimizer
         }
     }
 
-    private <R extends HasLikelihood> R maximise(CalculatesLikelihood<R> c, PrintStream out, Data d) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
+    private <R extends BasicLikelihood> R maximise(BasicCalculator<R> c, PrintStream out, Data d) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
     {
         // Don't keep the node likelihoods while we are optimizing
         SiteLikelihood.optKeepNL(false);
@@ -242,12 +241,12 @@ public class ConjugateGradient implements Optimizer
         return c.calculate(d.params);
     }
     
-    public <R extends HasLikelihood> R  restart(CalculatesLikelihood<R> l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
+    public <R extends BasicLikelihood> R  restart(BasicCalculator<R> l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
     {
         return restart(l, checkPoint, System.out);
     }
     
-    public <R extends HasLikelihood> R  restart(CalculatesLikelihood<R> l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
+    public <R extends BasicLikelihood> R  restart(BasicCalculator<R> l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
     {
         try
         {
@@ -262,7 +261,7 @@ public class ConjugateGradient implements Optimizer
         }
     }
     
-    private <R extends HasLikelihood> R  restart(CalculatesLikelihood<R> l, File f, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, CalculatorException
+    private <R extends BasicLikelihood> R  restart(BasicCalculator<R> l, File f, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, CalculatorException
     {
         Object o;
         try
@@ -329,7 +328,7 @@ public class ConjugateGradient implements Optimizer
         }        
     }
     
-    private static double findStep(CalculatesLikelihood c, Parameters params, Map<String, Double> direction, double grad1, double lastStep) throws TreeException, RateException, ModelException, ParameterException,
+    private static double findStep(BasicCalculator c, Parameters params, Map<String, Double> direction, double grad1, double lastStep) throws TreeException, RateException, ModelException, ParameterException,
             CalculatorException
     {
         // Calculate the maximum step size without hititng a boundry
@@ -472,7 +471,7 @@ public class ConjugateGradient implements Optimizer
         return s;
     }
 
-    private static Map<String, Double> gradient(CalculatesLikelihood c, Parameters params, double l) throws TreeException, RateException, ModelException, ParameterException,
+    private static Map<String, Double> gradient(BasicCalculator c, Parameters params, double l) throws TreeException, RateException, ModelException, ParameterException,
             CalculatorException
     {
         // Calculates the gradient for a given point.  l is the likelihood at
@@ -533,7 +532,7 @@ public class ConjugateGradient implements Optimizer
         return newParams;
     }
 
-    private static double gradient(CalculatesLikelihood c, Parameters params, Map<String, Double> direction, double distance) throws TreeException, RateException, ModelException, ParameterException,
+    private static double gradient(BasicCalculator c, Parameters params, Map<String, Double> direction, double distance) throws TreeException, RateException, ModelException, ParameterException,
             CalculatorException
     {
         // Calculates the gradient in the given direction for a point at the given 
@@ -672,7 +671,7 @@ public class ConjugateGradient implements Optimizer
     private static class Data implements Serializable
     {
         //Constructer initalises various parameters.
-        private Data(CalculatesLikelihood c, Parameters p) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
+        private Data(BasicCalculator c, Parameters p) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
         {
             // Clone the parameters just to be sure we don't destroy the input
             // params

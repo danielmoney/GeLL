@@ -19,10 +19,9 @@ package Optimizers;
 
 import Exceptions.InputException;
 import Exceptions.OutputException;
-import Likelihood.CalculatesLikelihood;
-import Likelihood.Calculator.CalculatorException;
-import Likelihood.HasLikelihood;
-import Likelihood.Likelihood;
+import Likelihood.BasicCalculator.CalculatorException;
+import Likelihood.BasicCalculator;
+import Likelihood.BasicLikelihood;
 import Likelihood.SiteLikelihood;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
@@ -69,12 +68,12 @@ public class NelderMead implements Optimizer
         timePassed = new TimePassed(365,TimeUnit.DAYS);
     }
     
-    public <R extends HasLikelihood> R maximise(CalculatesLikelihood<R> l, Parameters params) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
+    public <R extends BasicLikelihood> R maximise(BasicCalculator<R> l, Parameters params) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
     {
 	return maximise(l,System.out,new Data(params,l));
     }
 
-    public <R extends HasLikelihood> R maximise(CalculatesLikelihood<R> l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
+    public <R extends BasicLikelihood> R maximise(BasicCalculator<R> l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
     {
         try
         {
@@ -92,7 +91,7 @@ public class NelderMead implements Optimizer
     //See the Data class for a fuller description but effectively this stores
     //the state of the optimizer.  When created the parameters within it are
     //initalised.
-    private <R extends HasLikelihood> R maximise(CalculatesLikelihood<R> l, PrintStream out, Data data) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
+    private <R extends BasicLikelihood> R maximise(BasicCalculator<R> l, PrintStream out, Data data) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
     {
         //Don't keep Node Likelihoods while we are otimizing
         SiteLikelihood.optKeepNL(false);
@@ -228,7 +227,7 @@ public class NelderMead implements Optimizer
 	//return data.vnew;
     }
 
-    private static <R extends HasLikelihood> R evaluate(double[] params, Data data, CalculatesLikelihood<R> l) throws RateException, ModelException, TreeException, ParameterException, CalculatorException
+    private static <R extends BasicLikelihood> R evaluate(double[] params, Data data, BasicCalculator<R> l) throws RateException, ModelException, TreeException, ParameterException, CalculatorException
     {
 	for (int i = 0; i < params.length; i++)
 	{
@@ -248,7 +247,7 @@ public class NelderMead implements Optimizer
     }
 
 
-    private int minIndex(HasLikelihood[] a)
+    private int minIndex(BasicLikelihood[] a)
     {
         //Returns the index in the array of the likelihood object with the lowest
         //likelihood
@@ -265,7 +264,7 @@ public class NelderMead implements Optimizer
 	return index;
     }
 
-    private int maxIndex(HasLikelihood[] a)
+    private int maxIndex(BasicLikelihood[] a)
     {
         //Returns the index in the array of the likelihood object with the highest
         //likelihood
@@ -282,12 +281,12 @@ public class NelderMead implements Optimizer
 	return index;
     }
     
-    public <R extends HasLikelihood> R restart(CalculatesLikelihood<R> l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
+    public <R extends BasicLikelihood> R restart(BasicCalculator<R> l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
     {
         return restart(l, checkPoint, System.out);
     }
     
-    public <R extends HasLikelihood> R restart(CalculatesLikelihood<R> l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
+    public <R extends BasicLikelihood> R restart(BasicCalculator<R> l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
     {
         try
         {
@@ -302,7 +301,7 @@ public class NelderMead implements Optimizer
         }
     }   
     
-    private <R extends HasLikelihood> R restart(CalculatesLikelihood<R> l, File f, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, CalculatorException
+    private <R extends BasicLikelihood> R restart(BasicCalculator<R> l, File f, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, CalculatorException
     {
         Object o;
         try
@@ -397,7 +396,7 @@ public class NelderMead implements Optimizer
     private static class Data implements Serializable
     {
         //Constructer initialises various parameters.
-        private <R extends HasLikelihood> Data(Parameters p, CalculatesLikelihood<R> l) throws RateException, ModelException, TreeException, ParameterException, CalculatorException
+        private <R extends BasicLikelihood> Data(Parameters p, BasicCalculator<R> l) throws RateException, ModelException, TreeException, ParameterException, CalculatorException
         {
             params = p.clone();
             num = params.numberEstimate();
@@ -414,7 +413,7 @@ public class NelderMead implements Optimizer
             }
             
             simplexes = new double[num+1][num];
-            values = new HasLikelihood[num+1];
+            values = new BasicLikelihood[num+1];
 
             for (int i=0; i < num; i++)
             {
@@ -444,9 +443,9 @@ public class NelderMead implements Optimizer
         private Parameters params;
         private Parameter[] map;
         private double[][] simplexes;
-        private HasLikelihood[] values;
+        private BasicLikelihood[] values;
         private int num;
-        private HasLikelihood vnew, vold;
+        private BasicLikelihood vnew, vold;
 	private int imax;
         private double[] oldp;
         

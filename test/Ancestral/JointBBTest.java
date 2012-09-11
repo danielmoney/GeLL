@@ -16,6 +16,7 @@
  */
 
 package Ancestral;
+import Likelihood.BasicCalculator.SiteCalculator;
 import Likelihood.SiteLikelihood.LikelihoodException;
 import Likelihood.SiteLikelihood.NodeLikelihood;
 import Utils.ArrayMap;
@@ -25,7 +26,6 @@ import Alignments.Alignment;
 import Alignments.PhylipAlignment;
 import Alignments.Site;
 import Ancestors.AncestralJoint;
-import Likelihood.Calculator.SiteCalculator;
 import Likelihood.Probabilities;
 import Models.Model;
 import Models.RateCategory;

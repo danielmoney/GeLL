@@ -17,13 +17,13 @@
 
 package Simulations;
 
+import Likelihood.BasicCalculator.SiteCalculator;
 import Likelihood.SiteLikelihood.NodeLikelihood;
 import Utils.ArrayMap;
 import java.util.ArrayList;
 import java.util.List;
 import Parameters.Parameter;
 import Likelihood.Probabilities;
-import Likelihood.Calculator.SiteCalculator;
 import Constraints.SiteConstraints;
 import java.util.LinkedHashMap;
 import Alignments.Site;
