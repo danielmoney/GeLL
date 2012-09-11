@@ -161,10 +161,6 @@ public class GoldenSection implements Optimizer
 		    {
 			data.diffs.put(p, Math.abs(p.getValue() - oldVal));
 		    }
-		    else
-		    {
-			data.diffs.put(p, data.diffs.get(p) / 2.0);
-		    }
 		    if (progress)
 		    {
 			out.println(p.getName() + "\t" + p.getValue() + "\t" + data.newML.getLikelihood());
