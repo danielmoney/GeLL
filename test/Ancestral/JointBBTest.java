@@ -142,7 +142,7 @@ public class JointBBTest
                     }
                     
                     SiteCalculator calc = new SiteCalculator(t,P,nl);
-                    double l = calc.calculate().getLikelihood();
+                    double l = calc.calculate().getLikelihood().toDouble();
                     if (l > maxL)
                     {
                         maxL = l;

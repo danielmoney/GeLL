@@ -27,6 +27,7 @@ import Constraints.NoConstraints;
 import Likelihood.BasicCalculator.CalculatorException;
 import Likelihood.SiteLikelihood.LikelihoodException;
 import Likelihood.SiteLikelihood.NodeLikelihood;
+import Maths.SmallDouble;
 import Models.Model;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
@@ -370,7 +371,8 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
                     SiteLikelihood sl = sites.get(us);//e.getValue().getResult();
                     siteLikelihoods.put(us,sl);//(e.getKey(),sl);
                     //l += a.getCount(e.getKey()) * Math.log(sl.getLikelihood());
-                    l += us.getCount() * Math.log(sl.getLikelihood());//e.getKey().getCount() * Math.log(sl.getLikelihood());
+                    //l += us.getCount() * Math.log(sl.getLikelihood());//e.getKey().getCount() * Math.log(sl.getLikelihood());
+                    l += us.getCount() * sl.getLikelihood().ln();
                 //}
                 //catch(ResultNotComputed ex)
                 //{
@@ -383,7 +385,7 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
             //Get the result for each site and calculate the total likelihood (m)
             //of the unobserved data.  Follows Felsenstein 1992.
             //double ml = 0.0;
-            HashMap<String, Double> ml = new HashMap<>();
+            HashMap<String, SmallDouble> ml = new HashMap<>();
             /*for (int i = 0; i < miss.size(); i++)
             {*/
             if (missing != null)
@@ -398,7 +400,7 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
                         String sc = us.getSiteClass();//e.getKey().getSiteClass();
                         if (ml.containsKey(sc))
                         {
-                            ml.put(sc, ml.get(sc) + sl.getLikelihood());
+                            ml.put(sc, ml.get(sc).add(sl.getLikelihood()));
                         }
                         else
                         {
@@ -416,7 +418,8 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
                 //again per Felsenstein 1992
                 for (String sc: ml.keySet())
                 {
-                    l = l - (a.getClassSize(sc) * Math.log(1 - ml.get(sc)));
+                    //l = l - (a.getClassSize(sc) * Math.log(1 - ml.get(sc)));
+                    l = l - (a.getClassSize(sc) * ml.get(sc).ln1m());
                 }
             }
             if (l > 0)

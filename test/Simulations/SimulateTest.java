@@ -141,7 +141,7 @@ public class SimulateTest
                         ArrayMap<String, NodeLikelihood> nl = s.getInitialNodeLikelihoods(t, P.getArrayMap(), scon);
                         
                         SiteCalculator sc = new SiteCalculator(t,P,nl);
-                        double l = sc.calculate().getLikelihood();
+                        double l = sc.calculate().getLikelihood().toDouble();
                         theory.put(s, l * 1000000);
                     }
                 }

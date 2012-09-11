@@ -41,9 +41,74 @@ public class SmallDouble implements Serializable
         return new SmallDouble(Math.scalb(m,diff) + o.m, o.e);
     }
     
+    public SmallDouble add(double d)
+    {
+        return add(new SmallDouble(d));
+    }
+    
     public double ln()
     {
         return Math.log(m) + e * Math.log(2);
+    }
+    
+    public double ln1m()
+    {
+        if (e > -4)
+        {
+            return Math.log(1.0 - toDouble());
+        }
+        else
+        {
+            SmallDouble x2 = multiply(this);
+            SmallDouble x3 = x2.multiply(this);
+            SmallDouble x2d = x2.divide(2);
+            SmallDouble x3d = x3.divide(3);
+            
+            return negate().subtract(x2d).subtract(x3d).toDouble();
+        }
+    }
+    
+    public boolean graterThan(SmallDouble o)
+    {
+        if (e > o.e)
+        {
+            return true;
+        }
+        if (e < o.e)
+        {
+            return false;
+        }
+        return (m > o.m);
+    }
+    
+    public SmallDouble subtract(SmallDouble o)
+    {
+        return add(o.negate());
+    }
+    
+    public SmallDouble subtract(double d)
+    {
+        return add(new SmallDouble(-d));
+    }
+        
+    public SmallDouble negate()
+    {
+        return new SmallDouble(-m,e);
+    }
+    
+    public SmallDouble inverse()
+    {
+        return new SmallDouble(1/m,-e);
+    }
+    
+    public SmallDouble divide(SmallDouble o)
+    {
+        return multiply(o.inverse());
+    }
+    
+    public SmallDouble divide(double d)
+    {
+        return new SmallDouble(m / d, e);
     }
     
     public double toDouble()
@@ -68,4 +133,6 @@ public class SmallDouble implements Serializable
     
     private double m;
     private int e;
+    
+    public static final SmallDouble SMALLEST = new SmallDouble(1.0,Integer.MIN_VALUE);
 }

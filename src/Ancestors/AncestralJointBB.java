@@ -27,6 +27,7 @@ import Constraints.SiteConstraints;
 import Likelihood.BasicCalculator.SiteCalculator;
 import Likelihood.SiteLikelihood;
 import Likelihood.SiteLikelihood.LikelihoodException;
+import Maths.SmallDouble;
 import Parameters.Parameters;
 import Models.RateCategory;
 import Models.Model;
@@ -172,10 +173,10 @@ public class AncestralJointBB extends AncestralJoint
         SiteLikelihood sl = (new SiteCalculator(ca,t,con,P)).calculate();
 	RateCategory br = null;
         //And then use this to find the rate category that contributes the most likelihood
-	double brs = -Double.MAX_VALUE;
+	SmallDouble brs = SmallDouble.SMALLEST;
 	for (RateCategory r: m.get(ca.getSiteClass()))
 	{
-            double rs = 0.0;
+            SmallDouble rs = new SmallDouble(0.0);
             try
             {
                 rs = sl.getRateLikelihood(r).getLikelihood();
@@ -186,7 +187,7 @@ public class AncestralJointBB extends AncestralJoint
                 // have been claculated and only ask for that
                 throw new UnexpectedError(ex);
             }
-            if (rs > brs)
+            if (rs.graterThan(brs))
             {
                 br = r;
             }
@@ -207,7 +208,7 @@ public class AncestralJointBB extends AncestralJoint
         //Initialise the structure that keeps track of the best reconstruction
         //found so far.  We don't have a best reconstruction yet, so pass
         //a dummy assignment with an infinitely small likelihood
-	Best best = new Best(assign, -Double.MAX_VALUE);
+	Best best = new Best(assign, SmallDouble.SMALLEST);
         //Do death first search (DFS) recursively to find the best reconstruction
         best = DFS(ca, assign, best, P, ba);
 
@@ -254,10 +255,10 @@ public class AncestralJointBB extends AncestralJoint
 	if (isFull(assign))
 	{
             //Calculate the likelihood of that reconstruction
-            double s = (new SiteCalculator(site,t,assign,P)).calculate().getLikelihood();
+            SmallDouble s = (new SiteCalculator(site,t,assign,P)).calculate().getLikelihood();
             //If it's better than the bext reconstruction we've encountered so far
             //update the best and return it
-	    if (s > best.score)
+	    if (s.graterThan(best.score))
 	    {
 		//System.out.println("Best:\t" + s + "\t" + Arrays.toString(assign));
 		return new Best(assign, s);
@@ -276,14 +277,15 @@ public class AncestralJointBB extends AncestralJoint
         //assignment we do already have.  This bound is calculated by summing accross
         //all possible states at unassigned nodes using the normal (quick) likelihood
         //calculation method.
-        double bound = (new SiteCalculator(site,t,assign,P)).calculate().getLikelihood();
+        SmallDouble bound = (new SiteCalculator(site,t,assign,P)).calculate().getLikelihood();
 
 	//System.out.println(best.score + "\t" + bound + "\t" + Arrays.toString(assign));
 
         //If the bounded value is less the best econstruction we've aleady found
         //there's no point considering assigning more nodes so just return
         //the best reconstruction we've found.
-	if (bound <= best.score)
+	//if (bound <= best.score)
+        if (best.score.graterThan(bound))
 	{
 	    //System.out.println("Pruned\t" + bound + "\t" + Arrays.toString(assign));
 	    return best;
@@ -364,7 +366,7 @@ public class AncestralJointBB extends AncestralJoint
     private class Best
     {
 
-	private Best(SiteConstraints assign, double score)
+	private Best(SiteConstraints assign, SmallDouble score)
 	{
 	    this.assign = assign;
 	    this.score = score;
@@ -372,7 +374,7 @@ public class AncestralJointBB extends AncestralJoint
 
 	private SiteConstraints assign;
 
-	private double score;
+	private SmallDouble score;
     }
 
     private Alignment a;
