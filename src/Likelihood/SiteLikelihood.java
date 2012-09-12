@@ -1,7 +1,7 @@
 package Likelihood;
 
 import Exceptions.GeneralException;
-import Maths.SmallDouble;
+import Maths.StandardDouble;
 import Models.RateCategory;
 import Utils.ArrayMap;
 import java.io.Serializable;
@@ -21,16 +21,16 @@ public class SiteLikelihood implements Serializable
     SiteLikelihood(ArrayMap<RateCategory,RateLikelihood> rateLikelihoods, Probabilities P)
     {
         rateProbability = new HashMap<>();
-        l = new SmallDouble(0.0);
+        l = new StandardDouble(0.0);
         for (RateCategory rc: P.getRateCategory())
         {
             l = l.add(rateLikelihoods.get(rc).getLikelihood().multiply(P.getRateP(rc)));
         }
-        SmallDouble maxP = new SmallDouble(0.0);
+        StandardDouble maxP = new StandardDouble(0.0);
         maxCat = null;
         for (RateCategory rc: P.getRateCategory())
         {
-            SmallDouble rp = rateLikelihoods.get(rc).getLikelihood().multiply(P.getRateP(rc)).divide(l);
+            StandardDouble rp = rateLikelihoods.get(rc).getLikelihood().multiply(P.getRateP(rc)).divide(l);
             rateProbability.put(rc, rp);
             //if (rp > maxP)
             if (rp.graterThan(maxP))
@@ -47,7 +47,7 @@ public class SiteLikelihood implements Serializable
      * Get the likelihood
      * @return The likelihood
      */
-    public SmallDouble getLikelihood()
+    public StandardDouble getLikelihood()
     {
         return l;
     }
@@ -76,7 +76,7 @@ public class SiteLikelihood implements Serializable
      * @param rc The rate category
      * @return The probability of being in that rate category
      */
-    public SmallDouble getRateCategoryProbability(RateCategory rc)
+    public StandardDouble getRateCategoryProbability(RateCategory rc)
     {
         return rateProbability.get(rc);
     }
@@ -122,8 +122,8 @@ public class SiteLikelihood implements Serializable
     }
 
     private ArrayMap<RateCategory,RateLikelihood> rateLikelihoods;
-    private SmallDouble l;        
-    private Map<RateCategory,SmallDouble> rateProbability;
+    private StandardDouble l;        
+    private Map<RateCategory,StandardDouble> rateProbability;
     private RateCategory maxCat;
     private static final long serialVersionUID = 1;
     
@@ -139,7 +139,7 @@ public class SiteLikelihood implements Serializable
      */
     public static class RateLikelihood implements Serializable
     {
-        RateLikelihood(SmallDouble l, ArrayMap<String, NodeLikelihood> nodeLikelihoods)
+        RateLikelihood(StandardDouble l, ArrayMap<String, NodeLikelihood> nodeLikelihoods)
         {
             this.l = l;
             if (keepNL)
@@ -156,7 +156,7 @@ public class SiteLikelihood implements Serializable
          * Returns the likelihood.
          * @return The likelihood
          */
-        public SmallDouble getLikelihood()
+        public StandardDouble getLikelihood()
         {
             return l;
         }
@@ -193,7 +193,7 @@ public class SiteLikelihood implements Serializable
             return l.toString();
         }
 
-        private SmallDouble l;
+        private StandardDouble l;
         //private Map<String, NodeLikelihood> nodeLikelihoods;
         private ArrayMap<String, NodeLikelihood> nodeLikelihoods;
         private static final long serialVersionUID = 1;
@@ -220,7 +220,7 @@ public class SiteLikelihood implements Serializable
          */
         public NodeLikelihood(ArrayMap<String,Integer> states, Set<String> allowedStates) throws LikelihoodException
         {
-            likelihoods = new SmallDouble[states.size()];
+            likelihoods = new StandardDouble[states.size()];
             this.states = states;
             //for (Entry<String,Integer> s: states.entryList())
             boolean onz = false;
@@ -229,12 +229,12 @@ public class SiteLikelihood implements Serializable
                 Entry<String,Integer> s = states.getEntry(i);
                 if (allowedStates.contains(s.getKey()))
                 {
-                    likelihoods[s.getValue()] = new SmallDouble(1.0);
+                    likelihoods[s.getValue()] = new StandardDouble(1.0);
                     onz = true;
                 }
                 else
                 {
-                    likelihoods[s.getValue()] = new SmallDouble(0.0);
+                    likelihoods[s.getValue()] = new StandardDouble(0.0);
                 }
             }
             if (!onz)
@@ -243,7 +243,7 @@ public class SiteLikelihood implements Serializable
             }
         }
         
-        private NodeLikelihood(SmallDouble[] l, ArrayMap<String,Integer> states)
+        private NodeLikelihood(StandardDouble[] l, ArrayMap<String,Integer> states)
         {
             likelihoods = Arrays.copyOf(l, l.length);
             this.states = states;
@@ -254,7 +254,7 @@ public class SiteLikelihood implements Serializable
             return new NodeLikelihood(likelihoods, states);
         }
         
-        void multiply(String state, SmallDouble by)
+        void multiply(String state, StandardDouble by)
         {
             int i = states.get(state);
             likelihoods[i] = likelihoods[i].multiply(by);
@@ -267,7 +267,7 @@ public class SiteLikelihood implements Serializable
          * @throws Likelihood.Likelihood.LikelihoodException Thrown if no likelihood
          * has been calculated for the given state 
          */
-        public SmallDouble getLikelihood(String state) throws LikelihoodException
+        public StandardDouble getLikelihood(String state) throws LikelihoodException
         {
             if (states.containsKey(state))
             {
@@ -286,7 +286,7 @@ public class SiteLikelihood implements Serializable
          * @return The likelihood for the state associated with that position
          * (as defined by the map passed to the constructor)
          */
-        public SmallDouble getLikelihood(int i)
+        public StandardDouble getLikelihood(int i)
         {
             return likelihoods[i];
         }
@@ -297,7 +297,7 @@ public class SiteLikelihood implements Serializable
          * @return The likelihood for each state.  Position is associated with state
          * based on the map passed to the constructor.
          */
-        public SmallDouble[] getLikelihoods()
+        public StandardDouble[] getLikelihoods()
         {
             return likelihoods;
         }
@@ -308,7 +308,7 @@ public class SiteLikelihood implements Serializable
         }
         
         private ArrayMap<String,Integer> states;
-        private SmallDouble[] likelihoods;
+        private StandardDouble[] likelihoods;
     }
     
     /**

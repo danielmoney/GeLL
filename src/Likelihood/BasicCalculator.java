@@ -12,7 +12,7 @@ import Likelihood.Probabilities.RateProbabilities;
 import Likelihood.SiteLikelihood.LikelihoodException;
 import Likelihood.SiteLikelihood.NodeLikelihood;
 import Likelihood.SiteLikelihood.RateLikelihood;
-import Maths.SmallDouble;
+import Maths.StandardDouble;
 import Maths.SquareMatrix;
 import Models.Model;
 import Models.Model.ModelException;
@@ -219,10 +219,10 @@ public abstract class BasicCalculator<R extends BasicLikelihood>
                         String endState = tp.getAllStatesAsList().get(i);
                         //l keeps track of the total likelihood from each possible
                         //state at the child
-                        SmallDouble l = new SmallDouble(0.0);
+                        StandardDouble l = new StandardDouble(0.0);
                         //For each possible child state
                         //for (String startState: tp.getAllStates())
-                        SmallDouble[] nl = nodeLikelihoods.get(b.getChild()).getLikelihoods();
+                        StandardDouble[] nl = nodeLikelihoods.get(b.getChild()).getLikelihoods();
                         //for (int j = 0; j < tp.getAllStates().size(); j ++)
                         for (int j = 0; j < nl.length; j++)
                         {
@@ -240,7 +240,7 @@ public abstract class BasicCalculator<R extends BasicLikelihood>
                 }
 
                 //Rate total traxcks the total likelihood for this site and rate category
-                SmallDouble ratetotal = new SmallDouble(0.0);
+                StandardDouble ratetotal = new StandardDouble(0.0);
                 //Get the root likelihoods
                 NodeLikelihood rootL = nodeLikelihoods.get(t.getRoot());
                 //For each possible state
