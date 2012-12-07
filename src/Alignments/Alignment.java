@@ -81,6 +81,29 @@ public class Alignment implements Iterable<Site>
     {
 	return data.size();
     }
+    
+    public double averageLength(Set<String> gaps)
+    {        
+        int i = 0;
+        try
+        {
+            for (Site s: data)
+            {
+                for (String t: s.getTaxa())
+                {
+                    if (!gaps.contains(s.getRawCharacter(t)))
+                    {
+                        i++;
+                    }
+                }
+            }
+        }
+        catch (AlignmentException ex)
+        {
+            throw new UnexpectedError(ex);
+        }
+        return (double) i / (double) taxa.size();
+    }
 
     /**
      * Gets the number of taxa in the alignment
@@ -324,37 +347,4 @@ public class Alignment implements Iterable<Site>
     
     private Map<String,Integer> classSizes;
     
-    /**
-     * Used to represent a unique site in an alignment.  Augments the normal site
-     * class with a count of how often the site occurs
-     */
-    public class UniqueSite extends Site
-    {
-        /**
-         * Default constructor
-         * @param s The site
-         * @param c How often the site occurs
-         */
-        public UniqueSite(Site s, int c)
-        {
-            super(s);
-            this.c = c;
-        }
-        
-        /**
-         * Get the number of times the site occurs in the related alignment
-         * @return The number of times the site occurs
-         */
-        public int getCount()
-        {
-            return c;
-        }
-        
-        public String toString()
-        {
-            return super.toString() + "\t" + c;
-        }
-        
-        private int c;
-    }
 }

@@ -12,7 +12,7 @@ import Likelihood.Probabilities.RateProbabilities;
 import Likelihood.SiteLikelihood.LikelihoodException;
 import Likelihood.SiteLikelihood.NodeLikelihood;
 import Likelihood.SiteLikelihood.RateLikelihood;
-import Maths.StandardDouble;
+import Maths.Real;
 import Maths.SquareMatrix;
 import Models.Model;
 import Models.Model.ModelException;
@@ -45,6 +45,11 @@ public abstract class BasicCalculator<R extends BasicLikelihood>
         this.snl = snl;
         this.t = t;
         this.m = m;
+    }
+    
+    protected BasicCalculator()
+    {
+        
     }
     
     public abstract R calculate(Parameters p) throws TreeException, RateException, ModelException, ParameterException, CalculatorException;
@@ -219,12 +224,13 @@ public abstract class BasicCalculator<R extends BasicLikelihood>
                         String endState = tp.getAllStatesAsList().get(i);
                         //l keeps track of the total likelihood from each possible
                         //state at the child
-                        StandardDouble l = new StandardDouble(0.0);
+                        //Real l = SiteLikelihood.getReal(0.0);//new Real(0.0);
                         //For each possible child state
                         //for (String startState: tp.getAllStates())
-                        StandardDouble[] nl = nodeLikelihoods.get(b.getChild()).getLikelihoods();
+                        Real[] nl = nodeLikelihoods.get(b.getChild()).getLikelihoods();
                         //for (int j = 0; j < tp.getAllStates().size(); j ++)
-                        for (int j = 0; j < nl.length; j++)
+                        Real l = nl[0].multiply(bp.getPosition(i, 0));
+                        for (int j = 1; j < nl.length; j++)
                         {
                             //Add the likelihood of going from start state to
                             //end state along that branch in that ratecategory
@@ -240,7 +246,7 @@ public abstract class BasicCalculator<R extends BasicLikelihood>
                 }
 
                 //Rate total traxcks the total likelihood for this site and rate category
-                StandardDouble ratetotal = new StandardDouble(0.0);
+                Real ratetotal = null;//SiteLikelihood.getReal(0.0);//new Real(0.0);
                 //Get the root likelihoods
                 NodeLikelihood rootL = nodeLikelihoods.get(t.getRoot());
                 //For each possible state
@@ -250,7 +256,14 @@ public abstract class BasicCalculator<R extends BasicLikelihood>
                     {
                         //Get the likelihood at the root, multiply by it's root frequency
                         //and add to the ratde total.
-                        ratetotal = ratetotal.add(rootL.getLikelihood(state).multiply(tp.getFreq(rc,state)));
+                        if (ratetotal == null)
+                        {
+                            ratetotal = rootL.getLikelihood(state).multiply(tp.getFreq(rc,state));
+                        }
+                        else
+                        {
+                            ratetotal = ratetotal.add(rootL.getLikelihood(state).multiply(tp.getFreq(rc,state)));
+                        }
                     }
                     catch (LikelihoodException ex)
                     {

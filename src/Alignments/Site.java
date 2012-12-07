@@ -1,5 +1,6 @@
 package Alignments;
 
+import Constraints.NoConstraints;
 import Constraints.SiteConstraints;
 import Likelihood.SiteLikelihood.LikelihoodException;
 import Likelihood.SiteLikelihood.NodeLikelihood;
@@ -230,6 +231,11 @@ public class Site implements Serializable
         }
         ret.delete(ret.length()-1, ret.length());
         return ret.toString();
+    }
+    
+    public ArrayMap<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t,  ArrayMap<String,Integer> map) throws LikelihoodException
+    {
+        return getInitialNodeLikelihoods(t,map,(new NoConstraints(map.keyList())).getConstraints(t, this));
     }
     
     /**

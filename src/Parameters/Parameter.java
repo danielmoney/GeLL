@@ -28,19 +28,18 @@ import java.io.Serializable;
 public class Parameter implements Serializable
 {
     private Parameter(String name, double value, boolean estimate,
-	    double lbound, double ubound, boolean matrix)
+	    double lbound, double ubound)
     {
 	this.name = name;
 	this.value = value;
 	this.estimate = estimate;
 	this.lbound = lbound;
 	this.ubound = ubound;
-	this.matrix = matrix;
     }
     
     public Parameter clone()
     {
-        return new Parameter(name,value,estimate,lbound,ubound,matrix);
+        return new Parameter(name,value,estimate,lbound,ubound);
     }
     
     /**
@@ -66,6 +65,10 @@ public class Parameter implements Serializable
         if ((val < lbound) || (val > ubound))
         {
             throw new ParameterException("Attempt to set parameter to value not within bounds");
+        }
+        if (Double.isNaN(val))
+        {
+            throw new ParameterException("Attempt to set parameter to NaN");
         }
 	value = val;
     }
@@ -97,15 +100,6 @@ public class Parameter implements Serializable
 	return estimate;
     }
 
-    /**
-     * Whether this parameter is in a rate matrix.
-     * @return Whether this parameter is in a rate matrix.
-     */
-    public boolean matrix()
-    {
-	return matrix;
-    }
-
     public String toString()
     {
 	return name + "\t" + value;
@@ -116,7 +110,6 @@ public class Parameter implements Serializable
     private boolean estimate;
     private double lbound;
     private double ubound;
-    private boolean matrix;
     
     /**
      * Creates a new parameter that has to be positive and is estimated.  Defaults
@@ -126,8 +119,14 @@ public class Parameter implements Serializable
      */
     public static Parameter newEstimatedPositiveParameter(String name)
     {
-	return new Parameter(name,1.0,true,0.0,Double.MAX_VALUE,true);
+	return new Parameter(name,1.0,true,0.0,Double.MAX_VALUE);
     }
+    
+    public static Parameter newEstimatedPositiveParameter(String name, double start)
+    {
+	return new Parameter(name,start,true,0.0,Double.MAX_VALUE);
+    }
+
 
     /**
      * Creates a new (unbounded) paramater that is estimated.  Defaults to being
@@ -137,7 +136,12 @@ public class Parameter implements Serializable
      */
     public static Parameter newEstimatedParameter(String name)
     {
-	return new Parameter(name,1.0,true,-Double.MAX_VALUE,Double.MAX_VALUE,true);
+	return new Parameter(name,1.0,true,-Double.MAX_VALUE,Double.MAX_VALUE);
+    }
+    
+    public static Parameter newEstimatedParameter(String name, double start)
+    {
+	return new Parameter(name,start,true,-Double.MAX_VALUE,Double.MAX_VALUE);
     }
     
     /**
@@ -151,7 +155,13 @@ public class Parameter implements Serializable
     public static Parameter newEstimatedBoundedParameter(String name,
 	    double lbound, double ubound)
     {
-	return new Parameter(name,0.8,true,lbound,ubound,true);
+	return new Parameter(name,1.0,true,lbound,ubound);
+    }
+    
+    public static Parameter newEstimatedBoundedParameter(String name,
+	    double lbound, double ubound, double start)
+    {
+	return new Parameter(name,start,true,lbound,ubound);
     }
     
     /**
@@ -162,47 +172,9 @@ public class Parameter implements Serializable
      */
     public static Parameter newFixedParameter(String name, double value)
     {
-	return new Parameter(name,value,false,-Double.MAX_VALUE,Double.MAX_VALUE, false);
+	return new Parameter(name,value,false,-Double.MAX_VALUE,Double.MAX_VALUE);
     }
 
-    /**
-     * Creates a new positive parameter that is estimated and is optionally in
-     * a rate matrix.
-     * @param name The name of the parameter
-     * @param matrix Whether the parameter is in a rate matrix
-     * @return The parameter
-     */
-    public static Parameter newEstimatedPositiveParameter(String name, boolean matrix)
-    {
-	return new Parameter(name,1.0,true,0.0,Double.MAX_VALUE,matrix);
-    }
-
-    /**
-     * Creates a new unbounded parameter that is estimated and is optionally in
-     * a rate matrix.
-     * @param name The name if the parameter
-     * @param matrix Whether the parameter is in a rate matrix
-     * @return The parameter
-     */
-    public static Parameter newEstimatedParameter(String name, boolean matrix)
-    {
-	return new Parameter(name,1.0,true,-Double.MAX_VALUE,Double.MAX_VALUE,matrix);
-    }
-
-    /**
-     * Creates a new bounded paramater that is estimated and is optionally in a
-     * rate matrix
-     * @param name The name of the parameter
-     * @param lbound The lower bound of the value the parameter can take
-     * @param ubound The upper bound of the value the parameter cantake
-     * @param matrix Whether the parameter is in a rate matrix
-     * @return The parameter
-     */
-    public static Parameter newEstimatedBoundedParameter(String name,
-	    double lbound, double ubound, boolean matrix)
-    {
-	return new Parameter(name,1.0,true,lbound,ubound,matrix);
-    }
 
     /**
      * Creates a new paramter from a string. <br><br>
@@ -242,18 +214,6 @@ public class Parameter implements Serializable
 	    }
 	}
 
-	if (parts[0].equals("EBN"))
-	{
-	    if (parts.length == 4)
-	    {
-		return newEstimatedBoundedParameter(parts[1], Double.parseDouble(parts[2]), Double.parseDouble(parts[3]), false);
-	    }
-	    else
-	    {
-		throw new FormatException("Wrong number of variables");
-	    }
-	}
-	
 	if (parts[0].equals("EP"))
 	{
 	    if (parts.length == 2)
@@ -266,35 +226,11 @@ public class Parameter implements Serializable
 	    }
 	}
 
-	if (parts[0].equals("EPN"))
-	{
-	    if (parts.length == 2)
-	    {
-		return newEstimatedPositiveParameter(parts[1], false);
-	    }
-	    else
-	    {
-		throw new FormatException("Wrong number of variables");
-	    }
-	}
-
 	if (parts[0].equals("E"))
 	{
 	    if (parts.length == 2)
 	    {
 		return newEstimatedParameter(parts[1]);
-	    }
-	    else
-	    {
-		throw new FormatException("Wrong number of variables");
-	    }
-	}
-
-	if (parts[0].equals("EN"))
-	{
-	    if (parts.length == 2)
-	    {
-		return newEstimatedParameter(parts[1], false);
 	    }
 	    else
 	    {

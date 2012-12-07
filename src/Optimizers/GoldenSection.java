@@ -197,10 +197,11 @@ public class GoldenSection implements Optimizer
 	R origML = bestML;
 	R aML = bestML;
 	R bML = bestML;
-	double a;
-	double b;
-	double origVal = p.getValue();
-        //Bound the area to search
+        double origVal = p.getValue();
+	double a = origVal;
+	double b = origVal;
+        diff = diff / 2.0;
+	//Bound the area to search
 	do
 	{
             //Update the best ML foudn to date
@@ -215,33 +216,40 @@ public class GoldenSection implements Optimizer
             //Make the bounds twice as wide
 	    diff = diff * 2;
             
-            //Take accounts of any bounds on the parameter value
-	    a = Math.max(origVal - diff, p.getLowerBound());
-            //Set the parameter to the new value and calculate the likelihood
-	    pp.setValue(p,a);
-	    if (progress)
-	    {
-		out.println("\t\t1 " + p.getName() + "\t" + p.getValue());
-	    }
-	    aML = l.calculate(pp);
-	    if (progress)
-	    {
-		cal.setTimeInMillis(System.currentTimeMillis());
-		out.println("\t\t" + sdf.format(cal.getTime()) + "\t" + p.getName() + "\t" + p.getValue() + "\t" + aML.getLikelihood());
-	    }
-            //Do similarly for the other bound
-	    b = Math.min(origVal + diff, p.getUpperBound());
-	    pp.setValue(p,b);
-	    if (progress)
-	    {
-		out.println("\t\t2 " + p.getName() + "\t" + p.getValue());
-	    }
-	    bML = l.calculate(pp);
-	    if (progress)
-	    {
-		cal.setTimeInMillis(System.currentTimeMillis());
-		out.println("\t\t" + sdf.format(cal.getTime()) + "\t" + p.getName() + "\t" + p.getValue() + "\t" + bML.getLikelihood());
-	    }
+            if ((aML.getLikelihood() >= bestML.getLikelihood()) && (a > p.getLowerBound()))
+            {
+                //Take accounts of any bounds on the parameter value
+                a = Math.max(origVal - diff, p.getLowerBound());
+                //Set the parameter to the new value and calculate the likelihood
+                pp.setValue(p,a);
+                if (progress)
+                {
+                    out.println("\t\t1 " + p.getName() + "\t" + p.getValue());
+                }
+                aML = l.calculate(pp);
+                if (progress)
+                {
+                    cal.setTimeInMillis(System.currentTimeMillis());
+                    out.println("\t\t" + sdf.format(cal.getTime()) + "\t" + p.getName() + "\t" + p.getValue() + "\t" + aML.getLikelihood());
+                }
+            }
+            
+            if ((bML.getLikelihood() >= bestML.getLikelihood()) && (b < p.getUpperBound()))
+            {
+                //Do similarly for the other bound
+                b = Math.min(origVal + diff, p.getUpperBound());
+                pp.setValue(p,b);
+                if (progress)
+                {
+                    out.println("\t\t2 " + p.getName() + "\t" + p.getValue());
+                }
+                bML = l.calculate(pp);
+                if (progress)
+                {
+                    cal.setTimeInMillis(System.currentTimeMillis());
+                    out.println("\t\t" + sdf.format(cal.getTime()) + "\t" + p.getName() + "\t" + p.getValue() + "\t" + bML.getLikelihood());
+                }
+            }
 	}
         //Repeat until we've bounded the optimal value
 	while (((aML.getLikelihood() >= bestML.getLikelihood()) && (a > p.getLowerBound()))
@@ -256,6 +264,9 @@ public class GoldenSection implements Optimizer
 	R x1val = l.calculate(pp);
 	pp.setValue(p,x2);
 	R x2val = l.calculate(pp);
+        
+        boolean awayL = false;
+        boolean awayU = false;
 
 	while (Math.abs(x1val.getLikelihood() - x2val.getLikelihood()) > e_diff)
 	{
@@ -276,6 +287,7 @@ public class GoldenSection implements Optimizer
 		    cal.setTimeInMillis(System.currentTimeMillis());
 		    out.println("\t\t" + sdf.format(cal.getTime()) + "\t" + p.getName() + "\t" + p.getValue() + "\t" + x1val.getLikelihood());
 		}
+                awayL = true;
 	    }
 	    else
 	    {
@@ -299,7 +311,7 @@ public class GoldenSection implements Optimizer
 
         //If golden section search has got us close to the lower bound on the
         //parameter check whether the lower bound is the optimal value
-	if ((x1 - p.getLowerBound() <= diff))
+	if ((x1 - p.getLowerBound() <= diff) && !awayL)
 	{
 	    pp.setValue(p,p.getLowerBound());
 	    if (progress)
@@ -320,7 +332,7 @@ public class GoldenSection implements Optimizer
 	}
 
         //And similarly for the upper bound
-	if ((p.getUpperBound() - x2 <= diff))
+	if ((p.getUpperBound() - x2 <= diff) && !awayU)
 	{
 	    if (progress)
 	    {

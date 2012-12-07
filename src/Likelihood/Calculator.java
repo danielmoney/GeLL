@@ -19,15 +19,15 @@ package Likelihood;
 
 import Constraints.SiteConstraints;
 import Alignments.Alignment;
-import Alignments.Alignment.UniqueSite;
 import Alignments.AlignmentException;
 import Alignments.Site;
+import Alignments.UniqueSite;
 import Constraints.Constrainer;
 import Constraints.NoConstraints;
 import Likelihood.BasicCalculator.CalculatorException;
 import Likelihood.SiteLikelihood.LikelihoodException;
 import Likelihood.SiteLikelihood.NodeLikelihood;
-import Maths.StandardDouble;
+import Maths.Real;
 import Models.Model;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
@@ -283,7 +283,7 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
                 }
                 else
                 {
-                    p.addParameter(Parameter.newEstimatedPositiveParameter(b.getChild(),false));
+                    p.addParameter(Parameter.newEstimatedPositiveParameter(b.getChild()));
                 }
             }
 	}
@@ -385,7 +385,7 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
             //Get the result for each site and calculate the total likelihood (m)
             //of the unobserved data.  Follows Felsenstein 1992.
             //double ml = 0.0;
-            HashMap<String, StandardDouble> ml = new HashMap<>();
+            HashMap<String, Real> ml = new HashMap<>();
             /*for (int i = 0; i < miss.size(); i++)
             {*/
             if (missing != null)

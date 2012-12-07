@@ -2,7 +2,7 @@ package Maths;
 
 import java.io.Serializable;
 
-public class StandardDouble implements Serializable
+public class StandardDouble implements Serializable, Real//<StandardDouble>
 {
     public StandardDouble(double d)
     {
@@ -10,9 +10,9 @@ public class StandardDouble implements Serializable
     }
     
    
-    public StandardDouble multiply(StandardDouble o)
+    public StandardDouble multiply(Real o)
     {
-        return new StandardDouble(d * o.d);
+        return new StandardDouble(d * o.toDouble());
     }
     
     public StandardDouble multiply(double o)
@@ -20,9 +20,9 @@ public class StandardDouble implements Serializable
         return new StandardDouble(d * o);
     }
     
-    public StandardDouble add(StandardDouble o)
+    public StandardDouble add(Real o)
     {
-        return new StandardDouble(d + o.d);
+        return new StandardDouble(d + o.toDouble());
     }
     
     public StandardDouble add(double o)
@@ -52,14 +52,19 @@ public class StandardDouble implements Serializable
         }
     }
     
-    public boolean graterThan(StandardDouble o)
+    public boolean greaterThan(Real o)
     {
-        return d > o.d;
+        return d > o.toDouble();
     }
     
-    public StandardDouble subtract(StandardDouble o)
+    public boolean greaterThan(double o)
     {
-        return new StandardDouble(d - o.d);
+        return d > o;
+    }
+    
+    public StandardDouble subtract(Real o)
+    {
+        return new StandardDouble(d - o.toDouble());
     }
     
     public StandardDouble subtract(double o)
@@ -77,9 +82,9 @@ public class StandardDouble implements Serializable
         return new StandardDouble(1/d);
     }
     
-    public StandardDouble divide(StandardDouble o)
+    public StandardDouble divide(Real o)
     {
-        return new StandardDouble(d / o.d);
+        return new StandardDouble(d / o.toDouble());
     }
     
     public StandardDouble divide(double o)
@@ -90,6 +95,11 @@ public class StandardDouble implements Serializable
     public double toDouble()
     {
         return d;
+    }
+    
+    public SmallDouble toSmallDouble()
+    {
+        return new SmallDouble(d);
     }
     
     public String toString()

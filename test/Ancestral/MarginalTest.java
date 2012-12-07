@@ -122,9 +122,9 @@ public class MarginalTest
                     good = good && reconSite.getRawCharacter("A").equals(match.group(6));
                     good = good && reconSite.getRawCharacter("B").equals(match.group(4));
                     good = good && reconSite.getRawCharacter("C").equals(match.group(2));
-                    good = good && ((sr.getProbability("A", reconSite.getRawCharacter("A")) - Double.parseDouble(match.group(7))) <= 0.001);
-                    good = good && ((sr.getProbability("B", reconSite.getRawCharacter("B")) - Double.parseDouble(match.group(5))) <= 0.001);
-                    good = good && ((sr.getProbability("C", reconSite.getRawCharacter("C")) - Double.parseDouble(match.group(3))) <= 0.001);
+                    good = good && ((sr.getProbability("A", reconSite.getRawCharacter("A")).toDouble() - Double.parseDouble(match.group(7))) <= 0.001);
+                    good = good && ((sr.getProbability("B", reconSite.getRawCharacter("B")).toDouble() - Double.parseDouble(match.group(5))) <= 0.001);
+                    good = good && ((sr.getProbability("C", reconSite.getRawCharacter("C")).toDouble() - Double.parseDouble(match.group(3))) <= 0.001);
                 }
             }
         }

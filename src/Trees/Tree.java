@@ -150,6 +150,7 @@ public class Tree implements Iterable<Branch>
      * all child nodes are returned before their parent is.
      * @return A list of internal nodes
      */
+    
     public List<String> getInternal()
     {
         return internal;
@@ -216,7 +217,7 @@ public class Tree implements Iterable<Branch>
 	Parameters p = new Parameters();
 	for (Branch b: branches)
 	{
-	    p.addParameter(Parameter.newEstimatedPositiveParameter(b.getChild(),false));
+	    p.addParameter(Parameter.newEstimatedPositiveParameter(b.getChild()));
 	}
 	return p;
     }
@@ -811,7 +812,7 @@ public class Tree implements Iterable<Branch>
 	{
 	    throw new OutputException("File can not be created", f.getAbsolutePath(),e);
 	}
-	out.print(toString(nameInternal));
+	out.println(toString(nameInternal));
 	out.close();
     }
     

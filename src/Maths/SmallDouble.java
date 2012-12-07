@@ -2,7 +2,7 @@ package Maths;
 
 import java.io.Serializable;
 
-public class SmallDouble implements Serializable
+public class SmallDouble implements Serializable, Real//<SmallDouble>
 {
     public SmallDouble(double d)
     {
@@ -17,8 +17,9 @@ public class SmallDouble implements Serializable
         this.e = s + e;
     }
     
-    public SmallDouble multiply(SmallDouble o)
+    public SmallDouble multiply(Real r)
     {
+        SmallDouble o = r.toSmallDouble();
         return new SmallDouble(m * o.m, e + o.e);
     }
     
@@ -27,8 +28,13 @@ public class SmallDouble implements Serializable
         return new SmallDouble(m * d, e);
     }
     
-    public SmallDouble add(SmallDouble o)
+    public SmallDouble add(Real r)
     {
+        SmallDouble o = r.toSmallDouble();
+        if (m == 0.0)
+        {
+            return o;
+        }
         if (e - o.e > Double.MAX_EXPONENT)
         {
             return this;
@@ -68,8 +74,9 @@ public class SmallDouble implements Serializable
         }
     }
     
-    public boolean graterThan(SmallDouble o)
+    public boolean greaterThan(Real r)
     {
+        SmallDouble o = r.toSmallDouble();
         if (e > o.e)
         {
             return true;
@@ -81,7 +88,12 @@ public class SmallDouble implements Serializable
         return (m > o.m);
     }
     
-    public SmallDouble subtract(SmallDouble o)
+    public boolean greaterThan(double r)
+    {
+        return greaterThan(new SmallDouble(r));
+    }
+    
+    public SmallDouble subtract(Real o)
     {
         return add(o.negate());
     }
@@ -101,7 +113,7 @@ public class SmallDouble implements Serializable
         return new SmallDouble(1/m,-e);
     }
     
-    public SmallDouble divide(SmallDouble o)
+    public SmallDouble divide(Real o)
     {
         return multiply(o.inverse());
     }
@@ -129,6 +141,11 @@ public class SmallDouble implements Serializable
         {
             return ((sm/10.0) + "e" + ((int) se + 1));
         }
+    }
+    
+    public SmallDouble toSmallDouble()
+    {
+        return this;
     }
     
     private double m;
