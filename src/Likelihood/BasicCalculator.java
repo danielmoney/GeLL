@@ -5,7 +5,6 @@
 package Likelihood;
 
 import Alignments.Site;
-import Constraints.SiteConstraints;
 import Exceptions.GeneralException;
 import Exceptions.UnexpectedError;
 import Likelihood.Probabilities.RateProbabilities;
@@ -154,7 +153,7 @@ public abstract class BasicCalculator<R extends BasicLikelihood>
          * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
          *      (most probably due to the state at the node not being in the model). 
          */
-        public SiteCalculator(Site s, Tree t, SiteConstraints con, Probabilities tp) throws LikelihoodException
+        /*public SiteCalculator(Site s, Tree t, Assignment con, Probabilities tp) throws LikelihoodException
         {
             this.t = t;
             this.tp = tp;
@@ -172,7 +171,7 @@ public abstract class BasicCalculator<R extends BasicLikelihood>
             {
                 nl.put(i, new NodeLikelihood(tp.getArrayMap(), con.getConstraint(i)));
             }
-        }
+        }*/
 
         public SiteLikelihood call()//void run()
         {

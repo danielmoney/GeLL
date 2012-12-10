@@ -2,8 +2,6 @@ package Simulations;
 
 import Alignments.Alignment;
 import Alignments.AlignmentException;
-import Constraints.Constrainer;
-import Constraints.NoConstraints;
 import Exceptions.OutputException;
 import Likelihood.BasicCalculator.CalculatorException;
 import Likelihood.Calculator;
@@ -35,11 +33,11 @@ public class HypothesisTest
      * @param o The optimizer to be used
      * @param reps The number of samples of the null distribution to generate
      */
-    public HypothesisTest(Model nullModel, Model altModel, Optimizer o, int reps)
+    /*public HypothesisTest(Model nullModel, Model altModel, Optimizer o, int reps)
     {
         this(nullModel, altModel, new NoConstraints(nullModel.getStates()),
                 new NoConstraints(altModel.getStates()), o, reps);
-    }
+    }*/
     
     /**
      * Constructor for use when one or both of the null hypothesis and alternative 
@@ -53,13 +51,13 @@ public class HypothesisTest
      * @param reps The number of samples of the null distribution to generate
      */
     public HypothesisTest(Model nullModel, Model altModel, 
-            Constrainer nullConstrainer, Constrainer altConstrainer,
+            //Constrainer nullConstrainer, Constrainer altConstrainer,
             Optimizer o, int reps)
     {
         this.nullModel = nullModel;
         this.altModel = altModel;
-        this.nullConstrainer = nullConstrainer;
-        this.altConstrainer = altConstrainer;
+        //this.nullConstrainer = nullConstrainer;
+        //this.altConstrainer = altConstrainer;
         this.o = o;
         this.reps = reps;
     }
@@ -131,8 +129,8 @@ public class HypothesisTest
             OutputException, AlignmentException, SimulationException, CalculatorException, LikelihoodException
     {
         //Calculate the difference in likelihood between the two models for the given alignment
-        Calculator nullCalc = new Calculator(nullModel, a, t, unobserved, nullConstrainer);
-        Calculator altCalc = new Calculator(altModel, a, t, unobserved, altConstrainer);
+        Calculator nullCalc = new Calculator(nullModel, a, t, unobserved/*, nullConstrainer*/);
+        Calculator altCalc = new Calculator(altModel, a, t, unobserved/*, altConstrainer*/);
         Likelihood nullL = o.maximise(nullCalc, nullParams);
         Likelihood altL = o.maximise(altCalc, altParams);        
         double diff = altL.getLikelihood() - nullL.getLikelihood();
@@ -173,8 +171,8 @@ public class HypothesisTest
             Alignment a = s.getAlignment(alignLength, rec);
             
             //Then calculate and store the likelihood difference between the two models
-            Calculator nullCalc = new Calculator(nullModel, a, t, missing, nullConstrainer);
-            Calculator altCalc = new Calculator(altModel, a, t, missing, altConstrainer);
+            Calculator nullCalc = new Calculator(nullModel, a, t, missing/*, nullConstrainer*/);
+            Calculator altCalc = new Calculator(altModel, a, t, missing/*, altConstrainer*/);
 
             Likelihood nullL = o.maximise(nullCalc, nullParams);
             Likelihood altL = o.maximise(altCalc, altParams);
@@ -187,8 +185,8 @@ public class HypothesisTest
     
     private Model nullModel;
     private Model altModel;
-    private Constrainer nullConstrainer;
-    private Constrainer altConstrainer;
+    //private Constrainer nullConstrainer;
+    //private Constrainer altConstrainer;
     private Optimizer o;
     private int reps;
 }

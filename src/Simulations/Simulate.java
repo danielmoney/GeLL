@@ -21,10 +21,7 @@ import Alignments.Site;
 import Alignments.Alignment;
 import Alignments.AlignmentException;
 import Alignments.Ambiguous;
-import Constraints.Constrainer;
-import Constraints.NoConstraints;
 import Exceptions.GeneralException;
-import Exceptions.UnexpectedError;
 import Likelihood.Probabilities;
 import Parameters.Parameters;
 import Models.RateCategory;
@@ -69,7 +66,8 @@ public class Simulate
      */
     public Simulate(Model m, Tree t, Parameters p) throws RateException, ModelException, TreeException, ParameterException
     {
-	this(m,t,p,null,new NoConstraints(m.getStates()));
+	//this(m,t,p,null,new NoConstraints(m.getStates()));
+        this(m,t,p,null);
     }
     
     /**
@@ -87,10 +85,10 @@ public class Simulate
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
      * with the parameters (e.g. a requied parameter is not present) 
      */
-    public Simulate(Model m, Tree t, Parameters p, Alignment unobserved) throws RateException, ModelException, TreeException, ParameterException
+    /*public Simulate(Model m, Tree t, Parameters p, Alignment unobserved) throws RateException, ModelException, TreeException, ParameterException
     {
         this(m,t,p,unobserved,new NoConstraints(m.getStates()));
-    }
+    }*/
 
     /**
      * Creates an object to simulate data for a given model, tree, parameters,
@@ -109,7 +107,8 @@ public class Simulate
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
      * with the parameters (e.g. a requied parameter is not present) 
      */
-    public Simulate(Model m, Tree t, Parameters p, Alignment unobserved, Constrainer con) throws RateException, ModelException, TreeException, ParameterException
+    //public Simulate(Model m, Tree t, Parameters p, Alignment unobserved, Constrainer con) throws RateException, ModelException, TreeException, ParameterException
+    public Simulate(Model m, Tree t, Parameters p, Alignment unobserved) throws RateException, ModelException, TreeException, ParameterException
     {
         this.P = new HashMap<>(); 
         P.put(null,new Probabilities(m,t,p));
@@ -119,8 +118,8 @@ public class Simulate
         
         random = new Random();
         
-        this.con = new HashMap<>();
-        this.con.put(null,con);
+        //this.con = new HashMap<>();
+        //this.con.put(null,con);
         
         //If the parameters setting doesn't include branch lengths parameters then
         //add them from the tree.  The paramter / branch length interaction is a
@@ -184,11 +183,11 @@ public class Simulate
         
         random = new Random();
         
-        con = new HashMap<>();
-        for (Entry<String,Model> e: m.entrySet())
-        {
-            con.put(e.getKey(),new NoConstraints(e.getValue().getStates()));
-        }
+        //con = new HashMap<>();
+        //for (Entry<String,Model> e: m.entrySet())
+        //{
+        //    con.put(e.getKey(),new NoConstraints(e.getValue().getStates()));
+        //}
         
         //If the parameters setting doesn't include branch lengths parameters then
         //add them from the tree.  The paramter / branch length interaction is a
@@ -221,7 +220,8 @@ public class Simulate
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
      * with the parameters (e.g. a requied parameter is not present) 
      */  
-    public Simulate(Map<String,Model> m, Tree t, Parameters p, Alignment unobserved, Map<String,Constrainer> con) throws RateException, ModelException, TreeException, ParameterException
+    //public Simulate(Map<String,Model> m, Tree t, Parameters p, Alignment unobserved, Map<String,Constrainer> con) throws RateException, ModelException, TreeException, ParameterException
+    /*public Simulate(Map<String,Model> m, Tree t, Parameters p, Alignment unobserved) throws RateException, ModelException, TreeException, ParameterException
     {
         P = new HashMap<>();
         for (Entry<String,Model> e: m.entrySet())
@@ -234,7 +234,7 @@ public class Simulate
         
         random = new Random();
         
-        this.con = con;
+        //this.con = con;
         
         //If the parameters setting doesn't include branch lengths parameters then
         //add them from the tree.  The paramter / branch length interaction is a
@@ -248,7 +248,7 @@ public class Simulate
                    b.getLength()));
             }
 	}
-    }
+    }*/
 
     /**
      * Gets a simulated site without returning the state of the internal nodes
@@ -387,13 +387,13 @@ public class Simulate
         {
             throw new SimulationException("No model defined for requested class");
         }
-        if (!con.containsKey(siteClass))
+        /*if (!con.containsKey(siteClass))
         {
             throw new SimulationException("No constraints defineed for requested class");
-        }
+        }*/
 	Site site, loSite;
-        try
-        {
+        //try
+        //{
             do
             {
                 HashMap<String,String> assign = new HashMap<>();
@@ -458,15 +458,16 @@ public class Simulate
             }
             //While the site is missing or it does not meet the constraints generate
             //another site
-            while (isMissing(loSite) || !con.get(siteClass).getConstraints(t, loSite).meetsConstrains(site));
-        }
-        catch (AlignmentException e)
+            //while (isMissing(loSite) || !con.get(siteClass).getConstraints(t, loSite).meetsConstrains(site));
+            while (isMissing(loSite));
+        //}
+        /*catch (AlignmentException e)
         {
             //This should never happen as this is only thrown if the site and tree
             //are incompitable.  As the site has been generated using the tree this
             //shouldn't happen!
             throw new UnexpectedError(e);
-        }
+        }*/
         
         if (internal)
         {
@@ -745,7 +746,7 @@ public class Simulate
     private Random random;
     private Alignment missing;
     private Map<String,Probabilities> P;
-    private Map<String,Constrainer> con;
+    //private Map<String,Constrainer> con;
     
     /**
      * Exception for when there is a problem with the simulation

@@ -1,7 +1,5 @@
 package Alignments;
 
-import Constraints.NoConstraints;
-import Constraints.SiteConstraints;
 import Likelihood.SiteLikelihood.LikelihoodException;
 import Likelihood.SiteLikelihood.NodeLikelihood;
 import Trees.Tree;
@@ -233,10 +231,10 @@ public class Site implements Serializable
         return ret.toString();
     }
     
-    public ArrayMap<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t,  ArrayMap<String,Integer> map) throws LikelihoodException
-    {
-        return getInitialNodeLikelihoods(t,map,(new NoConstraints(map.keyList())).getConstraints(t, this));
-    }
+    //public ArrayMap<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t,  ArrayMap<String,Integer> map) throws LikelihoodException
+    //{
+    //    return getInitialNodeLikelihoods(t,map,(new NoConstraints(map.keyList())).getConstraints(t, this));
+    //}
     
     /**
      * Gdets initial node likelihoods based on the site, tree and any constraints.
@@ -252,7 +250,9 @@ public class Site implements Serializable
      * likelihood calculations
      * @throws Likelihood.Likelihood.LikelihoodException Thrown if all states are initialised to a zero likelihood 
      */
-    public ArrayMap<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t,  ArrayMap<String,Integer> map, SiteConstraints scon) throws LikelihoodException
+    //public ArrayMap<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t,  ArrayMap<String,Integer> map, SiteConstraints scon) throws LikelihoodException
+    public ArrayMap<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t,  ArrayMap<String,Integer> map) throws LikelihoodException
+    
     {        
         ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
         for (String l: t.getLeaves())
@@ -265,7 +265,7 @@ public class Site implements Serializable
         for (String i: t.getInternal())
         {
             //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
-            nodeLikelihoods.put(i, new NodeLikelihood(map, scon.getConstraint(i)));
+            nodeLikelihoods.put(i, new NodeLikelihood(map/*, scon.getConstraint(i)*/));
         }
         return nodeLikelihoods;
     }

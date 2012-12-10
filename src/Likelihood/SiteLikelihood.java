@@ -221,6 +221,18 @@ public class SiteLikelihood implements Serializable
      */
     public static class NodeLikelihood implements Serializable
     {
+        public NodeLikelihood(ArrayMap<String,Integer> states) throws LikelihoodException
+        {
+            likelihoods = new Real[states.size()];
+            this.states = states;
+            //for (Entry<String,Integer> s: states.entryList())
+            for (int i = 0; i < states.size(); i ++)
+            {
+                Entry<String,Integer> s = states.getEntry(i);
+                likelihoods[s.getValue()] = RealFactory.getReal(type,1.0);//new Real(1.0);
+            }            
+        }
+        
         /**
          * Default constructor
          * @param states Map from a state to it's position in the array
@@ -238,6 +250,32 @@ public class SiteLikelihood implements Serializable
             {
                 Entry<String,Integer> s = states.getEntry(i);
                 if (allowedStates.contains(s.getKey()))
+                {
+                    likelihoods[s.getValue()] = RealFactory.getReal(type,1.0);//new Real(1.0);
+                    onz = true;
+                }
+                else
+                {
+                    likelihoods[s.getValue()] = RealFactory.getReal(type,0.0);//new Real(0.0);
+                }
+            }
+            // NEED TO TURN BACK ON!
+            //if (!onz)
+            //{
+            //    throw new LikelihoodException("No non-zero probabilities at leaves - alignment state not in model?");
+            //}
+        }
+        
+        public NodeLikelihood(ArrayMap<String,Integer> states, String allowedState) throws LikelihoodException
+        {
+            likelihoods = new Real[states.size()];
+            this.states = states;
+            //for (Entry<String,Integer> s: states.entryList())
+            boolean onz = false;
+            for (int i = 0; i < states.size(); i ++)
+            {
+                Entry<String,Integer> s = states.getEntry(i);
+                if ((allowedState != null) && allowedState.equals(s.getKey()))
                 {
                     likelihoods[s.getValue()] = RealFactory.getReal(type,1.0);//new Real(1.0);
                     onz = true;

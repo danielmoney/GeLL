@@ -23,7 +23,6 @@ import Alignments.AlignmentException;
 import Ancestors.AncestralJointDP.MultipleRatesException;
 import Exceptions.UnexpectedError;
 import Likelihood.Probabilities;
-import Constraints.SiteConstraints;
 import Likelihood.BasicCalculator.SiteCalculator;
 import Likelihood.SiteLikelihood;
 import Likelihood.SiteLikelihood.LikelihoodException;
@@ -38,8 +37,6 @@ import Parameters.Parameters.ParameterException;
 import Trees.Branch;
 import Trees.Tree;
 import Trees.TreeException;
-import Utils.SetUtils;
-import Utils.SetUtils.SetHasMultipleElementsException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -167,10 +164,11 @@ public class AncestralJointBB extends AncestralJoint
         //classes would need changes as well.  There's also no attempt to be clever
         //in the order we visit the internal nodes.  Again this seems to be reasonably
         //effecient without it.                
-        SiteConstraints con = new SiteConstraints(P.getAllStatesAsList());
+        Assignment con = new Assignment(/*P.getAllStatesAsList()*/);
         
         //Calculate the site likelihood without any constraints
-        SiteLikelihood sl = (new SiteCalculator(ca,t,con,P)).calculate();
+        //SiteLikelihood sl = (new SiteCalculator(ca,t,con,P)).calculate();
+        SiteLikelihood sl = (new SiteCalculator(t,P,con.getInitialNodeLikelihoods(t, ca, P.getArrayMap()))).calculate();
 	RateCategory br = null;
         //And then use this to find the rate category that contributes the most likelihood
 	Real brs = null; //getSmallest();//Real.SMALLEST;
@@ -204,7 +202,7 @@ public class AncestralJointBB extends AncestralJoint
         //the same as constraining the node to the fixedstate so we can use
         //the constraints mechanism to keep track of what internal nodes we've
         //fixed.  To begin with nbo nodes are fixed.
-        SiteConstraints assign = new SiteConstraints(P.getAllStatesAsList());
+        Assignment assign = new Assignment(/*P.getAllStatesAsList()*/);
         
         //Initialise the structure that keeps track of the best reconstruction
         //found so far.  We don't have a best reconstruction yet, so pass
@@ -232,23 +230,24 @@ public class AncestralJointBB extends AncestralJoint
         //And then adding the reconstruction
         for (String in: t.getInternal())
         {
-            try
-            {
+            //try
+            //{
                 //ret[i] = SetUtils.getSingleElement(assign.getConstraint(in));
-                ret.put(in, SetUtils.getSingleElement(best.assign.getConstraint(in)));
-            }
-            catch (SetHasMultipleElementsException e)
-            {
+                //ret.put(in, SetUtils.getSingleElement(best.assign.getAssignment(in)));
+                ret.put(in, best.assign.getAssignment(in));
+            //}
+            //catch (SetHasMultipleElementsException e)
+            //{
                 //Shouldn't reach here as we only ever constrain each node to
                 //a single site during the reconstruction
-                throw new UnexpectedError(e);
-            }
+                //throw new UnexpectedError(e);
+            //}
         }
         
         return new Site(ret);
     }
 
-    private Best DFS(Site site, SiteConstraints assign, Best best, Probabilities P, Site ba) throws LikelihoodException
+    private Best DFS(Site site, Assignment assign, Best best, Probabilities P, Site ba) throws LikelihoodException
     {
         //Recursive depth first search of possible reconstructions
      
@@ -256,7 +255,8 @@ public class AncestralJointBB extends AncestralJoint
 	if (isFull(assign))
 	{
             //Calculate the likelihood of that reconstruction
-            Real s = (new SiteCalculator(site,t,assign,P)).calculate().getLikelihood();
+            //Real s = (new SiteCalculator(site,t,assign,P)).calculate().getLikelihood();
+            Real s = (new SiteCalculator(t,P,assign.getInitialNodeLikelihoods(t, site, P.getArrayMap()))).calculate().getLikelihood();
             //If it's better than the bext reconstruction we've encountered so far
             //update the best and return it
 	    if ((best.score == null) || s.greaterThan(best.score))
@@ -278,7 +278,8 @@ public class AncestralJointBB extends AncestralJoint
         //assignment we do already have.  This bound is calculated by summing accross
         //all possible states at unassigned nodes using the normal (quick) likelihood
         //calculation method.
-        Real bound = (new SiteCalculator(site,t,assign,P)).calculate().getLikelihood();
+        //Real bound = (new SiteCalculator(site,t,assign,P)).calculate().getLikelihood();
+        Real bound = (new SiteCalculator(t,P,assign.getInitialNodeLikelihoods(t, site, P.getArrayMap()))).calculate().getLikelihood();
 
 	//System.out.println(best.score + "\t" + bound + "\t" + Arrays.toString(assign));
 
@@ -296,12 +297,12 @@ public class AncestralJointBB extends AncestralJoint
 	String b = getFirst(assign);
         
         //Clone the current assignment
-	SiteConstraints na = assign.clone();
+	Assignment na = assign.clone();
         
         //First try the best single-rate assignment we calculated above
         try
         {
-            na.addConstraint(b, ba.getRawCharacter(b));
+            na.addAssignment(b, ba.getRawCharacter(b));
         }
         catch (AlignmentException e)
         {
@@ -321,7 +322,7 @@ public class AncestralJointBB extends AncestralJoint
                 {
                     //Clone the assignment and add the current assignment
                     na = assign.clone();
-                    na.addConstraint(b, state);
+                    na.addAssignment(b, state);
                     //and recurse...
                     best = DFS(site,na,best,P,ba);
                 }
@@ -338,13 +339,13 @@ public class AncestralJointBB extends AncestralJoint
     
 
 
-    private String getFirst(SiteConstraints assign)
+    private String getFirst(Assignment assign)
     {
         //Gets the first unassigned node.  No attempt to be clever on choosing
         //an effecient node to do next.
 	for (String i: t.getInternal())
 	{
-	    if (!assign.nodeIsConstrained(i))
+	    if (!assign.nodeIsAssigned(i))
 	    {
 		return i;
 	    }
@@ -352,11 +353,11 @@ public class AncestralJointBB extends AncestralJoint
 	return null;
     }
 
-    private boolean isFull(SiteConstraints assign)
+    private boolean isFull(Assignment assign)
     {
 	for (String i : t.getInternal())
 	{
-	    if (!assign.nodeIsConstrained(i))
+	    if (!assign.nodeIsAssigned(i))
 	    {
 		return false;
 	    }
@@ -367,13 +368,13 @@ public class AncestralJointBB extends AncestralJoint
     private class Best
     {
 
-	private Best(SiteConstraints assign, Real score)
+	private Best(Assignment assign, Real score)
 	{
 	    this.assign = assign;
 	    this.score = score;
 	}
 
-	private SiteConstraints assign;
+	private Assignment assign;
 
 	private Real score;
     }

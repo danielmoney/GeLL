@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import Parameters.Parameter;
 import Likelihood.Probabilities;
-import Constraints.SiteConstraints;
 import java.util.LinkedHashMap;
 import Alignments.Site;
 import java.util.Map;
@@ -136,9 +135,9 @@ public class SimulateTest
                         sm.put("orangutan", o);
                         Site s = new Site(sm);
                         
-                        SiteConstraints scon = new SiteConstraints(bases);
+                        //SiteConstraints scon = new SiteConstraints(bases);
                         
-                        ArrayMap<String, NodeLikelihood> nl = s.getInitialNodeLikelihoods(t, P.getArrayMap(), scon);
+                        ArrayMap<String, NodeLikelihood> nl = s.getInitialNodeLikelihoods(t, P.getArrayMap()/*, scon*/);
                         
                         SiteCalculator sc = new SiteCalculator(t,P,nl);
                         double l = sc.calculate().getLikelihood().toDouble();

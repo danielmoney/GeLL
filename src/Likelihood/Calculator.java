@@ -17,13 +17,10 @@
 
 package Likelihood;
 
-import Constraints.SiteConstraints;
 import Alignments.Alignment;
 import Alignments.AlignmentException;
 import Alignments.Site;
 import Alignments.UniqueSite;
-import Constraints.Constrainer;
-import Constraints.NoConstraints;
 import Likelihood.BasicCalculator.CalculatorException;
 import Likelihood.SiteLikelihood.LikelihoodException;
 import Likelihood.SiteLikelihood.NodeLikelihood;
@@ -40,7 +37,6 @@ import Trees.TreeException;
 import Utils.ArrayMap;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Calculates the likelihood for different parameter values.  Succesive calls
@@ -65,7 +61,8 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
      */
     public Calculator(Model m, Alignment a, Tree t) throws TreeException, LikelihoodException, AlignmentException
     {
-        this(m,a,t,null,new NoConstraints(m.getStates()));
+        //this(m,a,t,null,new NoConstraints(m.getStates()));
+        this(m,a,t,null);
     }
 
     /**
@@ -82,7 +79,9 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
      */    
     public Calculator(Model m, Alignment a, Tree t, Alignment unobserved) throws TreeException, LikelihoodException, AlignmentException
     {
-        this(m,a,t,unobserved,new NoConstraints(m.getStates()));
+        //this(m,a,t,unobserved,new NoConstraints(m.getStates()));
+        //this(m,a,t,unobserved);
+        this(makeModelMap(m),a,t,unobserved);
     }
  
     /**
@@ -97,10 +96,10 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
      *      (most probably due to the state at the node not being in the model).
      * @throws AlignmentException Thrown if the tree and site have incomptiable taxa 
      */
-    public Calculator(Model m, Alignment a, Tree t, Constrainer con) throws TreeException, LikelihoodException, AlignmentException
+    /*public Calculator(Model m, Alignment a, Tree t, Constrainer con) throws TreeException, LikelihoodException, AlignmentException
     {
         this(m,a,t,null,con);
-    }
+    }*/
     
    
     /**
@@ -116,9 +115,9 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
      *      (most probably due to the state at the node not being in the model).
      * @throws AlignmentException Thrown if the tree and site have incomptiable taxa 
      */
-    public Calculator(Model m, Alignment a, Tree t, Alignment unobserved, Constrainer con) throws TreeException, LikelihoodException, AlignmentException
+    /*public Calculator(Model m, Alignment a, Tree t, Alignment unobserved, Constrainer con) throws TreeException, LikelihoodException, AlignmentException
     {
-        this(makeModelMap(m),a,t,unobserved,makeConstrainerMap(con));
+        this(makeModelMap(m),a,t,unobserved,makeConstrainerMap(con));*/
         /*this.m = new HashMap<>();
         this.m.put(null,m);
         this.a = a;
@@ -133,7 +132,7 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
         //we do a calculation.  Results in a significant speed increase when
         //optimising.
         this.snl = getInitialNodeLikelihoods(this.m,a,t,missing,this.con); */
-    }
+    //}
 
     /**
      * Creates a class to calculate the likelihood for a given set of models, an alignment,
@@ -149,7 +148,8 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
      */
     public Calculator(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException, TreeException, LikelihoodException
     {
-        this(m,a,t,null,makeNoConstraintsMap(m));
+        //this(m,a,t,null,makeNoConstraintsMap(m));
+        this(m,a,t,null);
         /*this.m = m;
         this.a = a;
         this.t = t;
@@ -180,9 +180,9 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
      * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
      *      (most probably due to the state at the node not being in the model). 
      */
-    public Calculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved) throws AlignmentException, TreeException, LikelihoodException
-    {
-        this(m,a,t,null,makeNoConstraintsMap(m));
+    //public Calculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved) throws AlignmentException, TreeException, LikelihoodException
+    //{
+        //this(m,a,t,unobserved,makeNoConstraintsMap(m));
         /*this.m = m;
         this.a = a;
         this.t = t;
@@ -197,7 +197,7 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
             throw new AlignmentException("Alignment contains classes for which no model has been defined");
         }
         this.snl = getInitialNodeLikelihoods(m,a,t,missing,con); */
-    }
+    //}
 
     /**
      * Creates a class to calculate the likelihood for a given set of models, an alignment,
@@ -213,10 +213,10 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
      * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
      *      (most probably due to the state at the node not being in the model). 
      */
-    public Calculator(Map<String,Model> m, Alignment a, Tree t, Map<String,Constrainer> con) throws AlignmentException, TreeException, LikelihoodException
+    /*public Calculator(Map<String,Model> m, Alignment a, Tree t, Map<String,Constrainer> con) throws AlignmentException, TreeException, LikelihoodException
     {
         this(m,a,t,null,con);
-    }
+    }*/
 
     /**
      * Creates a class to calculate the likelihood for a given set of models, an alignment,
@@ -233,9 +233,11 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
      * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
      *      (most probably due to the state at the node not being in the model). 
      */
-    public Calculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved, Map<String,Constrainer> con) throws AlignmentException, TreeException, LikelihoodException
+    //public Calculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved, Map<String,Constrainer> con) throws AlignmentException, TreeException, LikelihoodException
+    public Calculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved) throws AlignmentException, TreeException, LikelihoodException
     {
-        super(m,t,getInitialNodeLikelihoods(m,a,t,unobserved,con));
+        //super(m,t,getInitialNodeLikelihoods(m,a,t,unobserved,con));
+        super(m,t,getInitialNodeLikelihoods(m,a,t,unobserved));
         this.a = a;
         this.t = t;
         this.missing = unobserved;
@@ -243,11 +245,12 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
         {
             throw new AlignmentException("Alignment contains classes for which no model has been defined");
         }
-        if (!a.check(con))
+        /*if (!a.check(con))
         {
             throw new AlignmentException("Alignment contains classes for which no constrainer has been defined");
-        }
-        this.snl = getInitialNodeLikelihoods(m,a,t,missing,con); 
+        }*/
+        //this.snl = getInitialNodeLikelihoods(m,a,t,missing,con); 
+        this.snl = getInitialNodeLikelihoods(m,a,t,missing); 
     }
     
     /**
@@ -445,13 +448,14 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
     
     private HashMap<Site,ArrayMap<String,NodeLikelihood>> snl;
     
-    private static HashMap<Site,ArrayMap<String,NodeLikelihood>> getInitialNodeLikelihoods(Map<String,Model> m, Alignment a, Tree t, Alignment missing, Map<String,Constrainer> con) 
+    //private static HashMap<Site,ArrayMap<String,NodeLikelihood>> getInitialNodeLikelihoods(Map<String,Model> m, Alignment a, Tree t, Alignment missing, Map<String,Constrainer> con) 
+    private static HashMap<Site,ArrayMap<String,NodeLikelihood>> getInitialNodeLikelihoods(Map<String,Model> m, Alignment a, Tree t, Alignment missing) 
             throws TreeException, LikelihoodException, AlignmentException
     {
         HashMap<Site,ArrayMap<String,NodeLikelihood>> snl = new HashMap<>();
         for (UniqueSite s: a.getUniqueSites())
         {
-            SiteConstraints scon = con.get(s.getSiteClass()).getConstraints(t, s);
+            //SiteConstraints scon = con.get(s.getSiteClass()).getConstraints(t, s);
             //See the constructor Calculator(Model m, Alignment a, Tree t, Alignment unobserved, Constrainer con)
             //for why this code is here
             ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
@@ -465,7 +469,8 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
             for (String i: t.getInternal())
             {
                 //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
-                nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap(), scon.getConstraint(i)));
+                //nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap(), scon.getConstraint(i)));
+                nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap()));
             }
             snl.put(s, nodeLikelihoods);
         }
@@ -473,7 +478,7 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
         {
             for (UniqueSite s: missing.getUniqueSites())
             {
-                SiteConstraints scon = con.get(s.getSiteClass()).getConstraints(t, s);
+                //SiteConstraints scon = con.get(s.getSiteClass()).getConstraints(t, s);
             //See the constructor Calculator(Model m, Alignment a, Tree t, Alignment unobserved, Constrainer con)
             //for why this code is here
                 ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
@@ -487,7 +492,7 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
                 for (String i: t.getInternal())
                 {
                     //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
-                    nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap(), scon.getConstraint(i)));
+                    nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap()));
                 }
                 snl.put(s, nodeLikelihoods);
             }
@@ -502,7 +507,7 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
         return mm;
     }
     
-    private static Map<String,Constrainer> makeConstrainerMap(Constrainer c)
+    /*private static Map<String,Constrainer> makeConstrainerMap(Constrainer c)
     {
         HashMap<String, Constrainer> cm = new HashMap<>();
         cm.put(null,c);
@@ -517,5 +522,5 @@ public class Calculator extends BasicCalculator<Likelihood> // implements Calcul
             cm.put(e.getKey(),new NoConstraints(e.getValue().getStates()));
         }
         return cm;
-    }
+    }*/
 }

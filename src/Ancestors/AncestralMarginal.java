@@ -20,9 +20,6 @@ package Ancestors;
 import Alignments.Alignment;
 import Alignments.AlignmentException;
 import Alignments.Site;
-import Constraints.Constrainer;
-import Constraints.NoConstraints;
-import Constraints.SiteConstraints;
 import Likelihood.Probabilities;
 import Likelihood.SiteLikelihood.LikelihoodException;
 import Likelihood.SiteLikelihood.NodeLikelihood;
@@ -61,10 +58,10 @@ public class AncestralMarginal
      * @param a The alignment
      * @param t The tree
      */
-    public AncestralMarginal(Model m, Alignment a, Tree t)
+    /*public AncestralMarginal(Model m, Alignment a, Tree t)
     {
         this(m,a,t,new NoConstraints(m.getStates()));
-    }
+    }*/
  
     /**
      * Creates an object to calculate an ancestral reconstruction for a given
@@ -74,14 +71,15 @@ public class AncestralMarginal
      * @param t The tree
      * @param con The constraints on the internal nodes
      */
-    public AncestralMarginal(Model m, Alignment a, Tree t, Constrainer con)
+    //public AncestralMarginal(Model m, Alignment a, Tree t, Constrainer con)
+    public AncestralMarginal(Model m, Alignment a, Tree t)
     {
 	this.a = a;
         this.m = new HashMap<>();
 	this.m.put(null, m); 
 	this.t = t;
-        this.con = new HashMap<>();
-        this.con.put(null,con);
+        //this.con = new HashMap<>();
+        //this.con.put(null,con);
     }
 
     /**
@@ -99,11 +97,11 @@ public class AncestralMarginal
         this.a = a;
         this.m = m;
         this.t = t;
-        this.con = new HashMap<>();
-        for (Entry<String,Model> e: m.entrySet())
+        //this.con = new HashMap<>();
+        /*for (Entry<String,Model> e: m.entrySet())
         {
             con.put(e.getKey(),new NoConstraints(e.getValue().getStates()));
-        }
+        }*/
         if (!a.check(m))
         {
             throw new AlignmentException("Alignment contains classes for which no model has been defined");
@@ -121,7 +119,7 @@ public class AncestralMarginal
      * @throws AlignmentException Thrown if a model and constrainer isn't given
      * for each site class in the alignment  
      */
-    public AncestralMarginal(Map<String,Model> m, Alignment a, Tree t, Map<String,Constrainer> con) throws AlignmentException
+    /*public AncestralMarginal(Map<String,Model> m, Alignment a, Tree t, Map<String,Constrainer> con) throws AlignmentException
     {
 	this.a = a;
         this.m = m;
@@ -135,7 +133,7 @@ public class AncestralMarginal
         {
             throw new AlignmentException("Alignment contains classes for which no constrainer has been defined");
         }
-    }
+    }*/
     
     /**
      * Calculates the reconstruction
@@ -236,7 +234,7 @@ public class AncestralMarginal
         }
         Collections.reverse(reverse);
         
-        SiteConstraints siteCon = con.get(s.getSiteClass()).getConstraints(t, s);
+        //SiteConstraints siteCon = con.get(s.getSiteClass()).getConstraints(t, s);
         
         //For each rate categoy...
         Map<RateCategory, NodeLikelihood> rr = new HashMap<>();
@@ -254,7 +252,7 @@ public class AncestralMarginal
             for (String n: t.getInternal())
             {
                 //l.put(n, new NodeLikelihood(P.getAllStatesAsList(), siteCon.getConstraint(n)));
-                l.put(n, new NodeLikelihood(P.getArrayMap(), siteCon.getConstraint(n)));
+                l.put(n, new NodeLikelihood(P.getArrayMap()/*, siteCon.getConstraint(n)*/));
             }
 
             //Traverse the normal branches in the same manner as for a normal
@@ -359,7 +357,7 @@ public class AncestralMarginal
     private Alignment a;
     private Map<String,Model> m;
     private Tree t;
-    private Map<String,Constrainer> con;
+    //private Map<String,Constrainer> con;
     
     //This is a fudge as it's an exact copy (well at least to begin with) of 
     //the class in Likelihood.Likelihood but there's no other easy way to control

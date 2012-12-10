@@ -31,11 +31,10 @@ import Models.Model;
 import Models.RateCategory;
 import Parameters.Parameter;
 import Parameters.Parameters;
-import Constraints.SiteConstraints;
+import Ancestors.Assignment;
 import Trees.Tree;
 import java.io.File;
 import java.util.HashMap;
-import java.util.Map;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -103,6 +102,11 @@ public class JointBBTest
             good = good && exhaust[0].equals(reconSite.getRawCharacter("A"));
             good = good && exhaust[1].equals(reconSite.getRawCharacter("B"));
             good = good && exhaust[2].equals(reconSite.getRawCharacter("C"));
+            
+            if (!good)
+            {
+                System.out.println("Fuck");
+            }
         }
         
         assertTrue(good);
@@ -113,21 +117,18 @@ public class JointBBTest
     {
         List<String> bases = new ArrayList<>();
         bases.add("A"); bases.add("C"); bases.add("G"); bases.add("T");
-        Map<String,Map<String,Map<String,Double>>> hash = new HashMap<>();
         double maxL = -Double.MAX_VALUE;
         String[] maxA = new String[3];
         for (String a: bases)
         {
-            hash.put(a, new HashMap<String,Map<String,Double>>());
             for (String b: bases)
             {
-                hash.get(a).put(b, new HashMap<String,Double>());
                 for (String c: bases)
                 {
-                    SiteConstraints sc = new SiteConstraints(bases);
-                    sc.addConstraint("A", a);
-                    sc.addConstraint("B", b);
-                    sc.addConstraint("C", c);
+                    Assignment sc = new Assignment(/*bases*/);
+                    sc.addAssignment("A", a);
+                    sc.addAssignment("B", b);
+                    sc.addAssignment("C", c);
                     
                     ArrayMap<String, NodeLikelihood> nl = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
                     for (String l: t.getLeaves())
@@ -138,7 +139,7 @@ public class JointBBTest
                     //And now internal nodes using any constraints
                     for (String i: t.getInternal())
                     {
-                        nl.put(i, new NodeLikelihood(P.getArrayMap(), sc.getConstraint(i)));
+                        nl.put(i, new NodeLikelihood(P.getArrayMap(), sc.getAssignment(i)));
                     }
                     
                     SiteCalculator calc = new SiteCalculator(t,P,nl);
