@@ -18,7 +18,7 @@
 package Ancestral;
 
 import Likelihood.Probabilities;
-import Likelihood.Calculator;
+import Likelihood.StandardCalculator;
 import Alignments.Alignment;
 import Alignments.PhylipAlignment;
 import Alignments.Site;
@@ -41,7 +41,7 @@ import static org.junit.Assert.*;
 /**
  * Tests the dynamic programming joint reconstruction method
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public class JointDPTest
 {
@@ -74,7 +74,7 @@ public class JointDPTest
 
         Model m = new Model(new RateCategory(ma,freq,map));
         
-        Calculator c = new Calculator(m,a,t);
+        StandardCalculator c = new StandardCalculator(m,a,t);
 
         AncestralJoint aj = AncestralJoint.newInstance(m,a,t);
 

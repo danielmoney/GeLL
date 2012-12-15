@@ -17,7 +17,7 @@
 
 package Simulations;
 
-import Likelihood.BasicCalculator.SiteCalculator;
+import Likelihood.Calculator.SiteCalculator;
 import Likelihood.SiteLikelihood.NodeLikelihood;
 import Utils.ArrayMap;
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ import static org.junit.Assert.*;
  * data to have a significant different distribution in 5% of tests (as this is
  * the significance level we use).
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public class SimulateTest
 {
@@ -135,9 +135,7 @@ public class SimulateTest
                         sm.put("orangutan", o);
                         Site s = new Site(sm);
                         
-                        //SiteConstraints scon = new SiteConstraints(bases);
-                        
-                        ArrayMap<String, NodeLikelihood> nl = s.getInitialNodeLikelihoods(t, P.getArrayMap()/*, scon*/);
+                        ArrayMap<String, NodeLikelihood> nl = s.getInitialNodeLikelihoods(t, P.getArrayMap());
                         
                         SiteCalculator sc = new SiteCalculator(t,P,nl);
                         double l = sc.calculate().getLikelihood().toDouble();

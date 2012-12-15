@@ -22,7 +22,7 @@ import Exceptions.GeneralException;
 /**
  * Exception related to an alignment (currently only input errors)
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class AlignmentException extends GeneralException
 {

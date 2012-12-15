@@ -26,7 +26,7 @@ import Utils.Array2D;
 /**
  * Class to calculate stationary and quasi-stationary distributions
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 
 public class Distributions

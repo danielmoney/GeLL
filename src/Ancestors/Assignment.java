@@ -28,125 +28,81 @@ import java.util.TreeMap;
 
 
 /**
- * Stores the constraints for a single site
+ * Stores the ancestral reconstruction assignment for a single site
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public class Assignment
 {
     /**
-     * Standard constructor that creates an object with no constraints
-     * @param allStates The set of all possible states
+     * Standard constructor that creates an object with no assignments
      */
-    public Assignment(/*List<String> allStates*/)
+    public Assignment()
     {
-        con = new TreeMap<>();
-        //def = allStates;
+        assign = new TreeMap<>();
     }
     
     /**
-     * Adds a constraint where a node is constrained to a single state
+     * Adds a asssignment 
      * @param n The node
-     * @param c The state it is constrained to
+     * @param c The state it is assigned
      */
     public void addAssignment(String n, String c)
     {
-        //Set<String> s = new HashSet<>();
-        //s.add(c);
-        //con.put(n,s);
-        con.put(n,c);
+        assign.put(n,c);
     }
     
     /**
-     * Adds a constraint
-     * @param n The node to add the constraint to
-     * @param c The states the node is constrained to
+     * Gets the assignment for a node
+     * @param n The node to get the assignment for
+     * @return The state that node is assigned
      */
-    //public void addConstraint(String n, Set<String> c)
-    //{
-    //    con.put(n,c);
-    //}
-    
-    /**
-     * Gets the constraints for a node
-     * @param n The node to get constraints for
-     * @return The states that node is constrained to
-     */
-    //public Set<String> getAssignment(String n)
     public String getAssignment(String n)
     {
-        return con.get(n);
-        /*if (con.get(n) != null)
-        {
-            return con.get(n);
-        }
-        else
-        {
-            Set<String> ret = new HashSet<>();
-            ret.addAll(def);
-            return ret;
-        }*/
+        return assign.get(n);
     }
     
     /**
-     * Tests whether a given site (that should include data for internal nodes)
-     * meets the defined constraints
-     * @param s The site
-     * @return Whether the constraints are met
-     */
-    /*public boolean meetsConstrains(Site s)
-    {
-        boolean good = true;
-        for (Entry<String, Set<String>> e: con.entrySet())
-        {
-            good = good && e.getValue().containsAll(s.getCharacter(e.getKey()));
-        }
-        return good;
-    }*/
-    
-    /**
-     * Tests whether a node has a constraint
+     * Tests whether a node has an assignment
      * @param n The node
-     * @return Whether the node is constrained
+     * @return Whether the node is assigned
      */
     public boolean nodeIsAssigned(String n)
     {
-        return con.containsKey(n);
+        return assign.containsKey(n);
     }
     
     public Assignment clone()
     {
         Assignment clone = new Assignment();
-        for (Entry<String,String> e: con.entrySet())
+        for (Entry<String,String> e: assign.entrySet())
         {
             clone.addAssignment(e.getKey(), e.getValue());
         }
-        /*Assignment clone = new Assignment(def);
-        for (Entry<String, Set<String>> e: con.entrySet())
-        {
-            Set<String> nv = new HashSet<>();
-            for (String i: e.getValue())
-            {
-                nv.add(i);
-            }
-            clone.addConstraint(e.getKey(), nv);
-        }*/
         return clone;
     }
     
+    /**
+     * Creates initial node likelihoods using this assignment.  Internal nodes
+     * with an assignment are set so only that state is allowed.
+     * @param t The tree to create the node likelihood for.
+     * @param s The site being reconstructed
+     * @param map A map from state to position in array
+     * @return An ArrayMap of NodeLikelihoods which can be used to initialise
+     * likelihood calculations
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if all states are initialised to a zero likelihood 
+     */
     public ArrayMap<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t,  Site s, ArrayMap<String,Integer> map) throws LikelihoodException    
     {        
         ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
         for (String l: t.getLeaves())
         {
-            //nodeLikelihoods.put(l, new NodeLikelihood(tp.getAllStates(), s.getCharacter(l)));
             nodeLikelihoods.put(l, new NodeLikelihood(map, s.getCharacter(l)));
         }
 
-        //And now internal nodes using any constraints
+        //And now internal nodes
         for (String i: t.getInternal())
         {
-            //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
             if (getAssignment(i) != null)
             {
                 nodeLikelihoods.put(i, new NodeLikelihood(map, getAssignment(i)));
@@ -159,8 +115,6 @@ public class Assignment
         }
         return nodeLikelihoods;
     }
-    
-    //private List<String> def;
-    //private Map<String,Set<String>> con;
-    private Map<String,String> con;
+
+    private Map<String,String> assign;
 }

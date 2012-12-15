@@ -5,7 +5,7 @@ import java.util.concurrent.ThreadFactory;
 /**
  * A thread factory that creates daemon threads
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public class DaemonThreadFactory implements ThreadFactory
 {

@@ -55,7 +55,7 @@ import java.util.regex.Pattern;
  * They may also contain numbers and mathematical operations.  See 
  * {@link FunctionParser} for more on how these rates are evaluated.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class Model implements Iterable<RateCategory>
 {
@@ -67,7 +67,6 @@ public class Model implements Iterable<RateCategory>
     {
 	f = new HashMap<>();
 	freq = new HashMap<>();
-	//freq.put(r,"1.0");
         freq.put(r, new Constant(1.0));
 	nStates = r.getNumberStates();
 	map = r.getArrayMap();
@@ -84,7 +83,6 @@ public class Model implements Iterable<RateCategory>
      */
     public Model(Map<RateCategory,String> freq) throws ModelException
     {
-	//this.freq = freq;
         this.freq = new HashMap<>();
         for (Entry<RateCategory,String> e: freq.entrySet())
         {
@@ -206,20 +204,6 @@ public class Model implements Iterable<RateCategory>
             {
                 throw new ModelException("Unable to calculate RateCategory frequencies - variable value not passed");
             }
-	    /*try
-	    {
-		f.put(r,mp.parseEquation(freq.get(r), values));
-	    }
-	    catch (NoSuchFunction ex)
-	    {
-		throw new ModelException("Frequency" +
-			freq.get(r) + ": No Such Function", ex);
-	    }
-	    catch (WrongNumberOfVariables ex)
-	    {
-		throw new ModelException("Frequency" +
-			freq.get(r) + ": Wromg Number of Variables for Function", ex);
-	    }*/
 	}
 	// Scale to total of 1.0
 	double total = 0.0;
@@ -232,9 +216,6 @@ public class Model implements Iterable<RateCategory>
 	    f.put(r, f.get(r) / total);
 	}
 
-        //THIS NEEDS A MAJOR RETHINK!!!!!!
-	//if (p.recalculateMatrix())
-	//{
         total = 0.0;
         for (RateCategory r :  freq.keySet())
         {
@@ -248,9 +229,7 @@ public class Model implements Iterable<RateCategory>
             {
                 r.setScale(scale);
             }
-            //p.calculated();
         }
-	//}
     }
 
     /**
@@ -433,7 +412,6 @@ public class Model implements Iterable<RateCategory>
     private double scale;
     private int nStates;
     private Map<RateCategory,Double> f;
-    //private Map<RateCategory,String> freq;
     private Map<RateCategory,CompiledFunction> freq;
     private ArrayMap<String,Integer> map;
     private boolean rescale = true;

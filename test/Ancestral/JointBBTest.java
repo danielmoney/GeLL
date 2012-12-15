@@ -16,7 +16,7 @@
  */
 
 package Ancestral;
-import Likelihood.BasicCalculator.SiteCalculator;
+import Likelihood.Calculator.SiteCalculator;
 import Likelihood.SiteLikelihood.LikelihoodException;
 import Likelihood.SiteLikelihood.NodeLikelihood;
 import Utils.ArrayMap;
@@ -41,7 +41,7 @@ import static org.junit.Assert.*;
 /**
  * Tests the branch-and-bound joint reconstruction method
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class JointBBTest
 {
@@ -102,11 +102,6 @@ public class JointBBTest
             good = good && exhaust[0].equals(reconSite.getRawCharacter("A"));
             good = good && exhaust[1].equals(reconSite.getRawCharacter("B"));
             good = good && exhaust[2].equals(reconSite.getRawCharacter("C"));
-            
-            if (!good)
-            {
-                System.out.println("Fuck");
-            }
         }
         
         assertTrue(good);
@@ -125,7 +120,7 @@ public class JointBBTest
             {
                 for (String c: bases)
                 {
-                    Assignment sc = new Assignment(/*bases*/);
+                    Assignment sc = new Assignment();
                     sc.addAssignment("A", a);
                     sc.addAssignment("B", b);
                     sc.addAssignment("C", c);
@@ -136,7 +131,7 @@ public class JointBBTest
                         nl.put(l, new NodeLikelihood(P.getArrayMap(), s.getCharacter(l)));
                     }
 
-                    //And now internal nodes using any constraints
+                    //And now internal nodes
                     for (String i: t.getInternal())
                     {
                         nl.put(i, new NodeLikelihood(P.getArrayMap(), sc.getAssignment(i)));

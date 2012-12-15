@@ -19,8 +19,8 @@ package Optimizers;
 
 import Alignments.Alignment;
 import Alignments.PhylipAlignment;
-import Likelihood.Calculator;
-import Likelihood.Likelihood;
+import Likelihood.StandardCalculator;
+import Likelihood.StandardLikelihood;
 import Models.Model;
 import Models.RateCategory;
 import Parameters.Parameter;
@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
 /**
  * Tests the Nelder-Mead optimizer is working right
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public class NelderMeadTest
 {
@@ -65,7 +65,7 @@ public class NelderMeadTest
 
         Model m = Model.gammaRates(new RateCategory(ma,freq,map),"g",4);
 
-        Calculator c = new Calculator(m,a,t);
+        StandardCalculator c = new StandardCalculator(m,a,t);
 
         Parameters p = t.getParametersForEstimation();
         
@@ -84,7 +84,7 @@ public class NelderMeadTest
         p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
         Optimizer o = new NelderMead();
         
-        Likelihood l = o.maximise(c, p);
+        StandardLikelihood l = o.maximise(c, p);
         
         assertTrue(Math.log10(Math.abs(l.getLikelihood() - -2616.073763)) < -3);
     }    

@@ -49,7 +49,7 @@ import java.util.regex.Pattern;
  * Additional functions can be defined by passing instances of classes that
  * implement {@link FunctionParser} to the constructor.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class MathsParse
 {
@@ -130,7 +130,6 @@ public class MathsParse
 	Matcher m = p.matcher(equation);
 	while (m.matches())
 	{
-	    //results.put("{" + id + "}",Double.parseDouble(m.group()));
             results.put("{" + id + "}", new Constant(Double.parseDouble(m.group())));
 	    equation = equation.substring(0,m.start()) + "{" + id + "}" + equation.substring(m.end());
 	    id++;
@@ -284,11 +283,10 @@ public class MathsParse
             }
 	    else
 	    {
-		rv = new Constant(Double.valueOf(right));//Double.valueOf(right);
+		rv = new Constant(Double.valueOf(right));
 	    }
 	    
             //Calculate the result, store it and replace it in the string
-	    //results.put("{" + id + "}",Math.pow(lv,rv));
             results.put("{" + id + "}",new Power(lv,rv));
 	    equation = equation.substring(0,Math.max(0,ls+1)) + "{" + id + "}" + equation.substring(f + re + 1);
 	    id++;
@@ -336,7 +334,7 @@ public class MathsParse
             }
 	    else
 	    {
-		lv = new Constant(Double.valueOf(left));//Double.valueOf(left);
+		lv = new Constant(Double.valueOf(left));
 	    }
 	    
 	    int re = fRight.length();
@@ -357,17 +355,15 @@ public class MathsParse
             }
 	    else
 	    {
-		rv = new Constant(Double.valueOf(right));//Double.valueOf(right);
+		rv = new Constant(Double.valueOf(right));
 	    }
 	    
 	    if (div)
 	    {
-		//results.put("{" + id + "}",lv/rv);
-                results.put("{" + id + "}",new Divide(lv,rv));
+		results.put("{" + id + "}",new Divide(lv,rv));
 	    }
 	    else
 	    {
-		//results.put("{" + id + "}",lv*rv);
                 results.put("{" + id + "}",new Multiply(lv,rv));
 	    }
 	    equation = equation.substring(0,Math.max(0,ls)) + "{" + id + "}" + equation.substring(f + re + 1);
@@ -413,7 +409,7 @@ public class MathsParse
             }
 	    else
 	    {
-		lv = new Constant(Double.valueOf(left));// Double.valueOf(left);
+		lv = new Constant(Double.valueOf(left));
 	    }
 	    
 	    int re = fRight.length();
@@ -434,17 +430,15 @@ public class MathsParse
             }
 	    else
 	    {
-		rv = new Constant(Double.valueOf(right));//rv = Double.valueOf(right);
+		rv = new Constant(Double.valueOf(right));
 	    }
 	    
 	    if (minus)
 	    {
-		//results.put("{" + id + "}",lv-rv);
                 results.put("{" + id + "}",new Subtract(lv,rv));
 	    }
 	    else
 	    {
-		//results.put("{" + id + "}",lv+rv);
                 results.put("{" + id + "}",new Add(lv,rv));
 	    }
 	    equation = equation.substring(0,Math.max(0,ls)) + "{" + id + "}" + equation.substring(f + re + 1);
@@ -469,7 +463,6 @@ public class MathsParse
         //Or a number (if that's all that was passed) so parse and return
 	else
 	{
-	    //return Double.parseDouble(equation);
             return new Constant(Double.parseDouble(equation));
 	}
     }
@@ -494,12 +487,26 @@ public class MathsParse
 	    {
 		if (vs.length == 3)
 		{
-                    if (!gammaCache.containsKey(vs[0]))
+                    // If the cache contains values for the correct number of categories
+                    if (gammaCacheCats == vs[2].intValue())
                     {
-                        gammaCache.put(vs[0], Gamma.rates(vs[0],vs[2].intValue()));
+                        //If it doesn't contain the cached valued calculate it and add it
+                        //to the cache
+                        if (!gammaCache.containsKey(vs[0]))
+                        {
+                            gammaCache.put(vs[0], Gamma.rates(vs[0],vs[2].intValue()));
+                        }
+                        //Return the cached values
+                        return gammaCache.get(vs[0])[vs[1].intValue()-1];
                     }
-                    return gammaCache.get(vs[0])[vs[1].intValue()-1];
-		    //return Gamma.rates(vs[0],vs[2].intValue())[vs[1].intValue()-1];
+                    else
+                    {
+                        //Since we now want a cahce with a different number of categories
+                        //create a new cache, calculate, add and return the value.
+                        gammaCache = new TreeMap<>();
+                        gammaCache.put(vs[0], Gamma.rates(vs[0],vs[2].intValue()));
+                        return gammaCache.get(vs[0])[vs[1].intValue()-1];
+                    }
 		}
 		else
 		{
@@ -532,6 +539,7 @@ public class MathsParse
         
         //NEED TO THINK ABOUT WHAT WOULD HAPPEN IF PASSED DIFFERENT GAMMA BIN SIZE!
         private TreeMap<Double,double[]> gammaCache = new TreeMap<>();
+        private int gammaCacheCats;
     }
 
     private HashMap<String,FunctionParser> functions;

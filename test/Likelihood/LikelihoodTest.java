@@ -43,7 +43,7 @@ import static org.junit.Assert.*;
  * Tests whether we're doing likeliohood calcualations right by comparing results
  * to PAML
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public class LikelihoodTest
 {
@@ -74,7 +74,7 @@ public class LikelihoodTest
 
         Model m = Model.gammaRates(new RateCategory(ma,freq,map),"g",4);
 
-        Calculator c = new Calculator(m,a,t);
+        StandardCalculator c = new StandardCalculator(m,a,t);
 
         Parameters p = t.getParameters();
         p.addParameter(Parameter.newFixedParameter("g", 0.19249));
@@ -214,9 +214,9 @@ public class LikelihoodTest
         ma.put("1",m1);
         ma.put("2",m2);
         
-        Calculator c1 = new Calculator(m1,a1,t);
-        Calculator c2 = new Calculator(m2,a2,t);
-        Calculator ca = new Calculator(ma,aa,t);
+        StandardCalculator c1 = new StandardCalculator(m1,a1,t);
+        StandardCalculator c2 = new StandardCalculator(m2,a2,t);
+        StandardCalculator ca = new StandardCalculator(ma,aa,t);
         
         double l1 = c1.calculate(p).getLikelihood();
         //Cloning is due to known issue - see documentation.
@@ -226,6 +226,6 @@ public class LikelihoodTest
         assertTrue(Math.abs(l1 + l2 - la) < 1e-10);
     }
     
-    private static Likelihood l;
+    private static StandardLikelihood l;
     private static Alignment a;
 }

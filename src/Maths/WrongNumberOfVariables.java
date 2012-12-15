@@ -20,7 +20,7 @@ package Maths;
 /**
  * Exception that is thrown if a function is passed the wrong number of variables
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class WrongNumberOfVariables extends Exception
 {

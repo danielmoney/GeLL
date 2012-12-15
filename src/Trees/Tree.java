@@ -46,9 +46,13 @@ import java.util.TreeSet;
 
 /**
  * Represents a phylogenetic tree.  Trees are defined as a list of {@link Branch}.
- * Nodes are defined by a String
+ * Nodes are defined by a String.  This entire class deals with rooted and unrooted
+ * trees the same.  Traditionally a rooted tree is detected by a node of degree two
+ * but if we allow multifurcations at the root then a rooted tree need not have any
+ * degree two nodes.  Users should be aware of the type of tree they're using and
+ * any consequences.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class Tree implements Iterable<Branch>
 {
@@ -500,9 +504,10 @@ public class Tree implements Iterable<Branch>
 	return total;
     }
 
-    //THIS SHOULD ONLY REALLY WORK FOR ROOTED TREES BUT WILL CURRENTLY WORK FOR ANYTHING
     /**
-     * Returns the most recent common ancestor of a set of leaves 
+     * Returns the most recent common ancestor of a set of leaves.
+     * Although this only mkaes sense for rooted trees it will produce a result
+     * for all trees per the explanation in the class description.
      * @param leaves Set of leaves to calculate the MRCA for
      * @return The MRCA
      * @throws Trees.TreeException Thrown if a leave does not exist

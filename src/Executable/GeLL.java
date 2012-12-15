@@ -26,8 +26,8 @@ import Ancestors.AncestralMarginal;
 import Exceptions.GeneralException;
 import Exceptions.InputException;
 import Exceptions.UnexpectedError;
-import Likelihood.Calculator;
-import Likelihood.Likelihood;
+import Likelihood.StandardCalculator;
+import Likelihood.StandardLikelihood;
 import Maths.SquareMatrix;
 import Models.Distributions;
 import Models.Model;
@@ -116,14 +116,14 @@ public class GeLL
 
                 p = getParameters(settings.getSetting("Likelihood","ParameterInput"), t);
 
-		Calculator c = new Calculator(m,a,t,missing);
+		StandardCalculator c = new StandardCalculator(m,a,t,missing);
 
 		Optimizer o = getOptimizer(settings.getSetting("Likelihood", "Optimizer"));
                 o.setCheckPointFile(new File(settings.getSetting("Likelihood", "Checkpoint")));
                 o.setCheckPointFrequency(getCheckpointFreq(settings.getSetting("Likelihood", "Checkpoint")),
                         TimeUnit.MINUTES);
 
-		Likelihood like = getLikelihoodResult(settings.getSetting("Likelihood","Restart"),o,c,p);
+		StandardLikelihood like = getLikelihoodResult(settings.getSetting("Likelihood","Restart"),o,c,p);
                 
                 //Update p to be the optimized value
                 p = like.getParameters();
@@ -431,10 +431,10 @@ public class GeLL
         return o;
     }
     
-    private static Likelihood getLikelihoodResult(String restart, Optimizer o,
-            Calculator c, Parameters p) throws GeneralException, SettingException
+    private static StandardLikelihood getLikelihoodResult(String restart, Optimizer o,
+            StandardCalculator c, Parameters p) throws GeneralException, SettingException
     {
-        Likelihood like = null;
+        StandardLikelihood like = null;
         if (restart == null)
         {
             if (p != null)

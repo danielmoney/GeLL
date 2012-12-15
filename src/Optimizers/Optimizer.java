@@ -20,9 +20,9 @@ package Optimizers;
 import Exceptions.GeneralException;
 import Exceptions.InputException;
 import Exceptions.OutputException;
-import Likelihood.BasicCalculator.CalculatorException;
-import Likelihood.BasicCalculator;
-import Likelihood.BasicLikelihood;
+import Likelihood.Calculator.CalculatorException;
+import Likelihood.Calculator;
+import Likelihood.Likelihood;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
 import Parameters.Parameters;
@@ -34,13 +34,14 @@ import java.util.concurrent.TimeUnit;
 /**
  * Interface for different likelihood optimizers
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public interface Optimizer
 {
     /**
      * Maximises the likelihood, logging to screen.  Logging level sould be
      * set in the constructor of implementing classes.
+     * @param <R> The type returned by the calculator
      * @param l The likelihood calculator
      * @param p The parameters to maximise.  Parameters are modified.
      * @return The maximised likelihood (in a structure that includes most
@@ -55,11 +56,12 @@ public interface Optimizer
      * @throws OutputException Thrown if unable to write a checkpoint file
      * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
      */
-    public <R extends BasicLikelihood> R maximise(BasicCalculator<R> l, Parameters p) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException;
+    public <R extends Likelihood> R maximise(Calculator<R> l, Parameters p) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException;
 
     /**
      * Maximises the likelihood, logging to a file.  Logging level sould be
      * set in the constructor of implementing classes.
+     * @param <R> The type returned by the calculator
      * @param l The likelihood calculator
      * @param params The parameters to maximise.  Parameters are modified.
      * @param log The log file
@@ -75,11 +77,12 @@ public interface Optimizer
      * @throws OutputException Thrown if unable to write a checkpoint file
      * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
      */
-    public <R extends BasicLikelihood> R maximise(BasicCalculator<R> l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException;
+    public <R extends Likelihood> R maximise(Calculator<R> l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException;
 
     /**
      * Maximises the likelihood starting from a checkpoint file (see {@link #setCheckPointFile(java.io.File)}, 
      * logging to the screen.  Logging level sould be set in the constructor of implementing classes.
+     * @param <R> The type returned by the calculator
      * @param l The likelihood calculator
      * @param checkPoint The checkpoint file
      * @return The maximised likelihood (in a structure that includes most
@@ -97,11 +100,12 @@ public interface Optimizer
      * to restart from a checkpoint file
      * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
      */
-    public <R extends BasicLikelihood> R restart(BasicCalculator<R> l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException;
+    public <R extends Likelihood> R restart(Calculator<R> l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException;
     
     /**
      * Maximises the likelihood starting from a checkpoint file (see {@link #setCheckPointFile(java.io.File)}, 
      * logging to a file.  Logging level sould be set in the constructor of implementing classes.
+     * @param <R> The type returned by the calculator
      * @param l The likelihood calculator
      * @param checkPoint The checkpoint file
      * @param log The log file
@@ -120,7 +124,7 @@ public interface Optimizer
      * to restart from a checkpoint file
      * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
      */
-    public <R extends BasicLikelihood> R restart(BasicCalculator<R> l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException;
+    public <R extends Likelihood> R restart(Calculator<R> l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException;
     
     /**
      * Sets a checkpoint file.  If set will write a checkpoint file of the

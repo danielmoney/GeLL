@@ -23,7 +23,7 @@ import java.io.Serializable;
 /**
  * Represents a parameter of a model
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class Parameter implements Serializable
 {
@@ -122,6 +122,13 @@ public class Parameter implements Serializable
 	return new Parameter(name,1.0,true,0.0,Double.MAX_VALUE);
     }
     
+    /**
+     * Creates a new parameter that has to be positive and is estimated.  Defaults
+     * to being in a rate matrix.
+     * @param name The name of the parameter
+     * @param start The initial value to use when optimizing this parameter
+     * @return The parameter
+     */
     public static Parameter newEstimatedPositiveParameter(String name, double start)
     {
 	return new Parameter(name,start,true,0.0,Double.MAX_VALUE);
@@ -139,6 +146,13 @@ public class Parameter implements Serializable
 	return new Parameter(name,1.0,true,-Double.MAX_VALUE,Double.MAX_VALUE);
     }
     
+    /**
+     * Creates a new (unbounded) paramater that is estimated.  Defaults to being
+     * in a rate matrix.
+     * @param name The name of the parameter
+     * @param start The initial value to use when optimizing this parameter
+     * @return The parameter
+     */
     public static Parameter newEstimatedParameter(String name, double start)
     {
 	return new Parameter(name,start,true,-Double.MAX_VALUE,Double.MAX_VALUE);
@@ -157,7 +171,16 @@ public class Parameter implements Serializable
     {
 	return new Parameter(name,1.0,true,lbound,ubound);
     }
-    
+
+    /**
+     * Creates a new bounded parameter that is estimated.  Defaults to being in
+     * a rate matrix.
+     * @param name The name of the parameter
+     * @param lbound The lower bound of the value the parameter can take
+     * @param ubound The upper bound of the value the parameter cantake
+     * @param start The initial value to use when optimizing this parameter
+     * @return The parameter
+     */
     public static Parameter newEstimatedBoundedParameter(String name,
 	    double lbound, double ubound, double start)
     {

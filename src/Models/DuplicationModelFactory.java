@@ -26,7 +26,7 @@ import java.util.HashMap;
 /**
  * A factory for easing the creation of some simple gene-family models
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class DuplicationModelFactory
 {
@@ -36,7 +36,15 @@ public class DuplicationModelFactory
         // As that's not possible make the only constructor private so it can't
         // be called.  See Ames et al 2012 for a fuller description of these models.
     }
-
+    
+    /**
+     * Creates a simple parsimony-style model
+     * @param p Parameters structure to add the model parameters to (none in
+     * this case but for consistency this is left here).  Assumes branch lengths
+     * are to be estimated.
+     * @param num The maximum family size
+     * @return The model
+     */
     public static Model Parsimony(Parameters p, int num)
     {
         return Parsimony(p,num,false);
@@ -47,6 +55,8 @@ public class DuplicationModelFactory
      * @param p Parameters structure to add the model parameters to (none in
      * this case but for consistency this is left here)
      * @param num The maximum family size
+     * @param fixed Whether fixed branch lengths are being used (and so whether
+     * or not one parameter should have a fixed value)
      * @return The model
      */
     public static Model Parsimony(Parameters p, int num, boolean fixed)
@@ -97,6 +107,14 @@ public class DuplicationModelFactory
         return m;
     }
 
+    /**
+     * Creates a simple parsimony-style model with gamma-distributed rate
+     * across sites. Assumes branch lengths are to be estimated.
+     * @param p Parameters structure to add the model parameters to
+     * @param num The maximum family size
+     * @param numCats The number of gamma categories to use
+     * @return The model
+     */
     public static Model Parsimony_Gamma(Parameters p, int num, int numCats)
     {
         return Parsimony_Gamma(p,num,numCats,false);
@@ -108,6 +126,8 @@ public class DuplicationModelFactory
      * @param p Parameters structure to add the model parameters to
      * @param num The maximum family size
      * @param numCats The number of gamma categories to use
+     * @param fixed Whether fixed branch lengths are being used (and so whether
+     * or not one parameter should have a fixed value)
      * @return The model
      */
     public static Model Parsimony_Gamma(Parameters p, int num, int numCats, boolean fixed)
@@ -160,6 +180,12 @@ public class DuplicationModelFactory
         return m;
     }
 
+    /**
+     * Creates a simple BDI model.  Assumes branch lengths are estimated.
+     * @param p Parameters structure to add the model parameters to
+     * @param num The maximum family size
+     * @return The model
+     */
     public static Model BDI(Parameters p, int num)
     {
         return BDI(p,num,false);
@@ -169,6 +195,8 @@ public class DuplicationModelFactory
      * Creates a simple BDI model
      * @param p Parameters structure to add the model parameters to
      * @param num The maximum family size
+     * @param fixed Whether fixed branch lengths are being used (and so whether
+     * or not one parameter should have a fixed value)
      * @return The model
      */
     public static Model BDI(Parameters p, int num, boolean fixed)
@@ -232,7 +260,15 @@ public class DuplicationModelFactory
         
         return m;
     }
-    
+
+    /**
+     * Creates a simple BDI model with gamma-distributed rate
+     * across sites.  Assumes branch lengths are estimated
+     * @param p Parameters structure to add the model parameters to
+     * @param num The maximum family size
+     * @param numCats The number of gamma categories to use
+     * @return The model
+     */
     public static Model BDI_Gamma(Parameters p, int num, int numCats)
     {
         return BDI_Gamma(p,num,numCats,false);
@@ -244,6 +280,8 @@ public class DuplicationModelFactory
      * @param p Parameters structure to add the model parameters to
      * @param num The maximum family size
      * @param numCats The number of gamma categories to use
+     * @param fixed Whether fixed branch lengths are being used (and so whether
+     * or not one parameter should have a fixed value)
      * @return The model
      */
     public static Model BDI_Gamma(Parameters p, int num, int numCats, boolean fixed)
@@ -309,11 +347,26 @@ public class DuplicationModelFactory
         return m;
     }
     
+    /**
+     * Creates a Birth Death model with no zero state.  Assumes branch lengths
+     * are estimated
+     * @param p Parameters structure to add the model parameters to
+     * @param num The maximum family size
+     * @return The model
+     */
     public static Model BD_NoZero(Parameters p, int num)
     {
         return BD_NoZero(p,num,false);
     }
     
+    /**
+     * Creates a Birth Death model with no zero state.
+     * @param p Parameters structure to add the model parameters to
+     * @param num The maximum family size
+     * @param fixed Whether fixed branch lengths are being used (and so whether
+     * or not one parameter should have a fixed value)
+     * @return The model
+     */    
     public static Model BD_NoZero(Parameters p, int num, boolean fixed)
     {
         String[][] matrix = new String[num][num];
@@ -365,12 +418,30 @@ public class DuplicationModelFactory
         
         return m;
     }
-    
+
+    /**
+     * Creates a Birth Death model with no zero state and gamma distributed
+     * rates-across sites.  Assumes branch lengths are estimated
+     * @param p Parameters structure to add the model parameters to
+     * @param num The maximum family size
+     * @param numCats The number of gamma categories to use
+     * @return The model
+     */    
     public static Model BD_NoZero_Gamma(Parameters p, int num, int numCats)
     {
         return BD_NoZero_Gamma(p,num,numCats,false);
     }
-    
+
+    /**
+     * Creates a Birth Death model with no zero state and gamma distributed
+     * rates-across sites.
+     * @param p Parameters structure to add the model parameters to
+     * @param num The maximum family size
+     * @param numCats The number of gamma categories to use
+     * @param fixed Whether fixed branch lengths are being used (and so whether
+     * or not one parameter should have a fixed value)
+     * @return The model
+     */ 
     public static Model BD_NoZero_Gamma(Parameters p, int num, int numCats, boolean fixed)
     {
         String[][] matrix = new String[num][num];

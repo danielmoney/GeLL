@@ -36,7 +36,7 @@ package Utils;
  * needed settings are set and there aren't any unexpected settings (as this is
  * probably an input error).
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class Settings
 {

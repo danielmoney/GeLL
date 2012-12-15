@@ -15,7 +15,7 @@ import java.util.Set;
  * appropiate error checking nor have all needed methods been written.
  * I make no guarantees that future versions will have the same methods.</b>
  * @author Daniel Money
- * @version 1.1
+ * @version 2.0
  */
 public class TreeFigure
 {

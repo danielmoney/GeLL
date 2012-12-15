@@ -20,8 +20,8 @@ package Executable;
 import Alignments.Alignment;
 import Alignments.PhylipAlignment;
 import Ancestors.AncestralJoint;
-import Likelihood.Calculator;
-import Likelihood.Likelihood;
+import Likelihood.StandardCalculator;
+import Likelihood.StandardLikelihood;
 import Models.DNAModelFactory;
 import Models.Model;
 import Optimizers.GoldenSection;
@@ -65,14 +65,14 @@ public class Example
         //your own models
         Model m = DNAModelFactory.GTR_Gamma(p, 4);
         //Create a calculator which is used to calculate likelihoods
-        Calculator c = new Calculator(m,a,t);
+        StandardCalculator c = new StandardCalculator(m,a,t);
         //Create an optimizer to do the the optimization
         Optimizer o = new GoldenSection();
         
         //Actually do the optimization and get the result.  The parameters passed
         //will be updated to their estimated values.  The result will contain the
         //lieklihood and intermediate results in calculating it.
-        Likelihood l = o.maximise(c, p);
+        StandardLikelihood l = o.maximise(c, p);
         
         //Update paameters to the optimized values
         p = l.getParameters();

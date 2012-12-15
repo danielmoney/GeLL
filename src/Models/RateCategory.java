@@ -49,7 +49,7 @@ import java.util.TreeSet;
 /**
  * Represents a rate category of a phylogenetic model.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class RateCategory implements Serializable
 {
@@ -183,8 +183,7 @@ public class RateCategory implements Serializable
         this.map = new ArrayMap<>(String.class, Integer.class, map.size());
         for (Entry<String,Integer> e: map.entrySet())
         {
-            //this.map.put(e.getKey(), e.getValue());
-            this.map.put(e.getValue(), e.getKey(), e.getValue());
+             this.map.put(e.getValue(), e.getKey(), e.getValue());
         }
 	setNeeded();
     }
@@ -214,7 +213,6 @@ public class RateCategory implements Serializable
 	    {
                 if (i != j)
                 {
-                    //paramValues.addAll(rates[i][j].neededParams());
                     for (String p: rates[i][j].neededParams())
                     {
                         paramValues.put(p, Double.NaN);
@@ -226,7 +224,6 @@ public class RateCategory implements Serializable
 	{
 	    for (int i = 0; i < freq.length; i++)
 	    {
-		//paramValues.addAll(freq[i].neededParams());
                 for (String p: freq[i].neededParams())
                 {
                     paramValues.put(p, Double.NaN);

@@ -33,7 +33,7 @@ import java.util.Set;
 /**
  * Stores details of ambiguous characters
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class Ambiguous implements Serializable
 {

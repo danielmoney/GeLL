@@ -38,7 +38,7 @@ import java.util.Set;
 /**
  * Stores the values of each transition, frequency etc for one set of parameters.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class Probabilities
 {

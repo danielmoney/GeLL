@@ -2,8 +2,10 @@ package Likelihood;
 
 import Exceptions.GeneralException;
 import Maths.Real;
-import Maths.Real.RealType;
 import Maths.RealFactory;
+import Maths.RealFactory.RealType;
+import Maths.SmallDouble;
+import Maths.StandardDouble;
 import Models.RateCategory;
 import Utils.ArrayMap;
 import java.io.Serializable;
@@ -16,25 +18,29 @@ import java.util.Set;
 /**
  * Stored the result of a likelihood calculation for a single site
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class SiteLikelihood implements Serializable
 {
+    /**
+     * Default constructor
+     * @param rateLikelihoods The likelihood of the individual rates at that site
+     * @param P A Probabilities object from which the frequency of each rate will be fetched
+     */
     public SiteLikelihood(ArrayMap<RateCategory,RateLikelihood> rateLikelihoods, Probabilities P)
     {
         rateProbability = new HashMap<>();
-        l = RealFactory.getReal(type,0.0);//new Real(0.0);
+        l = RealFactory.getReal(type,0.0);
         for (RateCategory rc: P.getRateCategory())
         {
             l = l.add(rateLikelihoods.get(rc).getLikelihood().multiply(P.getRateP(rc)));
         }
-        Real maxP = RealFactory.getReal(type,0.0);//new Real(0.0);
+        Real maxP = RealFactory.getReal(type,0.0);
         maxCat = null;
         for (RateCategory rc: P.getRateCategory())
         {
             Real rp = rateLikelihoods.get(rc).getLikelihood().multiply(P.getRateP(rc)).divide(l);
             rateProbability.put(rc, rp);
-            //if (rp > maxP)
             if (rp.greaterThan(maxP))
             {
                 maxP = rp;
@@ -42,7 +48,6 @@ public class SiteLikelihood implements Serializable
             }
         }
         this.rateLikelihoods = rateLikelihoods;
-        //System.out.println(l);
     }
 
     /**
@@ -58,7 +63,7 @@ public class SiteLikelihood implements Serializable
      * Get the likelihood for a single rate class
      * @param rate Rate class to get the likelihood for
      * @return The likelihood results for a given rate
-     * @throws Likelihood.Likelihood.LikelihoodException Thrown if no likelihood
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if no likelihood
      * has been calculated for the given rate
      */
     public RateLikelihood getRateLikelihood(RateCategory rate) throws LikelihoodException
@@ -94,7 +99,6 @@ public class SiteLikelihood implements Serializable
 
     public String toString()
     {
-        //return Double.toString(l);
         return l.toString();
     }
     
@@ -119,11 +123,15 @@ public class SiteLikelihood implements Serializable
      */
     public static void optKeepNL(boolean keep)
     {
-        //optKeepNL = keep;
-        //keepNL = publicKeepNL && optKeepNL;
         keepNL = true;
     }
     
+    /**
+     * Sets the real type to be used during calculations, either {@link SmallDouble}
+     * or {@link StandardDouble}.
+     * @param type The double type to use
+     * @see Ancestors.AncestralJointDP#realType(Maths.RealFactory.RealType) 
+     */
     public static void realType(RealType type)
     {
         SiteLikelihood.type = type;
@@ -145,10 +153,15 @@ public class SiteLikelihood implements Serializable
      * Stores the result of the likelihood calculations for a single site <I> and </I>
      * a single rate class.
      * @author Daniel Money
-     * @version 1.0
+     * @version 2.0
      */
     public static class RateLikelihood implements Serializable
     {
+        /**
+         * Default constructor
+         * @param l The likelihood for this site and rate
+         * @param nodeLikelihoods The invidual node likelihoods for this site and rate
+         */
         public RateLikelihood(Real l, ArrayMap<String, NodeLikelihood> nodeLikelihoods)
         {
             this.l = l;
@@ -175,7 +188,7 @@ public class SiteLikelihood implements Serializable
          * Returns the likelihood results for a given node on the tree
          * @param node The node to return the result for
          * @return The likelihood result for the given node
-         * @throws Likelihood.Likelihood.LikelihoodException Thrown if no likelihood
+         * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if no likelihood
          * has been calculated for the given node 
          */
         public NodeLikelihood getNodeLikelihood(String node) throws LikelihoodException
@@ -199,12 +212,10 @@ public class SiteLikelihood implements Serializable
         
         public String toString()
         {
-            //return Double.toString(l);
             return l.toString();
         }
 
         private Real l;
-        //private Map<String, NodeLikelihood> nodeLikelihoods;
         private ArrayMap<String, NodeLikelihood> nodeLikelihoods;
         private static final long serialVersionUID = 1;
     }
@@ -212,84 +223,89 @@ public class SiteLikelihood implements Serializable
     /**
      * Stores the results of a likelihood claculation for a single node in a tree.
      * That is the partial likelihoods for each possible state.
-     * This is one of only two classes where backwards compitability with 1.1 is not possible.
-     * The previous constructor only contained information on the states and not
-     * what position they mapped too.  The new, more efficient data structures need
-     * to knoiw the mapping so there's no way the old constructor is usable.
      * @author Daniel Money
-     * @version 1.2
+     * @version 2.0
      */
     public static class NodeLikelihood implements Serializable
     {
+        /**
+         * Constructor where all sates are allowed at a node
+         * @param states Map from a state to it's position in the array
+         * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+         *      (most probably due to the state at the node not being in the model).  
+         */
         public NodeLikelihood(ArrayMap<String,Integer> states) throws LikelihoodException
         {
             likelihoods = new Real[states.size()];
             this.states = states;
-            //for (Entry<String,Integer> s: states.entryList())
             for (int i = 0; i < states.size(); i ++)
             {
                 Entry<String,Integer> s = states.getEntry(i);
-                likelihoods[s.getValue()] = RealFactory.getReal(type,1.0);//new Real(1.0);
+                likelihoods[s.getValue()] = RealFactory.getReal(type,1.0);
             }            
         }
         
         /**
-         * Default constructor
+         * Constructor where only some states are allowed at a node
          * @param states Map from a state to it's position in the array
          * @param allowedStates The allowed states at this state
-         * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
-     *      (most probably due to the state at the node not being in the model).  
+         * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+         *      (most probably due to the state at the node not being in the model).  
          */
         public NodeLikelihood(ArrayMap<String,Integer> states, Set<String> allowedStates) throws LikelihoodException
         {
             likelihoods = new Real[states.size()];
             this.states = states;
-            //for (Entry<String,Integer> s: states.entryList())
             boolean onz = false;
             for (int i = 0; i < states.size(); i ++)
             {
                 Entry<String,Integer> s = states.getEntry(i);
                 if (allowedStates.contains(s.getKey()))
                 {
-                    likelihoods[s.getValue()] = RealFactory.getReal(type,1.0);//new Real(1.0);
+                    likelihoods[s.getValue()] = RealFactory.getReal(type,1.0);
                     onz = true;
                 }
                 else
                 {
-                    likelihoods[s.getValue()] = RealFactory.getReal(type,0.0);//new Real(0.0);
+                    likelihoods[s.getValue()] = RealFactory.getReal(type,0.0);
                 }
             }
-            // NEED TO TURN BACK ON!
-            //if (!onz)
-            //{
-            //    throw new LikelihoodException("No non-zero probabilities at leaves - alignment state not in model?");
-            //}
+            //If an empty set is passed in assume it's deliberate and don't throw an error
+            if (!allowedStates.isEmpty() && !onz)
+            {
+                throw new LikelihoodException("No non-zero probabilities at leaves - alignment state not in model?");
+            }
         }
-        
+
+        /**
+         * Constructor where only a single state is allowed at a node
+         * @param states Map from a state to it's position in the array
+         * @param allowedState The allowed state at this state
+         * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+         *      (most probably due to the state at the node not being in the model).  
+         */
         public NodeLikelihood(ArrayMap<String,Integer> states, String allowedState) throws LikelihoodException
         {
             likelihoods = new Real[states.size()];
             this.states = states;
-            //for (Entry<String,Integer> s: states.entryList())
             boolean onz = false;
             for (int i = 0; i < states.size(); i ++)
             {
                 Entry<String,Integer> s = states.getEntry(i);
                 if ((allowedState != null) && allowedState.equals(s.getKey()))
                 {
-                    likelihoods[s.getValue()] = RealFactory.getReal(type,1.0);//new Real(1.0);
+                    likelihoods[s.getValue()] = RealFactory.getReal(type,1.0);
                     onz = true;
                 }
                 else
                 {
-                    likelihoods[s.getValue()] = RealFactory.getReal(type,0.0);//new Real(0.0);
+                    likelihoods[s.getValue()] = RealFactory.getReal(type,0.0);
                 }
             }
-            // NEED TO TURN BACK ON!
-            //if (!onz)
-            //{
-            //    throw new LikelihoodException("No non-zero probabilities at leaves - alignment state not in model?");
-            //}
+            if (!onz)
+            {
+                throw new LikelihoodException("No non-zero probabilities at leaves - alignment state not in model?");
+            }
         }
         
         private NodeLikelihood(Real[] l, ArrayMap<String,Integer> states)
@@ -303,13 +319,24 @@ public class SiteLikelihood implements Serializable
             return new NodeLikelihood(likelihoods, states);
         }
         
-        /* FUDGE TO ALLOW THIS TO BE USED IN ANCESTRALMARGINAL */
+        /**
+         * This is a fudge to stop to allow this code to be reused in some
+         * of the ancestor classes.  Should be no reason to use.
+         * @param state The state probility to multiply
+         * @param by How much to mutliply the probabilty by
+         */
         public void multiply(String state, Real by)
         {
             int i = states.get(state);
             likelihoods[i] = likelihoods[i].multiply(by);
         }
         
+        /**
+         * This is a fudge to stop to allow this code to be reused in some
+         * of the ancestor classes.  Should be no reason to use.
+         * @param state The state probility to multiply
+         * @param by How much to mutliply the probabilty by
+         */
         public void multiply(String state, double by)
         {
             int i = states.get(state);
@@ -320,7 +347,7 @@ public class SiteLikelihood implements Serializable
          * Returns the partial likelihood for a given state
          * @param state The state to return the partial likelihood for
          * @return The partial likelihood for the given state
-         * @throws Likelihood.Likelihood.LikelihoodException Thrown if no likelihood
+         * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if no likelihood
          * has been calculated for the given state 
          */
         public Real getLikelihood(String state) throws LikelihoodException

@@ -26,7 +26,7 @@ import java.util.HashMap;
 /**
  * A factory for easing the creation of many standard DNA models
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class DNAModelFactory
 {

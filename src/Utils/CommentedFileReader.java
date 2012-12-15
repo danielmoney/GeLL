@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 /**
  * Reads from a commented file ignoring any comments
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class CommentedFileReader
 {

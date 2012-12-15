@@ -17,7 +17,7 @@
 
 package Likelihood;
 
-import Likelihood.BasicCalculator.CalculatorException;
+import Likelihood.Calculator.CalculatorException;
 import Maths.Gamma;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
@@ -33,7 +33,7 @@ import Utils.Range;
  * confidence interval we only update the parameter of interest rather than
  * optomising every parameter at each step.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class ConfidenceInterval
 {
@@ -43,7 +43,7 @@ public class ConfidenceInterval
      * intervals
      * @param p The parameters to construct confidence intervals for
      */
-    public ConfidenceInterval(Calculator l, Parameters p)
+    public ConfidenceInterval(StandardCalculator l, Parameters p)
     {
 	this.l = l;
 	this.p = p;
@@ -178,7 +178,7 @@ public class ConfidenceInterval
 	return x1;
     }
 
-    private Calculator l;
+    private StandardCalculator l;
     private Parameters p;
 
     private static final double R = (Math.sqrt(5.0) - 1) / 2;

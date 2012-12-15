@@ -1,15 +1,47 @@
+/*
+ * This file is part of GeLL.
+ * 
+ * GeLL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GeLL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GeLL.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package Maths;
 
 import java.io.Serializable;
 
-public class SmallDouble implements Serializable, Real//<SmallDouble>
+/**
+ * Represents a real number.  Stores the exponent seperately as an Integer so
+ * can store much smaller (or indeed larger) reals than the standard double.
+ * @author Daniel Money
+ * @version 2.0
+ */
+public class SmallDouble implements Serializable, Real
 {
+    /**
+     * Creates a SmallDouble representing the same number as a double
+     * @param d The double to be represented
+     */
     public SmallDouble(double d)
     {
         e = Math.getExponent(d);
         m = Math.scalb(d, -e);
     }
     
+    /**
+     * Creates a SmallDouble representing the same number as m*2^e
+     * @param m m
+     * @param e e
+     */
     public SmallDouble(double m, int e)
     {
         int s = Math.getExponent(m);
@@ -151,5 +183,8 @@ public class SmallDouble implements Serializable, Real//<SmallDouble>
     private double m;
     private int e;
     
+    /**
+     * A SmallDouble representing the smallest possible value SmallDouble can represent
+     */
     public static final SmallDouble SMALLEST = new SmallDouble(1.0,Integer.MIN_VALUE);
 }

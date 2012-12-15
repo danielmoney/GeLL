@@ -34,7 +34,7 @@ import java.util.Set;
 /**
  * Represents a sequence alignment in Phylip format
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class PhylipAlignment extends Alignment
 {

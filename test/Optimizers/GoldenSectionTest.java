@@ -19,8 +19,8 @@ package Optimizers;
 
 import Alignments.Alignment;
 import Alignments.PhylipAlignment;
-import Likelihood.Calculator;
-import Likelihood.Likelihood;
+import Likelihood.StandardCalculator;
+import Likelihood.StandardLikelihood;
 import Models.Model;
 import Models.RateCategory;
 import Parameters.Parameter;
@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
 /**
  * Tests the GoldenSection optimizer is working right
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public class GoldenSectionTest
 {
@@ -66,7 +66,7 @@ public class GoldenSectionTest
 
         Model m = Model.gammaRates(new RateCategory(ma,freq,map),"g",4);
 
-        Calculator c = new Calculator(m,a,t);
+        StandardCalculator c = new StandardCalculator(m,a,t);
 
         Parameters p = t.getParametersForEstimation();
         
@@ -85,7 +85,7 @@ public class GoldenSectionTest
         p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
         Optimizer o = new GoldenSection();
         
-        Likelihood l = o.maximise(c, p);
+        StandardLikelihood l = o.maximise(c, p);
         
         assertTrue(Math.log10(Math.abs(l.getLikelihood() - -2616.073763)) < -3);
     }

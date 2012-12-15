@@ -47,7 +47,7 @@ import java.util.Map.Entry;
  * Class to perform marginal reconstruction of internal nodes.  Uses the principles of
  * Yang, Kurma and Nei 1995.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class AncestralMarginal
 {
@@ -58,28 +58,12 @@ public class AncestralMarginal
      * @param a The alignment
      * @param t The tree
      */
-    /*public AncestralMarginal(Model m, Alignment a, Tree t)
-    {
-        this(m,a,t,new NoConstraints(m.getStates()));
-    }*/
- 
-    /**
-     * Creates an object to calculate an ancestral reconstruction for a given
-     * model, alignment, tree and a constrainter
-     * @param m The model
-     * @param a The alignment
-     * @param t The tree
-     * @param con The constraints on the internal nodes
-     */
-    //public AncestralMarginal(Model m, Alignment a, Tree t, Constrainer con)
     public AncestralMarginal(Model m, Alignment a, Tree t)
     {
 	this.a = a;
         this.m = new HashMap<>();
 	this.m.put(null, m); 
 	this.t = t;
-        //this.con = new HashMap<>();
-        //this.con.put(null,con);
     }
 
     /**
@@ -97,44 +81,12 @@ public class AncestralMarginal
         this.a = a;
         this.m = m;
         this.t = t;
-        //this.con = new HashMap<>();
-        /*for (Entry<String,Model> e: m.entrySet())
-        {
-            con.put(e.getKey(),new NoConstraints(e.getValue().getStates()));
-        }*/
         if (!a.check(m))
         {
             throw new AlignmentException("Alignment contains classes for which no model has been defined");
         }
     }
-    
-    /**
-     * Creates an object to calculate an ancestral reconstruction for a given
-     * set of models, an alignment, a tree and s et of constrainers.  There should
-     * be one model and one constrainer per site class in the alignment
-     * @param m Map from site class to model
-     * @param a The alignment
-     * @param t The tree
-     * @param con Map from site class to constrainer
-     * @throws AlignmentException Thrown if a model and constrainer isn't given
-     * for each site class in the alignment  
-     */
-    /*public AncestralMarginal(Map<String,Model> m, Alignment a, Tree t, Map<String,Constrainer> con) throws AlignmentException
-    {
-	this.a = a;
-        this.m = m;
-	this.t = t;
-        this.con = con;
-        if (!a.check(m))
-        {
-            throw new AlignmentException("Alignment contains classes for which no model has been defined");
-        }
-        if (!a.check(con))
-        {
-            throw new AlignmentException("Alignment contains classes for which no constrainer has been defined");
-        }
-    }*/
-    
+      
     /**
      * Calculates the reconstruction
      * @param params The parameters to be used in the reconstruction
@@ -147,7 +99,9 @@ public class AncestralMarginal
      * @throws TreeException Thrown if there is a problem with the tree.
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
      * with the parameters (e.g. a requied parameter is not present)
-     * @throws AlignmentException Thrown if there is a problem with the alignment 
+     * @throws AlignmentException Thrown if there is a problem with the alignment
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if there is a
+     * problem with calculating likelihoods
      */    
     public Result calculate(Parameters params) throws RateException, ModelException, TreeException, ParameterException, AlignmentException, LikelihoodException
     {
@@ -204,8 +158,6 @@ public class AncestralMarginal
             nr.put(node,calculateNode(s,P,node));
         }
         
-        //System.out.println();
-        
         //And combine the node results (done in SiteResult constructor) and return
         return new SiteResult(nr,s);
     }
@@ -234,8 +186,6 @@ public class AncestralMarginal
         }
         Collections.reverse(reverse);
         
-        //SiteConstraints siteCon = con.get(s.getSiteClass()).getConstraints(t, s);
-        
         //For each rate categoy...
         Map<RateCategory, NodeLikelihood> rr = new HashMap<>();
         for (RateCategory r: m.get(s.getSiteClass()))
@@ -245,14 +195,12 @@ public class AncestralMarginal
             Map<String,NodeLikelihood> l = new HashMap<>();
             for (String n: t.getLeaves())
             {
-                //l.put(n, new NodeLikelihood(P.getAllStatesAsList(), s.getCharacter(n)));
                 l.put(n, new NodeLikelihood(P.getArrayMap(), s.getCharacter(n)));
             }
 
             for (String n: t.getInternal())
             {
-                //l.put(n, new NodeLikelihood(P.getAllStatesAsList(), siteCon.getConstraint(n)));
-                l.put(n, new NodeLikelihood(P.getArrayMap()/*, siteCon.getConstraint(n)*/));
+                l.put(n, new NodeLikelihood(P.getArrayMap()));
             }
 
             //Traverse the normal branches in the same manner as for a normal
@@ -261,14 +209,12 @@ public class AncestralMarginal
             {
                 for (String endState: P.getAllStatesAsList())
                 {
-                    //Real li = 0.0;
                     Real li = null;
                     for (String startState: P.getAllStatesAsList())
                     {
                         //This will be a little slow but given that we don't optimise
                         //using this it will never get called that often so speeding
                         //it up is not a priority
-                        //li += l.get(b.getChild()).getLikelihood(startState) * P.getP(r).getP(b, startState, endState);
                         if (li == null)
                         {
                             li = l.get(b.getChild()).getLikelihood(startState).multiply(P.getP(r).getP(b, startState, endState));
@@ -301,7 +247,6 @@ public class AncestralMarginal
                         //This will be a little slow but given that we don't optimise
                         //using this it will never get called that often so speeding
                         //it up is not a priority
-                        //li += l.get(b.getParent()).getLikelihood(startState).multiply(P.getP(r).getP(b, endState, startState));
                         if (li == null)
                         {
                             li = l.get(b.getParent()).getLikelihood(startState).multiply(P.getP(r).getP(b, endState, startState));
@@ -321,17 +266,14 @@ public class AncestralMarginal
         //Calculate the likelihood for each state by summing accross Rate
         //Categories (accoutning for different frequency of Rate Category).
         //Also calculate the total likelihood.
-        //Real total = 0.0;
         Real total = null;
         ToRealHashMap<String> sl = new ToRealHashMap<>();
         for (String st : P.getAllStatesAsList())
         {
-            //sl.put(st, 0.0);
             for (RateCategory r: m.get(s.getSiteClass()))
             {
                 sl.add(st, rr.get(r).getLikelihood(st).multiply(m.get(s.getSiteClass()).getFreq(r)));
             }
-            //total += sl.get(st);
             if (total == null)
             {
                 total = sl.get(st);
@@ -347,7 +289,6 @@ public class AncestralMarginal
         ToRealHashMap<String> sP = new ToRealHashMap<>();
         for (String st: P.getAllStatesAsList())
         {
-            //sP.put(st, sl.get(st)/total);
             sP.put(st, sl.get(st).divide(total));
         }
         
@@ -357,56 +298,6 @@ public class AncestralMarginal
     private Alignment a;
     private Map<String,Model> m;
     private Tree t;
-    //private Map<String,Constrainer> con;
-    
-    //This is a fudge as it's an exact copy (well at least to begin with) of 
-    //the class in Likelihood.Likelihood but there's no other easy way to control
-    //access to it's constructor.  The likelihood calculation here and in Likelihood
-    //is just different enough that we can't call Likelihood and use the result here,
-    //but they are similar enough that this structure is the same. The only 
-    //difference is here everything is made private as it's only used internally.
-    /*private static class NodeLikelihood
-    {
-        //This constructor creates the initial sate of a node.
-        //Takes the set of all states and the set of setStates. For leaf nodes
-        //that is the possible values given by the alignment.  for internal nodes
-        //thats the set of states we allow at that node which, in the abscence of
-        //any constraints, will be all states.  As per the standard likelihood
-        //calculation set states are given a "likelihood" of 1, all other states
-        //zero.
-        private NodeLikelihood(List<String> states, Set<String> setStates)
-        {
-            likelihoods = new ToRealHashMap<>();
-            for (String s: states)
-            {
-                if (setStates.contains(s))
-                {
-                    likelihoods.put(s,1.0);
-                }
-                else
-                {
-                    likelihoods.put(s,0.0);
-                }
-            }
-        }
-
-        private void multiply(String state, double by)
-        {
-            likelihoods.multiply(state, by);
-        }
-
-        /**
-         * Returns the partial likelihood for a given state
-         * @param state The state to return the partial likelihood for
-         * @return The partial likelihood for the given state
-         */
-        /*private Double getLikelihood(String state)
-        {
-            return likelihoods.get(state);
-        }
-
-        private ToRealHashMap<String> likelihoods;
-    }*/
     
     /**
      * Class to store the results of a marginal ancestral reconstruction

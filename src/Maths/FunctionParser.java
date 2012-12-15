@@ -25,10 +25,10 @@ import java.util.List;
  * of it.  {@link MathsParse} implements some common functions used in phylogenetics
  * and is a useful example of how to implement this class.
  * 
- * The chnages to this injterface mean implementations of it for version 1.1 or less
+ * The chnages to this interface mean implementations of it for version 1.1 or less
  * will need updating although this should be a simple addition.
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public interface FunctionParser
 {

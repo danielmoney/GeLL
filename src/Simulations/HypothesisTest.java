@@ -3,9 +3,9 @@ package Simulations;
 import Alignments.Alignment;
 import Alignments.AlignmentException;
 import Exceptions.OutputException;
-import Likelihood.BasicCalculator.CalculatorException;
-import Likelihood.Calculator;
-import Likelihood.Likelihood;
+import Likelihood.Calculator.CalculatorException;
+import Likelihood.StandardCalculator;
+import Likelihood.StandardLikelihood;
 import Likelihood.SiteLikelihood.LikelihoodException;
 import Models.Model;
 import Models.Model.ModelException;
@@ -21,43 +21,22 @@ import java.util.Map;
 /**
  * Class to do hypothesis testing using simulation to generate the null distribution.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class HypothesisTest
 {
     /**
-     * Constructor for use when neither the null hypothesis and alternative 
-     * hypothesis have constraints.  
+     * Constructor
      * @param nullModel The null model
      * @param altModel The alternative model
-     * @param o The optimizer to be used
-     * @param reps The number of samples of the null distribution to generate
-     */
-    /*public HypothesisTest(Model nullModel, Model altModel, Optimizer o, int reps)
-    {
-        this(nullModel, altModel, new NoConstraints(nullModel.getStates()),
-                new NoConstraints(altModel.getStates()), o, reps);
-    }*/
-    
-    /**
-     * Constructor for use when one or both of the null hypothesis and alternative 
-     * hypothesis have constraints.  If only one is constrained then {@link
-     * NoConstraints} should be used as input for the hypothesis that is unconstrained.
-     * @param nullModel The null model
-     * @param altModel The alternative model
-     * @param nullConstrainer The constrainer for the null hypothesis
-     * @param altConstrainer The constrainer for the alternative hypothesis
      * @param o The optimizer to be used
      * @param reps The number of samples of the null distribution to generate
      */
     public HypothesisTest(Model nullModel, Model altModel, 
-            //Constrainer nullConstrainer, Constrainer altConstrainer,
             Optimizer o, int reps)
     {
         this.nullModel = nullModel;
         this.altModel = altModel;
-        //this.nullConstrainer = nullConstrainer;
-        //this.altConstrainer = altConstrainer;
         this.o = o;
         this.reps = reps;
     }
@@ -74,7 +53,7 @@ public class HypothesisTest
      * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
-     * we don't have a model and / or constraints for)
+     * we don't have a model for)
      * @throws Models.RateCategory.RateException Thrown if there is an issue with
      * a rate category in the model (e.g. a badly formatted rate).
      * @throws Models.Model.ModelException Thrown if there is a problem with the
@@ -85,7 +64,7 @@ public class HypothesisTest
      * when an optimizer try to write a checkpoint file and that isn't currently supported
      * in this class.  Included as should be in a future version.
      * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated
-     * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
      *      (most probably due to the state at the node not being in the model).  
      */
     public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams)
@@ -109,7 +88,7 @@ public class HypothesisTest
      * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
-     * we don't have a model and / or constraints for)
+     * we don't have a model for)
      * @throws Models.RateCategory.RateException Thrown if there is an issue with
      * a rate category in the model (e.g. a badly formatted rate).
      * @throws Models.Model.ModelException Thrown if there is a problem with the
@@ -120,7 +99,7 @@ public class HypothesisTest
      * when an optimizer try to write a checkpoint file and that isn't currently supported
      * in this class.  Included as should be in a future version.
      * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated
-     * @throws Likelihood.Likelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
      *      (most probably due to the state at the node not being in the model).  
      */
     public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams,
@@ -129,10 +108,10 @@ public class HypothesisTest
             OutputException, AlignmentException, SimulationException, CalculatorException, LikelihoodException
     {
         //Calculate the difference in likelihood between the two models for the given alignment
-        Calculator nullCalc = new Calculator(nullModel, a, t, unobserved/*, nullConstrainer*/);
-        Calculator altCalc = new Calculator(altModel, a, t, unobserved/*, altConstrainer*/);
-        Likelihood nullL = o.maximise(nullCalc, nullParams);
-        Likelihood altL = o.maximise(altCalc, altParams);        
+        StandardCalculator nullCalc = new StandardCalculator(nullModel, a, t, unobserved);
+        StandardCalculator altCalc = new StandardCalculator(altModel, a, t, unobserved);
+        StandardLikelihood nullL = o.maximise(nullCalc, nullParams);
+        StandardLikelihood altL = o.maximise(altCalc, altParams);        
         double diff = altL.getLikelihood() - nullL.getLikelihood();
         
         //Get the null distribution
@@ -171,11 +150,11 @@ public class HypothesisTest
             Alignment a = s.getAlignment(alignLength, rec);
             
             //Then calculate and store the likelihood difference between the two models
-            Calculator nullCalc = new Calculator(nullModel, a, t, missing/*, nullConstrainer*/);
-            Calculator altCalc = new Calculator(altModel, a, t, missing/*, altConstrainer*/);
+            StandardCalculator nullCalc = new StandardCalculator(nullModel, a, t, missing);
+            StandardCalculator altCalc = new StandardCalculator(altModel, a, t, missing);
 
-            Likelihood nullL = o.maximise(nullCalc, nullParams);
-            Likelihood altL = o.maximise(altCalc, altParams);
+            StandardLikelihood nullL = o.maximise(nullCalc, nullParams);
+            StandardLikelihood altL = o.maximise(altCalc, altParams);
 
             dist[i] = altL.getLikelihood() - nullL.getLikelihood();
         }
@@ -185,8 +164,6 @@ public class HypothesisTest
     
     private Model nullModel;
     private Model altModel;
-    //private Constrainer nullConstrainer;
-    //private Constrainer altConstrainer;
     private Optimizer o;
     private int reps;
 }

@@ -17,71 +17,50 @@
 
 package Likelihood;
 
-import Alignments.Site;
-import Likelihood.SiteLikelihood.LikelihoodException;
 import Parameters.Parameters;
-import Utils.ArrayMap;
-import java.io.Serializable;
 
 /**
- * Stores the results of a likelihood calculation.  As well as the overall
- * likelihood it stores the likelihood of each site and also of each missing
- * site.
+ * Represents the simplist possible likelihood result, i.e. the likelihood
+ * and the parameters used
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
-
-public class Likelihood extends BasicLikelihood implements Serializable
+public class Likelihood
 {
-    Likelihood(double l, ArrayMap<Site,SiteLikelihood> siteLikelihoods,
-            ArrayMap<Site,SiteLikelihood> missingLikelihoods,
-            Parameters p)
+    /**
+     * Creates a simple likelihood result
+     * @param likelihood The likelihood
+     * @param p The parameters used to calculate the likelihood
+     */
+    public Likelihood(double likelihood, Parameters p)
     {
-        super(l,p);
-        this.siteLikelihoods = siteLikelihoods;
-        this.missingLikelihoods = missingLikelihoods;
+        this.l = likelihood;
+        this.p = p;
     }
     
     /**
-     * Gets the likelihood result for a given site
-     * @param s The site to return the likelihood results for
-     * @return The likelihood results for the given site
-     * @throws Likelihood.Likelihood.LikelihoodException Thrown if no likelihood
-     * has been calculated for the given site
+     * Gets the likelihood
+     * @return The likelihood
      */
-    public SiteLikelihood getSiteLikelihood(Site s) throws LikelihoodException
+    public double getLikelihood()
     {
-        if (siteLikelihoods.containsKey(s))
-        {
-            return siteLikelihoods.get(s);
-        }
-        else
-        {
-            throw new LikelihoodException("No result for site: " + s);
-        }
+        return l;
     }
     
     /**
-     * Gets the likelihood result for a given missing site
-     * @param s The missing site to return the likelihood results for
-     * @return The likelihood results for the given missing site
-     * @throws Likelihood.Likelihood.LikelihoodException Thrown if no likelihood
-     * has been calculated for the given site
+     * Gets the parameters used to calculate the likelihood
+     * @return The paameters
      */
-    public SiteLikelihood getMissingLikelihood(Site s) throws LikelihoodException
+    public Parameters getParameters()
     {
-        if (missingLikelihoods.containsKey(s))
-        {
-            return missingLikelihoods.get(s);
-        }
-        else
-        {
-            throw new LikelihoodException("No result for site: " + s);
-        }
+        return p;
+    }    
+        
+    public String toString()
+    {
+        return Double.toString(l);
     }
     
-    private ArrayMap<Site,SiteLikelihood> siteLikelihoods;
-    private ArrayMap<Site,SiteLikelihood> missingLikelihoods;
-    
-    private static final long serialVersionUID = 1;
+    private double l;
+    private Parameters p;
 }

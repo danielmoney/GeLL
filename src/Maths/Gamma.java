@@ -23,7 +23,7 @@ package Maths;
  * distribution and one for calculating the rate for different rate categories
  * under a gmma distribution.
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class Gamma
 {

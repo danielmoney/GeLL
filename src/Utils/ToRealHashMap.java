@@ -25,7 +25,7 @@ import java.util.Map.Entry;
  * A HashMap where the values are Reals.  Allows quicker mathematical operations
  * on the values.
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  * @param <K> The type of the keys
  */
 public class ToRealHashMap<K> extends HashMap<K,Real>

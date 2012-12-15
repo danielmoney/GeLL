@@ -19,9 +19,9 @@ package Optimizers;
 
 import Exceptions.InputException;
 import Exceptions.OutputException;
-import Likelihood.BasicCalculator.CalculatorException;
-import Likelihood.BasicCalculator;
-import Likelihood.BasicLikelihood;
+import Likelihood.Calculator.CalculatorException;
+import Likelihood.Calculator;
+import Likelihood.Likelihood;
 import Likelihood.SiteLikelihood;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
@@ -52,7 +52,7 @@ import java.util.concurrent.TimeUnit;
  * The amount of logging can be controlled as can the rigor used (the difference
  * in likelihood when the search stops).
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class GoldenSection implements Optimizer
 {
@@ -97,12 +97,12 @@ public class GoldenSection implements Optimizer
     }
     
 
-    public <R extends BasicLikelihood> R maximise(BasicCalculator<R> l, Parameters params) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
+    public <R extends Likelihood> R maximise(Calculator<R> l, Parameters params) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
     {
 	return maximise(l,System.out,new Data(params));
     }
 
-    public <R extends BasicLikelihood> R maximise(BasicCalculator<R> l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
+    public <R extends Likelihood> R maximise(Calculator<R> l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
     {
         try
         {
@@ -120,7 +120,7 @@ public class GoldenSection implements Optimizer
     //See the Data class for a fuller description but effectively this stores
     //the state of the optimizer.  When created the parameters within it are
     //initalised.
-    private <R extends BasicLikelihood> R maximise(BasicCalculator<R> l, PrintStream out, Data data) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
+    private <R extends Likelihood> R maximise(Calculator<R> l, PrintStream out, Data data) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
     {
         //Don't keep Node Likelihoods while we are otimizing
         SiteLikelihood.optKeepNL(false);
@@ -162,10 +162,6 @@ public class GoldenSection implements Optimizer
 		    {
 			data.diffs.put(p, Math.abs(p.getValue() - oldVal));
 		    }
-		    //else
-		    //{
-			//data.diffs.put(p, data.diffs.get(p) / 2.0);
-		    //}
 		    if (progress)
 		    {
 			out.println(p.getName() + "\t" + p.getValue() + "\t" + data.newML.getLikelihood());
@@ -184,12 +180,10 @@ public class GoldenSection implements Optimizer
 	while ((data.oldML == null) || ((data.e_diff >= rigor) || (data.newML.getLikelihood() - data.oldML.getLikelihood() > rigor)));
         //Now keep NodeLikelihoods and calculate the resulting NodeLikelihoods
         SiteLikelihood.optKeepNL(true);
-        //return l.calculate(data.newML.getParameters());
         return l.calculate(data.newML.getParameters());
-	//return data.newML;
     }
 
-    private <R extends BasicLikelihood> R maximiseSingle(Parameters pp, Parameter p, BasicCalculator<R> l, double diff, double e_diff, ProgressLevel progresslevel, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, CalculatorException
+    private <R extends Likelihood> R maximiseSingle(Parameters pp, Parameter p, Calculator<R> l, double diff, double e_diff, ProgressLevel progresslevel, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, CalculatorException
     {
         //Maximises a single parameter by golden section search
 	boolean progress = (progresslevel == ProgressLevel.CALCULATION);
@@ -373,12 +367,12 @@ public class GoldenSection implements Optimizer
 	}
     }
     
-    public <R extends BasicLikelihood> R restart(BasicCalculator<R> l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
+    public <R extends Likelihood> R restart(Calculator<R> l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
     {
         return restart(l, checkPoint, System.out);
     }
     
-    public <R extends BasicLikelihood> R  restart(BasicCalculator<R> l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
+    public <R extends Likelihood> R  restart(Calculator<R> l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
     {
         try
         {
@@ -393,7 +387,7 @@ public class GoldenSection implements Optimizer
         }
     }   
     
-    private <R extends BasicLikelihood> R  restart(BasicCalculator<R> l, File f, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, CalculatorException
+    private <R extends Likelihood> R  restart(Calculator<R> l, File f, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, CalculatorException
     {
         Object o;
         try
@@ -512,8 +506,8 @@ public class GoldenSection implements Optimizer
         private Parameters params;
         private double e_diff;
         HashMap<Parameter, Double> diffs;
-        BasicLikelihood oldML;
-	BasicLikelihood newML;
+        Likelihood oldML;
+	Likelihood newML;
     }
     
     private static final long serialVersionUID = 1;

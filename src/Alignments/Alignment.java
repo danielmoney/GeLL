@@ -32,10 +32,10 @@ import java.util.Set;
 /**
  * Represents an "alignment", used very losely.  Classes should extend this to
  * represent the different types of alignment, e.g. {@link DuplicationAlignment},
- * {@link SequenceAlignment}.
+ * {@link FastaAlignment}.
  * 
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class Alignment implements Iterable<Site>
 {
@@ -82,6 +82,12 @@ public class Alignment implements Iterable<Site>
 	return data.size();
     }
     
+    /**
+     * Returns the average length of the sequences
+     * @param gaps The set of gap characters (i.e. characters to be ignored when
+     * coutning length)
+     * @return The average sequence length
+     */
     public double averageLength(Set<String> gaps)
     {        
         int i = 0;
@@ -275,24 +281,6 @@ public class Alignment implements Iterable<Site>
             }
         }
         return (double) c / (double) (data.size() * taxa.size());
-    }
-    
-    /**
-     * Gets a count of hoften a site occurs in the alignment
-     * @param s The site 
-     * @return How often it occurs
-     */
-    //This will be slow but is now only included for backwards compitability
-    public int getCount(Site s)
-    {
-        for (UniqueSite u: us)
-        {
-            if (u.equals(s))
-            {
-                return u.getCount();
-            }
-        }
-        return 0;
     }
     
     /**

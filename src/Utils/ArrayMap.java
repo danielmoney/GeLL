@@ -15,7 +15,7 @@ import java.util.Arrays;
  * is valid else an ArrayIndexOutOfBoundsException will be thrown
  * 
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  * @param <K> The key type
  * @param <V> The value type
  */

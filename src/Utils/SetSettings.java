@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  * Represents the value of settings.  See {@link Settings} for further
  * details of how settings are structured.
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class SetSettings
 {

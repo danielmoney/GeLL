@@ -45,7 +45,7 @@ import static org.junit.Assert.*;
 /**
  * Tests the marginal reconstruction method
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public class MarginalTest
 {

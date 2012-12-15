@@ -1,9 +1,35 @@
+/*
+ * This file is part of GeLL.
+ * 
+ * GeLL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GeLL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GeLL.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package Maths;
 
 import java.io.Serializable;
 
-public class StandardDouble implements Serializable, Real//<StandardDouble>
+/**
+ * Represents a real.  Uses the standard java Double class
+ * @author Daniel Money
+ * @version 2.0
+ */
+public class StandardDouble implements Serializable, Real
 {
+    /**
+     * Creates a StandardDouble representing the same number as a double
+     * @param d The double to be represented
+     */
     public StandardDouble(double d)
     {
         this.d = d;
@@ -46,9 +72,9 @@ public class StandardDouble implements Serializable, Real//<StandardDouble>
             double d2 = d * d;
             double d3 = d2 * d;
             double d2d = d2 / 2;
-            double d3d = d3 / d;
+            double d3d = d3 / 3;
             
-            return -d - d2 - d3;
+            return -d - d2d - d3d;
         }
     }
     
@@ -109,5 +135,8 @@ public class StandardDouble implements Serializable, Real//<StandardDouble>
     
     private double d;
     
+    /**
+     * A StandardDouble representing the smallest possible value StandardDouble can represent
+     */
     public static final StandardDouble SMALLEST = new StandardDouble(-Double.MAX_VALUE);
 }

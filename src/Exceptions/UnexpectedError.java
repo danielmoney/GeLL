@@ -22,7 +22,7 @@ package Exceptions;
  * (normally Java) throws an error but you know the condition that caused the
  * error should never occur.
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class UnexpectedError extends Error
 {

@@ -35,7 +35,7 @@ import java.util.Set;
  * Represents a duplication "alignment" - a set of gene families with their
  * associated size in each species
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class DuplicationAlignment extends Alignment
 {

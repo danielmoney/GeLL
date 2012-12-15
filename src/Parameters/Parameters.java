@@ -36,7 +36,7 @@ import java.util.Iterator;
 /**
  * Represents a set of parameters
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class Parameters implements Iterable<Parameter>, Serializable
 {
@@ -262,7 +262,6 @@ public class Parameters implements Iterable<Parameter>, Serializable
 
     private ArrayList<Parameter> params;
 
-    //private boolean recalc;
 
     /**
      * Reads parameters from a file.  Each parameter is a single line and is

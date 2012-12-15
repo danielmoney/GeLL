@@ -37,7 +37,7 @@ import java.util.Map;
  * extend.  By using the static method in tis class users can avoid worrying
  * about whether their model has a single rate category.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public abstract class AncestralJoint
 {
@@ -56,7 +56,7 @@ public abstract class AncestralJoint
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
      * with the parameters (e.g. a requied parameter is not present)
      * @throws AlignmentException Thrown if there is a problem with the alignment
-     * @throws Likelihood.Likelihood.LikelihoodException Thrown if there is a problem initialise likelihoods 
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if there is a problem initialise likelihoods 
      */
     public abstract Alignment calculate(Parameters params) throws RateException, ModelException, AncestralException, TreeException, ParameterException, AlignmentException, LikelihoodException;
 

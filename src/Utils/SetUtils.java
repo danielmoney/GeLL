@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * Utility class fo sets
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class SetUtils
 {
