@@ -147,7 +147,6 @@ public class AncestralJointDP extends AncestralJoint
 	    Map<String,Real> l = new HashMap<>();
 	    if (t.isExternal(b))
 	    {
-		//AM for (String state: P.getAllStatesAsList())
                 for (String state: P.getAllStates())
 		{                    
                     Set<String> chs = s.getCharacter(b.getChild());
@@ -169,13 +168,11 @@ public class AncestralJointDP extends AncestralJoint
 	    }
 	    else
 	    {
-		//AM for (String i: P.getAllStatesAsList())
                 for (String i: P.getAllStates())    
 		{
 		    Real maxL = RealFactory.getSmallestReal(type);//-Double.MAX_VALUE;
 		    String maxC = null;
 
-		    //AM for (String j : P.getAllStatesAsList())
                     for (String j : P.getAllStates())
 		    {
                         //THIS WILL BE SLOW
@@ -200,7 +197,6 @@ public class AncestralJointDP extends AncestralJoint
 
 	Real maxL = RealFactory.getSmallestReal(type);
 	String maxC = null;
-	//AM for (String j: P.getAllStatesAsList())
         for (String j: P.getAllStates())
 	{
 	    Real cl = RealFactory.getReal(type, P.getFreq(r.get(s.getSiteClass()), j));

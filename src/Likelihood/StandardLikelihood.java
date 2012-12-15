@@ -33,8 +33,6 @@ import java.util.Map;
 
 public class StandardLikelihood extends Likelihood implements Serializable
 {
-    //AM StandardLikelihood(double l, ArrayMap<Site,SiteLikelihood> siteLikelihoods,
-    //AM        ArrayMap<Site,SiteLikelihood> missingLikelihoods,
     StandardLikelihood(double l, Map<Site,SiteLikelihood> siteLikelihoods,
             Map<Site,SiteLikelihood> missingLikelihoods,
             Parameters p)
@@ -82,9 +80,7 @@ public class StandardLikelihood extends Likelihood implements Serializable
         }
     }
     
-    //AM private ArrayMap<Site,SiteLikelihood> siteLikelihoods;
     private Map<Site,SiteLikelihood> siteLikelihoods;
-    //AM private ArrayMap<Site,SiteLikelihood> missingLikelihoods;
     private Map<Site,SiteLikelihood> missingLikelihoods;
     
     private static final long serialVersionUID = 1;

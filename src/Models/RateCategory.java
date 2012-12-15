@@ -32,7 +32,6 @@ import Maths.SquareMatrix.SquareMatrixException;
 import Models.Distributions.DistributionsException;
 import Parameters.Parameter;
 import Parameters.Parameters.ParameterException;
-//AM import Utils.ArrayMap;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -180,16 +179,10 @@ public class RateCategory implements Serializable
         }
         
 	this.freqType = freqType;
-        //AM this.map = new ArrayMap<>(String.class, Integer.class, map.size());
-        //AM for (Entry<String,Integer> e: map.entrySet())
-        //AM {
-        //AM      this.map.put(e.getValue(), e.getKey(), e.getValue());
-        //AM }
         this.map = map;
 	setNeeded();
     }
     
-    //AM private RateCategory(CompiledFunction[][] rates, FrequencyType freqType, CompiledFunction[] freq, ArrayMap<String, Integer> map)
     private RateCategory(CompiledFunction[][] rates, FrequencyType freqType, CompiledFunction[] freq, Map<String, Integer> map)
     {
         this.rates = rates;
@@ -376,9 +369,7 @@ public class RateCategory implements Serializable
         if (freqType == FrequencyType.MODEL)
         {
             for (Entry<String,Integer> e: map.entrySet())
-            //AM for (int i = 0; i < map.size(); i++)
             {
-            //AM    Entry<String,Integer> e = map.getEntry(i);
                 values.put("_" + e.getKey(), f[e.getValue()]);
             }
         }
@@ -505,7 +496,6 @@ public class RateCategory implements Serializable
      * Called this as {@link #getMap()} is kept for comptability
      * @return Map from state to position in matrix
      */
-    //AM public ArrayMap<String, Integer> getArrayMap()
     public Map<String, Integer> getArrayMap()
     {
 	return map;
@@ -517,13 +507,6 @@ public class RateCategory implements Serializable
      */
     public Map<String,Integer> getMap()
     {
-        //AM HashMap<String,Integer> ret = new HashMap<>();
-        //AM for (int i = 0; i < map.size(); i++)
-        //AM {
-        //AM     Entry<String,Integer> e = map.getEntry(i);
-        //AM     ret.put(e.getKey(),e.getValue());
-        //AM }
-        //AM return ret;
         return map;
     }
 
@@ -631,7 +614,6 @@ public class RateCategory implements Serializable
     private double[] f;
     private CompiledFunction[] freq;
     private CompiledFunction[][] rates;
-    //AM private ArrayMap<String, Integer> map;
     private Map<String, Integer> map;
     private FrequencyType freqType;
     private static MathsParse mp = new MathsParse();    

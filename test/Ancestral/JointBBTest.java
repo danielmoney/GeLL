@@ -125,7 +125,6 @@ public class JointBBTest
                     sc.addAssignment("B", b);
                     sc.addAssignment("C", c);
                     
-                    //AM ArrayMap<String, NodeLikelihood> nl = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
                     Map<String, NodeLikelihood> nl = new HashMap<>(t.getNumberBranches() + 1);
                     for (String l: t.getLeaves())
                     {

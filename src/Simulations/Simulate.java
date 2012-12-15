@@ -596,7 +596,6 @@ public class Simulate
 	double v = random.nextDouble();
 	String ret = null;
 
-        //AM for (String s: P.get(siteClass).getAllStatesAsList())
         for (String s: P.get(siteClass).getAllStates())
 	{
 	    if (tot <= v)
@@ -636,7 +635,6 @@ public class Simulate
 	double v = random.nextDouble();
 	String ret = null;
 
-        //AM for (String s: P.get(siteClass).getAllStatesAsList())
         for (String s: P.get(siteClass).getAllStates())
 	{
 	    if (tot <= v)
