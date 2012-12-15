@@ -19,7 +19,7 @@ package Simulations;
 
 import Likelihood.Calculator.SiteCalculator;
 import Likelihood.SiteLikelihood.NodeLikelihood;
-import Utils.ArrayMap;
+//AM import Utils.ArrayMap;
 import java.util.ArrayList;
 import java.util.List;
 import Parameters.Parameter;
@@ -135,7 +135,8 @@ public class SimulateTest
                         sm.put("orangutan", o);
                         Site s = new Site(sm);
                         
-                        ArrayMap<String, NodeLikelihood> nl = s.getInitialNodeLikelihoods(t, P.getArrayMap());
+                        //AM ArrayMap<String, NodeLikelihood> nl = s.getInitialNodeLikelihoods(t, P.getArrayMap());
+                        Map<String, NodeLikelihood> nl = s.getInitialNodeLikelihoods(t, P.getArrayMap());
                         
                         SiteCalculator sc = new SiteCalculator(t,P,nl);
                         double l = sc.calculate().getLikelihood().toDouble();

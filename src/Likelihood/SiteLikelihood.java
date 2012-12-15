@@ -7,7 +7,7 @@ import Maths.RealFactory.RealType;
 import Maths.SmallDouble;
 import Maths.StandardDouble;
 import Models.RateCategory;
-import Utils.ArrayMap;
+//AM import Utils.ArrayMap;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,7 +27,8 @@ public class SiteLikelihood implements Serializable
      * @param rateLikelihoods The likelihood of the individual rates at that site
      * @param P A Probabilities object from which the frequency of each rate will be fetched
      */
-    public SiteLikelihood(ArrayMap<RateCategory,RateLikelihood> rateLikelihoods, Probabilities P)
+    //AM public SiteLikelihood(ArrayMap<RateCategory,RateLikelihood> rateLikelihoods, Probabilities P)
+    public SiteLikelihood(Map<RateCategory,RateLikelihood> rateLikelihoods, Probabilities P)
     {
         rateProbability = new HashMap<>();
         l = RealFactory.getReal(type,0.0);
@@ -137,7 +138,8 @@ public class SiteLikelihood implements Serializable
         SiteLikelihood.type = type;
     }
 
-    private ArrayMap<RateCategory,RateLikelihood> rateLikelihoods;
+    //AM private ArrayMap<RateCategory,RateLikelihood> rateLikelihoods;
+    private Map<RateCategory,RateLikelihood> rateLikelihoods;
     private Real l;        
     private Map<RateCategory,Real> rateProbability;
     private RateCategory maxCat;
@@ -162,7 +164,8 @@ public class SiteLikelihood implements Serializable
          * @param l The likelihood for this site and rate
          * @param nodeLikelihoods The invidual node likelihoods for this site and rate
          */
-        public RateLikelihood(Real l, ArrayMap<String, NodeLikelihood> nodeLikelihoods)
+        //AM public RateLikelihood(Real l, ArrayMap<String, NodeLikelihood> nodeLikelihoods)
+        public RateLikelihood(Real l, Map<String, NodeLikelihood> nodeLikelihoods)
         {
             this.l = l;
             if (keepNL)
@@ -216,7 +219,8 @@ public class SiteLikelihood implements Serializable
         }
 
         private Real l;
-        private ArrayMap<String, NodeLikelihood> nodeLikelihoods;
+        //AM private ArrayMap<String, NodeLikelihood> nodeLikelihoods;
+        private Map<String, NodeLikelihood> nodeLikelihoods;
         private static final long serialVersionUID = 1;
     }
 
@@ -234,14 +238,16 @@ public class SiteLikelihood implements Serializable
          * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
          *      (most probably due to the state at the node not being in the model).  
          */
-        public NodeLikelihood(ArrayMap<String,Integer> states) throws LikelihoodException
+        //AM public NodeLikelihood(ArrayMap<String,Integer> states) throws LikelihoodException
+        public NodeLikelihood(Map<String,Integer> states) throws LikelihoodException
         {
             likelihoods = new Real[states.size()];
             this.states = states;
             for (int i = 0; i < states.size(); i ++)
             {
-                Entry<String,Integer> s = states.getEntry(i);
-                likelihoods[s.getValue()] = RealFactory.getReal(type,1.0);
+                //AM Entry<String,Integer> s = states.getEntry(i);
+                //AM likelihoods[s.getValue()] = RealFactory.getReal(type,1.0);
+                likelihoods[i] = RealFactory.getReal(type,1.0);
             }            
         }
         
@@ -252,14 +258,16 @@ public class SiteLikelihood implements Serializable
          * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
          *      (most probably due to the state at the node not being in the model).  
          */
-        public NodeLikelihood(ArrayMap<String,Integer> states, Set<String> allowedStates) throws LikelihoodException
+        //AM public NodeLikelihood(ArrayMap<String,Integer> states, Set<String> allowedStates) throws LikelihoodException
+        public NodeLikelihood(Map<String,Integer> states, Set<String> allowedStates) throws LikelihoodException
         {
             likelihoods = new Real[states.size()];
             this.states = states;
             boolean onz = false;
-            for (int i = 0; i < states.size(); i ++)
+            //AM for (int i = 0; i < states.size(); i ++)
+            for (Entry<String,Integer> s: states.entrySet())
             {
-                Entry<String,Integer> s = states.getEntry(i);
+                //AM Entry<String,Integer> s = states.getEntry(i);
                 if (allowedStates.contains(s.getKey()))
                 {
                     likelihoods[s.getValue()] = RealFactory.getReal(type,1.0);
@@ -284,14 +292,16 @@ public class SiteLikelihood implements Serializable
          * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
          *      (most probably due to the state at the node not being in the model).  
          */
-        public NodeLikelihood(ArrayMap<String,Integer> states, String allowedState) throws LikelihoodException
+        //AM public NodeLikelihood(ArrayMap<String,Integer> states, String allowedState) throws LikelihoodException
+        public NodeLikelihood(Map<String,Integer> states, String allowedState) throws LikelihoodException
         {
             likelihoods = new Real[states.size()];
             this.states = states;
             boolean onz = false;
-            for (int i = 0; i < states.size(); i ++)
+            //AM for (int i = 0; i < states.size(); i ++)
+            for (Entry<String,Integer> s: states.entrySet())
             {
-                Entry<String,Integer> s = states.getEntry(i);
+                //AM Entry<String,Integer> s = states.getEntry(i);
                 if ((allowedState != null) && allowedState.equals(s.getKey()))
                 {
                     likelihoods[s.getValue()] = RealFactory.getReal(type,1.0);
@@ -308,7 +318,8 @@ public class SiteLikelihood implements Serializable
             }
         }
         
-        private NodeLikelihood(Real[] l, ArrayMap<String,Integer> states)
+        //AM private NodeLikelihood(Real[] l, ArrayMap<String,Integer> states)
+        private NodeLikelihood(Real[] l, Map<String,Integer> states)
         {
             likelihoods = Arrays.copyOf(l, l.length);
             this.states = states;
@@ -390,7 +401,8 @@ public class SiteLikelihood implements Serializable
             return Arrays.toString(likelihoods);
         }
         
-        private ArrayMap<String,Integer> states;
+        //AM private ArrayMap<String,Integer> states;
+        private Map<String,Integer> states;
         private Real[] likelihoods;
     }
     

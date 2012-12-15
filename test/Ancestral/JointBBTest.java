@@ -16,10 +16,10 @@
  */
 
 package Ancestral;
+import java.util.Map;
 import Likelihood.Calculator.SiteCalculator;
 import Likelihood.SiteLikelihood.LikelihoodException;
 import Likelihood.SiteLikelihood.NodeLikelihood;
-import Utils.ArrayMap;
 import java.util.ArrayList;
 import java.util.List;
 import Alignments.Alignment;
@@ -125,7 +125,8 @@ public class JointBBTest
                     sc.addAssignment("B", b);
                     sc.addAssignment("C", c);
                     
-                    ArrayMap<String, NodeLikelihood> nl = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+                    //AM ArrayMap<String, NodeLikelihood> nl = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+                    Map<String, NodeLikelihood> nl = new HashMap<>(t.getNumberBranches() + 1);
                     for (String l: t.getLeaves())
                     {
                         nl.put(l, new NodeLikelihood(P.getArrayMap(), s.getCharacter(l)));

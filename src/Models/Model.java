@@ -30,7 +30,7 @@ import Maths.WrongNumberOfVariables;
 import Models.RateCategory.RateException;
 import Parameters.Parameters;
 import Parameters.Parameters.ParameterException;
-import Utils.ArrayMap;
+//AM import Utils.ArrayMap;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -141,7 +141,8 @@ public class Model implements Iterable<RateCategory>
      * Called this as {@link #getMap()} is kept for comptability
      * @return ArrayMap from rate name to index
      */
-    public ArrayMap<String,Integer> getArrayMap()
+    //AM public ArrayMap<String,Integer> getArrayMap()
+    public Map<String,Integer> getArrayMap()
     {
 	return map;
     }
@@ -152,22 +153,25 @@ public class Model implements Iterable<RateCategory>
      */
     public Map<String,Integer> getMap()
     {
-        HashMap<String,Integer> ret = new HashMap<>();
-        for (int i = 0; i < map.size(); i++)
-        {
-            Entry<String,Integer> e = map.getEntry(i);
-            ret.put(e.getKey(),e.getValue());
-        }
-        return ret;
+        //AM HashMap<String,Integer> ret = new HashMap<>();
+        //AM for (int i = 0; i < map.size(); i++)
+        //AM {
+        //AM     Entry<String,Integer> e = map.getEntry(i);
+        //AM     ret.put(e.getKey(),e.getValue());
+        //AM }
+        //AM return ret;
+        return map;
     }
     
     /**
      * Gets the set of all states in the model
      * @return The set of all states
      */
-    public List<String> getStates()
+    //AM public List<String> getStates()
+    public Set<String> getStates()
     {
-        return map.keyList();
+        //AM return map.keyList();
+        return map.keySet();
     }
     
     /**
@@ -413,7 +417,8 @@ public class Model implements Iterable<RateCategory>
     private int nStates;
     private Map<RateCategory,Double> f;
     private Map<RateCategory,CompiledFunction> freq;
-    private ArrayMap<String,Integer> map;
+    //AM private ArrayMap<String,Integer> map;
+    private Map<String,Integer> map;
     private boolean rescale = true;
 
     private static final Pattern gammaRE = Pattern.compile("^\\*\\*G\\s+(\\d+)\\s+(\\w+)");

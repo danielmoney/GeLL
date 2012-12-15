@@ -32,7 +32,7 @@ import Maths.SquareMatrix.SquareMatrixException;
 import Models.Distributions.DistributionsException;
 import Parameters.Parameter;
 import Parameters.Parameters.ParameterException;
-import Utils.ArrayMap;
+//AM import Utils.ArrayMap;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -83,13 +83,13 @@ public class RateCategory implements Serializable
      * @throws Models.RateCategory.RateException  If the rate matrix is not square
      * or the frequncy array is not the same length as the rate matrix.
      */
-    public RateCategory(String[][] rates, String[] freq, HashMap<String, Integer> map) throws RateException
+    public RateCategory(String[][] rates, String[] freq, Map<String, Integer> map) throws RateException
     {
         this(rates,FrequencyType.MODEL,freq,map);
     }
     
 
-    private RateCategory(String[][] rates, FrequencyType freqType, String[] freq, HashMap<String, Integer> map) throws RateException
+    private RateCategory(String[][] rates, FrequencyType freqType, String[] freq, Map<String, Integer> map) throws RateException
     {
         //The two non-private constructors should ensure these are never reached
         //but just in case...
@@ -180,15 +180,17 @@ public class RateCategory implements Serializable
         }
         
 	this.freqType = freqType;
-        this.map = new ArrayMap<>(String.class, Integer.class, map.size());
-        for (Entry<String,Integer> e: map.entrySet())
-        {
-             this.map.put(e.getValue(), e.getKey(), e.getValue());
-        }
+        //AM this.map = new ArrayMap<>(String.class, Integer.class, map.size());
+        //AM for (Entry<String,Integer> e: map.entrySet())
+        //AM {
+        //AM      this.map.put(e.getValue(), e.getKey(), e.getValue());
+        //AM }
+        this.map = map;
 	setNeeded();
     }
     
-    private RateCategory(CompiledFunction[][] rates, FrequencyType freqType, CompiledFunction[] freq, ArrayMap<String, Integer> map)
+    //AM private RateCategory(CompiledFunction[][] rates, FrequencyType freqType, CompiledFunction[] freq, ArrayMap<String, Integer> map)
+    private RateCategory(CompiledFunction[][] rates, FrequencyType freqType, CompiledFunction[] freq, Map<String, Integer> map)
     {
         this.rates = rates;
         this.freqType = freqType;
@@ -373,10 +375,10 @@ public class RateCategory implements Serializable
         //(with the name _state) so that threy can be used in the matrix
         if (freqType == FrequencyType.MODEL)
         {
-            //for (Entry<String,Integer> e: map.entrySet())
-            for (int i = 0; i < map.size(); i++)
+            for (Entry<String,Integer> e: map.entrySet())
+            //AM for (int i = 0; i < map.size(); i++)
             {
-                Entry<String,Integer> e = map.getEntry(i);
+            //AM    Entry<String,Integer> e = map.getEntry(i);
                 values.put("_" + e.getKey(), f[e.getValue()]);
             }
         }
@@ -503,7 +505,8 @@ public class RateCategory implements Serializable
      * Called this as {@link #getMap()} is kept for comptability
      * @return Map from state to position in matrix
      */
-    public ArrayMap<String, Integer> getArrayMap()
+    //AM public ArrayMap<String, Integer> getArrayMap()
+    public Map<String, Integer> getArrayMap()
     {
 	return map;
     }
@@ -514,13 +517,14 @@ public class RateCategory implements Serializable
      */
     public Map<String,Integer> getMap()
     {
-        HashMap<String,Integer> ret = new HashMap<>();
-        for (int i = 0; i < map.size(); i++)
-        {
-            Entry<String,Integer> e = map.getEntry(i);
-            ret.put(e.getKey(),e.getValue());
-        }
-        return ret;
+        //AM HashMap<String,Integer> ret = new HashMap<>();
+        //AM for (int i = 0; i < map.size(); i++)
+        //AM {
+        //AM     Entry<String,Integer> e = map.getEntry(i);
+        //AM     ret.put(e.getKey(),e.getValue());
+        //AM }
+        //AM return ret;
+        return map;
     }
 
     /**
@@ -627,7 +631,8 @@ public class RateCategory implements Serializable
     private double[] f;
     private CompiledFunction[] freq;
     private CompiledFunction[][] rates;
-    private ArrayMap<String, Integer> map;
+    //AM private ArrayMap<String, Integer> map;
+    private Map<String, Integer> map;
     private FrequencyType freqType;
     private static MathsParse mp = new MathsParse();    
     private String name = null;

@@ -35,7 +35,7 @@ import Parameters.Parameters.ParameterException;
 import Trees.Branch;
 import Trees.Tree;
 import Trees.TreeException;
-import Utils.ArrayMap;
+//AM import Utils.ArrayMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +58,8 @@ public abstract class Calculator<R extends Likelihood>
      * for each state at each node for each site.  Will usually be 1.0 if that state at that
      * node of that site is possible, else 0.0.
      */
-    protected Calculator(Map<String,Model> m, Tree t, HashMap<Site,ArrayMap<String,NodeLikelihood>> snl)
+    //AM protected Calculator(Map<String,Model> m, Tree t, HashMap<Site,ArrayMap<String,NodeLikelihood>> snl)
+    protected Calculator(Map<String,Model> m, Tree t, HashMap<Site,Map<String,NodeLikelihood>> snl)
     {
         this.snl = snl;
         this.t = t;
@@ -89,7 +90,8 @@ public abstract class Calculator<R extends Likelihood>
      * for each state at each node for each site.  Will usually be 1.0 if that state at that
      * node of that site is possible, else 0.0.  Should be used by implementing classes.
      */
-    protected HashMap<Site,ArrayMap<String,NodeLikelihood>> snl;
+    //AM protected HashMap<Site,ArrayMap<String,NodeLikelihood>> snl;
+    protected HashMap<Site,Map<String,NodeLikelihood>> snl;
     /**
      * The tree to do the calculation on.  Should be used by implementing classes.
      */
@@ -114,7 +116,8 @@ public abstract class Calculator<R extends Likelihood>
          * @param nl Initalised node likelihoods based on the site.
          * See {@link Site#getInitialNodeLikelihoods(Trees.Tree, Utils.ArrayMap)}.
          */
-        public SiteCalculator(Tree t, Probabilities tp, ArrayMap<String,NodeLikelihood> nl)
+        //AM public SiteCalculator(Tree t, Probabilities tp, ArrayMap<String,NodeLikelihood> nl)
+        public SiteCalculator(Tree t, Probabilities tp, Map<String,NodeLikelihood> nl)
         {
             this.t = t;
             this.tp = tp;
@@ -136,7 +139,8 @@ public abstract class Calculator<R extends Likelihood>
         public SiteLikelihood calculate()
         {
             List<Branch> branches = t.getBranches();
-            ArrayMap<RateCategory,RateLikelihood> rateLikelihoods = new ArrayMap<>(RateCategory.class,RateLikelihood.class,tp.getRateCategory().size());
+            //AM ArrayMap<RateCategory,RateLikelihood> rateLikelihoods = new ArrayMap<>(RateCategory.class,RateLikelihood.class,tp.getRateCategory().size());
+            Map<RateCategory,RateLikelihood> rateLikelihoods = new HashMap<>(tp.getRateCategory().size());
 
             //Calculate the likelihood for each RateCategory
             for (RateCategory rc: tp.getRateCategory())
@@ -144,7 +148,8 @@ public abstract class Calculator<R extends Likelihood>
                 RateProbabilities rp = tp.getP(rc);
                 //Initalise the lieklihood values at each node.  first internal
                 //using the alignemnt.
-                ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,branches.size() + 1);
+                //AM ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,branches.size() + 1);
+                Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(branches.size() + 1);
                 for (String l: t.getLeaves())
                 {
                     nodeLikelihoods.put(l, nl.get(l).clone());
@@ -167,9 +172,10 @@ public abstract class Calculator<R extends Likelihood>
                     SquareMatrix bp = rp.getP(b);
                     //So for each state at the parent node...
                     //for (String endState: tp.getAllStates())
-                    for (int i = 0; i < tp.getAllStatesAsList().size(); i ++)
+                    //AM for (int i = 0; i < tp.getAllStatesAsList().size(); i ++)
+                    for (String endState: tp.getAllStates())
                     {
-                        String endState = tp.getAllStatesAsList().get(i);
+                        //AM String endState = tp.getAllStatesAsList().get(i);
                         //l keeps track of the total likelihood from each possible
                         //state at the child
                         //Real l = SiteLikelihood.getReal(0.0);//new Real(0.0);
@@ -177,12 +183,14 @@ public abstract class Calculator<R extends Likelihood>
                         //for (String startState: tp.getAllStates())
                         Real[] nl = nodeLikelihoods.get(b.getChild()).getLikelihoods();
                         //for (int j = 0; j < tp.getAllStates().size(); j ++)
-                        Real l = nl[0].multiply(bp.getPosition(i, 0));
+                        //AM Real l = nl[0].multiply(bp.getPosition(i, 0));
+                        Real l = nl[0].multiply(bp.getPosition(tp.getArrayMap().get(endState), 0));
                         for (int j = 1; j < nl.length; j++)
                         {
                             //Add the likelihood of going from start state to
                             //end state along that branch in that ratecategory
-                            l = l.add(nl[j].multiply(bp.getPosition(i, j)));
+                            //AM l = l.add(nl[j].multiply(bp.getPosition(i, j)));
+                            l = l.add(nl[j].multiply(bp.getPosition(tp.getArrayMap().get(endState), j)));
                         }
                         //Now multiply the likelihood of the parent by this total value.
                         //This will happen for each possible child as per standard techniques
@@ -195,7 +203,8 @@ public abstract class Calculator<R extends Likelihood>
                 //Get the root likelihoods
                 NodeLikelihood rootL = nodeLikelihoods.get(t.getRoot());
                 //For each possible state
-                for (String state: this.tp.getAllStatesAsList())
+                //AM for (String state: this.tp.getAllStatesAsList())
+                for (String state: this.tp.getAllStates())
                 {
                     try
                     {
@@ -246,7 +255,8 @@ public abstract class Calculator<R extends Likelihood>
         private Tree t;
         private Probabilities tp;
         private SiteLikelihood result;
-        private ArrayMap<String,NodeLikelihood> nl;
+        //AM private ArrayMap<String,NodeLikelihood> nl;
+        private Map<String,NodeLikelihood> nl;
     }
     
     static class ResultNotComputed extends Exception

@@ -21,7 +21,7 @@ import Alignments.Site;
 import Likelihood.SiteLikelihood.LikelihoodException;
 import Likelihood.SiteLikelihood.NodeLikelihood;
 import Trees.Tree;
-import Utils.ArrayMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -92,9 +92,11 @@ public class Assignment
      * likelihood calculations
      * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if all states are initialised to a zero likelihood 
      */
-    public ArrayMap<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t,  Site s, ArrayMap<String,Integer> map) throws LikelihoodException    
+    //AM public ArrayMap<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t,  Site s, ArrayMap<String,Integer> map) throws LikelihoodException    
+    public Map<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t,  Site s, Map<String,Integer> map) throws LikelihoodException    
     {        
-        ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+        //AM ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+        Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(t.getNumberBranches() + 1);
         for (String l: t.getLeaves())
         {
             nodeLikelihoods.put(l, new NodeLikelihood(map, s.getCharacter(l)));

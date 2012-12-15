@@ -290,7 +290,8 @@ public class AncestralJointBB extends AncestralJoint
 	best = DFS(site,na,best,P,ba);
 
         //Next try all other assignments
-	for (String state: P.getAllStatesAsList())
+	//AM for (String state: P.getAllStatesAsList())
+        for (String state: P.getAllStates())
 	{
             //Excpet the one we've already tried
             try

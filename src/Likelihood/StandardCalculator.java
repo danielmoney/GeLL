@@ -35,7 +35,7 @@ import Parameters.Parameters.ParameterException;
 import Trees.Branch;
 import Trees.Tree;
 import Trees.TreeException;
-import Utils.ArrayMap;
+//AM import Utils.ArrayMap;
 import Utils.DaemonThreadFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -172,19 +172,23 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
         //The total ikelihood
         double l = 0.0;
         //Stores the likelihood of sites in the alignment
-        ArrayMap<Site,SiteLikelihood> siteLikelihoods = new ArrayMap<>(Site.class,SiteLikelihood.class,a.getUniqueSites().size());
+        //AM ArrayMap<Site,SiteLikelihood> siteLikelihoods = new ArrayMap<>(Site.class,SiteLikelihood.class,a.getUniqueSites().size());
+        Map<Site,SiteLikelihood> siteLikelihoods = new HashMap<>(a.getUniqueSites().size());
         //Stores the likelihood of unobserved states
-        ArrayMap<Site,SiteLikelihood> missingLikelihoods;
+        //AM ArrayMap<Site,SiteLikelihood> missingLikelihoods;
+        Map<Site,SiteLikelihood> missingLikelihoods;
         if (missing != null)
         {
-            missingLikelihoods = new ArrayMap<>(Site.class,SiteLikelihood.class,missing.getUniqueSites().size());
+            //AM missingLikelihoods = new ArrayMap<>(Site.class,SiteLikelihood.class,missing.getUniqueSites().size());
+            missingLikelihoods = new HashMap<>(missing.getUniqueSites().size());
         }
         else
         {
             missingLikelihoods = null;
         }
             
-        ArrayMap<Site,SiteLikelihood> sites = siteCalculate(p);
+        //AM ArrayMap<Site,SiteLikelihood> sites = siteCalculate(p);
+        Map<Site,SiteLikelihood> sites = siteCalculate(p);
 
         //Get the result for each site and calculate the total likelihood (l)
         //of the alignemnt taking into account how often each unique site occurs
@@ -248,7 +252,8 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
      * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive
      * or NaN) log likelihood is calculated 
      */
-    protected ArrayMap<Site,SiteLikelihood> siteCalculate(Parameters p) throws TreeException, RateException, ModelException, ParameterException, CalculatorException
+    //AM protected ArrayMap<Site,SiteLikelihood> siteCalculate(Parameters p) throws TreeException, RateException, ModelException, ParameterException, CalculatorException
+    protected Map<Site,SiteLikelihood> siteCalculate(Parameters p) throws TreeException, RateException, ModelException, ParameterException, CalculatorException
     {
         //Doing threaded calculation can be slower in small cases due to the
         //overhead in creating threads.  However haven't tested when this is the
@@ -258,7 +263,8 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
         {
             //Calculate all the probabilites associated with this model, tree and
             //set of parameters
-            ArrayMap<String,Probabilities> tp = new ArrayMap<>(String.class,Probabilities.class,m.size());
+            //AM ArrayMap<String,Probabilities> tp = new ArrayMap<>(String.class,Probabilities.class,m.size());
+            Map<String,Probabilities> tp = new HashMap<>(m.size());
             for (Entry<String,Model> e: m.entrySet())
             {
                 tp.put(e.getKey(), new Probabilities(e.getValue(),t,p));
@@ -267,10 +273,12 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
             //For each unique site in both the alignment and unobserved sites
             //create a callable object to calculate it and send it to
             // be executed.
-            ArrayMap<Site, SiteCalculator> sites = new ArrayMap<>(Site.class,SiteCalculator.class,snl.size());
+            //AM ArrayMap<Site, SiteCalculator> sites = new ArrayMap<>(Site.class,SiteCalculator.class,snl.size());
+            Map<Site, SiteCalculator> sites = new HashMap<>(snl.size());
             
             List<SiteCalculator> scs = new ArrayList<>();
-            for (Entry<Site,ArrayMap<String,NodeLikelihood>> e: snl.entrySet())
+            //AM for (Entry<Site,ArrayMap<String,NodeLikelihood>> e: snl.entrySet())
+            for (Entry<Site,Map<String,NodeLikelihood>> e: snl.entrySet())
             {
                 SiteCalculator temp = new SiteCalculator(t, 
                         tp.get(e.getKey().getSiteClass()),
@@ -281,10 +289,12 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
             
             es.invokeAll(scs);
                         
-            ArrayMap<Site, SiteLikelihood> ret = new ArrayMap<>(Site.class,SiteLikelihood.class,snl.size());
-            for (int i = 0; i < ret.size(); i++)
+            //AM ArrayMap<Site, SiteLikelihood> ret = new ArrayMap<>(Site.class,SiteLikelihood.class,snl.size());
+            Map<Site, SiteLikelihood> ret = new HashMap<>(snl.size());
+            //AM for (int i = 0; i < ret.size(); i++)
+            for (Entry<Site,SiteCalculator> e: sites.entrySet())
             {
-                Entry<Site,SiteCalculator> e = sites.getEntry(i);
+                //AM Entry<Site,SiteCalculator> e = sites.getEntry(i);
                 ret.put(e.getKey(),e.getValue().getResult());
             }
             
@@ -315,13 +325,16 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
     private Alignment missing;
     
     
-    private static HashMap<Site,ArrayMap<String,NodeLikelihood>> getInitialNodeLikelihoods(Map<String,Model> m, Alignment a, Tree t, Alignment missing) 
+    //AM private static HashMap<Site,ArrayMap<String,NodeLikelihood>> getInitialNodeLikelihoods(Map<String,Model> m, Alignment a, Tree t, Alignment missing) 
+    private static HashMap<Site,Map<String,NodeLikelihood>> getInitialNodeLikelihoods(Map<String,Model> m, Alignment a, Tree t, Alignment missing) 
             throws TreeException, LikelihoodException, AlignmentException
     {
-        HashMap<Site,ArrayMap<String,NodeLikelihood>> snl = new HashMap<>();
+        //AM HashMap<Site,ArrayMap<String,NodeLikelihood>> snl = new HashMap<>();
+        HashMap<Site,Map<String,NodeLikelihood>> snl = new HashMap<>();
         for (UniqueSite s: a.getUniqueSites())
         {
-            ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+            //AM ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+            Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(t.getNumberBranches() + 1);
             for (String l: t.getLeaves())
             {
                 nodeLikelihoods.put(l, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap(), s.getCharacter(l)));
@@ -338,7 +351,8 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
         {
             for (UniqueSite s: missing.getUniqueSites())
             {
-                ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+                //AM ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+                Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(t.getNumberBranches() + 1);
                 for (String l: t.getLeaves())
                 {
                     nodeLikelihoods.put(l, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap(), s.getCharacter(l)));

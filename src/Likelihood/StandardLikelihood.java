@@ -20,8 +20,8 @@ package Likelihood;
 import Alignments.Site;
 import Likelihood.SiteLikelihood.LikelihoodException;
 import Parameters.Parameters;
-import Utils.ArrayMap;
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Stores the results of a likelihood calculation.  As well as the overall
@@ -33,8 +33,10 @@ import java.io.Serializable;
 
 public class StandardLikelihood extends Likelihood implements Serializable
 {
-    StandardLikelihood(double l, ArrayMap<Site,SiteLikelihood> siteLikelihoods,
-            ArrayMap<Site,SiteLikelihood> missingLikelihoods,
+    //AM StandardLikelihood(double l, ArrayMap<Site,SiteLikelihood> siteLikelihoods,
+    //AM        ArrayMap<Site,SiteLikelihood> missingLikelihoods,
+    StandardLikelihood(double l, Map<Site,SiteLikelihood> siteLikelihoods,
+            Map<Site,SiteLikelihood> missingLikelihoods,
             Parameters p)
     {
         super(l,p);
@@ -80,8 +82,10 @@ public class StandardLikelihood extends Likelihood implements Serializable
         }
     }
     
-    private ArrayMap<Site,SiteLikelihood> siteLikelihoods;
-    private ArrayMap<Site,SiteLikelihood> missingLikelihoods;
+    //AM private ArrayMap<Site,SiteLikelihood> siteLikelihoods;
+    private Map<Site,SiteLikelihood> siteLikelihoods;
+    //AM private ArrayMap<Site,SiteLikelihood> missingLikelihoods;
+    private Map<Site,SiteLikelihood> missingLikelihoods;
     
     private static final long serialVersionUID = 1;
 }

@@ -207,10 +207,12 @@ public class AncestralMarginal
             //likelihood calculation
             for (Branch b: normal)
             {
-                for (String endState: P.getAllStatesAsList())
+                //AM for (String endState: P.getAllStatesAsList())
+                for (String endState: P.getAllStates())
                 {
                     Real li = null;
-                    for (String startState: P.getAllStatesAsList())
+                    //AM for (String startState: P.getAllStatesAsList())
+                    for (String startState: P.getAllStates())
                     {
                         //This will be a little slow but given that we don't optimise
                         //using this it will never get called that often so speeding
@@ -229,7 +231,8 @@ public class AncestralMarginal
             }
 
             //Apply the root frequencies to the original root
-            for (String st: P.getAllStatesAsList())
+            //AM for (String st: P.getAllStatesAsList())
+            for (String st: P.getAllStates())
             {
                 l.get(t.getRoot()).multiply(st, P.getFreq(r, st));
             }
@@ -238,11 +241,13 @@ public class AncestralMarginal
             //excpet the start and end states are swapper
             for (Branch b: reverse)
             {
-                for (String endState: P.getAllStatesAsList())
+                //AM for (String endState: P.getAllStatesAsList())
+                for (String endState: P.getAllStates())
                 {
                     //Real li = 0.0;
                     Real li = null;
-                    for (String startState: P.getAllStatesAsList())
+                    //AM for (String startState: P.getAllStatesAsList())
+                    for (String startState: P.getAllStates())
                     {
                         //This will be a little slow but given that we don't optimise
                         //using this it will never get called that often so speeding
@@ -268,7 +273,8 @@ public class AncestralMarginal
         //Also calculate the total likelihood.
         Real total = null;
         ToRealHashMap<String> sl = new ToRealHashMap<>();
-        for (String st : P.getAllStatesAsList())
+        //AM for (String st : P.getAllStatesAsList())
+        for (String st : P.getAllStates())
         {
             for (RateCategory r: m.get(s.getSiteClass()))
             {
@@ -287,7 +293,8 @@ public class AncestralMarginal
         //Divide each state probability by the total probability to get the
         //likelihood of a state
         ToRealHashMap<String> sP = new ToRealHashMap<>();
-        for (String st: P.getAllStatesAsList())
+        //AM for (String st: P.getAllStatesAsList())
+        for (String st: P.getAllStates())
         {
             sP.put(st, sl.get(st).divide(total));
         }
