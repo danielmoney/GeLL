@@ -34,7 +34,6 @@ import Parameters.Parameters.ParameterException;
 import Trees.Branch;
 import Trees.Tree;
 import Trees.TreeException;
-import Utils.ToRealHashMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -152,7 +151,7 @@ public class AncestralMarginal
     SiteResult calculateSite(Site s, Probabilities P) throws TreeException, AlignmentException, LikelihoodException
     {
         //Calculalate the probability of each state for each node...
-        Map<String,ToRealHashMap<String>> nr = new HashMap<>();
+        Map<String,HashMap<String,Real>> nr = new HashMap<>();
         for (String node: t.getInternal())
         {
             nr.put(node,calculateNode(s,P,node));
@@ -162,7 +161,7 @@ public class AncestralMarginal
         return new SiteResult(nr,s);
     }
     
-    private ToRealHashMap<String> calculateNode(Site s, Probabilities P, String node) throws TreeException, AlignmentException, LikelihoodException
+    private HashMap<String,Real> calculateNode(Site s, Probabilities P, String node) throws TreeException, AlignmentException, LikelihoodException
     {
         //As we want to be able to use non-time reversible models we can't use
         //the normal re-root the tree at this node trick.  Instead we do a variation
@@ -267,12 +266,19 @@ public class AncestralMarginal
         //Categories (accoutning for different frequency of Rate Category).
         //Also calculate the total likelihood.
         Real total = null;
-        ToRealHashMap<String> sl = new ToRealHashMap<>();
+        HashMap<String,Real> sl = new HashMap<>();
         for (String st : P.getAllStates())
         {
             for (RateCategory r: m.get(s.getSiteClass()))
             {
-                sl.add(st, rr.get(r).getLikelihood(st).multiply(m.get(s.getSiteClass()).getFreq(r)));
+                if (sl.get(st) == null)
+                {
+                    sl.put(st, rr.get(r).getLikelihood(st).multiply(m.get(s.getSiteClass()).getFreq(r)));
+                }
+                else
+                {
+                    sl.put(st, sl.get(st).add(rr.get(r).getLikelihood(st).multiply(m.get(s.getSiteClass()).getFreq(r))));
+                }
             }
             if (total == null)
             {
@@ -286,7 +292,7 @@ public class AncestralMarginal
         
         //Divide each state probability by the total probability to get the
         //likelihood of a state
-        ToRealHashMap<String> sP = new ToRealHashMap<>();
+        HashMap<String,Real> sP = new HashMap<>();
         for (String st: P.getAllStates())
         {
             sP.put(st, sl.get(st).divide(total));
@@ -353,7 +359,7 @@ public class AncestralMarginal
      */
     public class SiteResult
     {
-        private SiteResult(Map<String, ToRealHashMap<String>> nr, Site os) throws AlignmentException
+        private SiteResult(Map<String, HashMap<String,Real>> nr, Site os) throws AlignmentException
         {
             this.nr = nr;
             
@@ -367,7 +373,7 @@ public class AncestralMarginal
             //And then adding the reconstrcuted results
             for (String i: t.getInternal())
             {
-                s.put(i, nr.get(i).getMaxKey());
+                s.put(i, getMaxKey(nr.get(i)));
             }
             site = new Site(s);
         }
@@ -402,7 +408,23 @@ public class AncestralMarginal
                     " and state " + state, null);
         }
         
+        public final String getMaxKey(HashMap<String,Real> map)
+        {
+            Real mv = null;
+            String mk = null;
+            for (Entry<String,Real> e: map.entrySet())
+            {
+                if ((mv == null) || (e.getValue().greaterThan(mv)))
+                {
+                    mk = e.getKey();
+                    mv = e.getValue();
+                }
+            }
+
+            return mk;
+        }
+        
         private Site site;
-        private Map<String, ToRealHashMap<String>> nr;
+        private Map<String, HashMap<String, Real>> nr;
     }
 }
