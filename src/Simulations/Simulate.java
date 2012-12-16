@@ -177,9 +177,12 @@ public class Simulate
      * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
-     * we don't have a model) 
+     * we don't have a model)
+     * @throws Models.RateCategory.RateException if a rate category uses the FitzJohn
+     * method at the root as this method requires likelihoods to calculate the frequency
+     * and we don't have the likelihoods when simulating.
      */
-    public Site getSite() throws TreeException, SimulationException
+    public Site getSite() throws TreeException, SimulationException, RateException
     {
 	return getSite(false, null, null);
     }
@@ -191,9 +194,12 @@ public class Simulate
      * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
-     * we don't have a model for) 
+     * we don't have a model for)
+     * @throws Models.RateCategory.RateException if a rate category uses the FitzJohn
+     * method at the root as this method requires likelihoods to calculate the frequency
+     * and we don't have the likelihoods when simulating.
      */
-    public Site getSite(String siteClass) throws TreeException, SimulationException
+    public Site getSite(String siteClass) throws TreeException, SimulationException, RateException
     {
 	return getSite(false, null, siteClass);
     }
@@ -210,9 +216,12 @@ public class Simulate
      * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
-     * we don't have a model for) 
+     * we don't have a model for)
+     * @throws Models.RateCategory.RateException if a rate category uses the FitzJohn
+     * method at the root as this method requires likelihoods to calculate the frequency
+     * and we don't have the likelihoods when simulating.
      */
-    public Site getSite(Map<String,String> recode) throws TreeException, SimulationException
+    public Site getSite(Map<String,String> recode) throws TreeException, SimulationException, RateException
     {
 	return getSite(false, recode, null);
     }
@@ -230,9 +239,12 @@ public class Simulate
      * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
-     * we don't have a model for) 
+     * we don't have a model for)
+     * @throws Models.RateCategory.RateException if a rate category uses the FitzJohn
+     * method at the root as this method requires likelihoods to calculate the frequency
+     * and we don't have the likelihoods when simulating.
      */
-    public Site getSite(Map<String,String> recode, String siteClass) throws TreeException, SimulationException
+    public Site getSite(Map<String,String> recode, String siteClass) throws TreeException, SimulationException, RateException
     {
 	return getSite(false, recode, siteClass);
     }
@@ -244,9 +256,12 @@ public class Simulate
      * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
-     * we don't have a model for) 
+     * we don't have a model for)
+     * @throws Models.RateCategory.RateException if a rate category uses the FitzJohn
+     * method at the root as this method requires likelihoods to calculate the frequency
+     * and we don't have the likelihoods when simulating.
      */
-    public Site getSite(boolean internal) throws TreeException, SimulationException
+    public Site getSite(boolean internal) throws TreeException, SimulationException, RateException
     {
 	return getSite(internal, null, null);
     }
@@ -259,9 +274,12 @@ public class Simulate
      * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
-     * we don't have a model for) 
+     * we don't have a model for)
+     * @throws Models.RateCategory.RateException if a rate category uses the FitzJohn
+     * method at the root as this method requires likelihoods to calculate the frequency
+     * and we don't have the likelihoods when simulating.
      */
-    public Site getSite(boolean internal, String siteClass) throws TreeException, SimulationException
+    public Site getSite(boolean internal, String siteClass) throws TreeException, SimulationException, RateException
     {
 	return getSite(internal, null, siteClass);
     }
@@ -279,9 +297,12 @@ public class Simulate
      * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
-     * we don't have a model for) 
+     * we don't have a model for)
+     * @throws Models.RateCategory.RateException if a rate category uses the FitzJohn
+     * method at the root as this method requires likelihoods to calculate the frequency
+     * and we don't have the likelihoods when simulating.
      */
-    public Site getSite(boolean internal, Map<String, String> recode) throws TreeException, SimulationException
+    public Site getSite(boolean internal, Map<String, String> recode) throws TreeException, SimulationException, RateException
     {
         return getSite(internal, recode, null);
     }
@@ -300,9 +321,12 @@ public class Simulate
      * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
-     * we don't have a model for) 
+     * we don't have a model for)
+     * @throws Models.RateCategory.RateException if a rate category uses the FitzJohn
+     * method at the root as this method requires likelihoods to calculate the frequency
+     * and we don't have the likelihoods when simulating.
      */  
-    public Site getSite(boolean internal, Map<String, String> recode, String siteClass) throws TreeException, SimulationException
+    public Site getSite(boolean internal, Map<String, String> recode, String siteClass) throws TreeException, SimulationException, RateException
     {
         if (!P.containsKey(siteClass))
         {
@@ -418,9 +442,12 @@ public class Simulate
      * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
-     * we don't have a model for) 
+     * we don't have a model for)
+     * @throws Models.RateCategory.RateException if a rate category uses the FitzJohn
+     * method at the root as this method requires likelihoods to calculate the frequency
+     * and we don't have the likelihoods when simulating.
      */
-    public Alignment getAlignment(int length) throws AlignmentException, TreeException, SimulationException
+    public Alignment getAlignment(int length) throws AlignmentException, TreeException, SimulationException, RateException
     {
 	return getAlignment(length,false,null);
     }
@@ -434,9 +461,12 @@ public class Simulate
      * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
-     * we don't have a model for) 
+     * we don't have a model for)
+     * @throws Models.RateCategory.RateException if a rate category uses the FitzJohn
+     * method at the root as this method requires likelihoods to calculate the frequency
+     * and we don't have the likelihoods when simulating.
      */
-    public Alignment getAlignment(int length, boolean internal) throws AlignmentException, TreeException, SimulationException
+    public Alignment getAlignment(int length, boolean internal) throws AlignmentException, TreeException, SimulationException, RateException
     {
         return getAlignment(length,internal,null);
     }
@@ -455,9 +485,12 @@ public class Simulate
      * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
-     * we don't have a model for) 
+     * we don't have a model for)
+     * @throws Models.RateCategory.RateException if a rate category uses the FitzJohn
+     * method at the root as this method requires likelihoods to calculate the frequency
+     * and we don't have the likelihoods when simulating.
      */
-    public Alignment getAlignment(int length, Map<String,String> recode) throws AlignmentException, TreeException, SimulationException
+    public Alignment getAlignment(int length, Map<String,String> recode) throws AlignmentException, TreeException, SimulationException, RateException
     {
 	return getAlignment(length,false,recode);
     }
@@ -478,9 +511,12 @@ public class Simulate
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
+     * @throws Models.RateCategory.RateException if a rate category uses the FitzJohn
+     * method at the root as this method requires likelihoods to calculate the frequency
+     * and we don't have the likelihoods when simulating.
      */
     public Alignment getAlignment(int length, boolean internal, Map<String,String> recode) 
-            throws AlignmentException, TreeException, SimulationException
+            throws AlignmentException, TreeException, SimulationException, RateException
     {
 	List<Site> data = new ArrayList<>();
 
@@ -504,9 +540,12 @@ public class Simulate
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
+     * @throws Models.RateCategory.RateException if a rate category uses the FitzJohn
+     * method at the root as this method requires likelihoods to calculate the frequency
+     * and we don't have the likelihoods when simulating.
      */
     public Alignment getAlignment(List<String> siteClasses) 
-            throws AlignmentException, TreeException, SimulationException
+            throws AlignmentException, TreeException, SimulationException, RateException
     {
         return getAlignment(siteClasses,false,null);
     }
@@ -524,9 +563,12 @@ public class Simulate
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
+     * @throws Models.RateCategory.RateException if a rate category uses the FitzJohn
+     * method at the root as this method requires likelihoods to calculate the frequency
+     * and we don't have the likelihoods when simulating.
      */
     public Alignment getAlignment(List<String> siteClasses, boolean internal) 
-            throws AlignmentException, TreeException, SimulationException
+            throws AlignmentException, TreeException, SimulationException, RateException
     {
         return getAlignment(siteClasses,internal, null);
     }
@@ -549,9 +591,12 @@ public class Simulate
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
+     * @throws Models.RateCategory.RateException if a rate category uses the FitzJohn
+     * method at the root as this method requires likelihoods to calculate the frequency
+     * and we don't have the likelihoods when simulating.
      */
     public Alignment getAlignment(List<String> siteClasses, Map<String,String> recode) 
-            throws AlignmentException, TreeException, SimulationException
+            throws AlignmentException, TreeException, SimulationException, RateException
     {
         return getAlignment(siteClasses,false,recode);
     }
@@ -574,9 +619,12 @@ public class Simulate
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
+     * @throws Models.RateCategory.RateException if a rate category uses the FitzJohn
+     * method at the root as this method requires likelihoods to calculate the frequency
+     * and we don't have the likelihoods when simulating.
      */
     public Alignment getAlignment(List<String> siteClasses, boolean internal, Map<String,String> recode) 
-            throws AlignmentException, TreeException, SimulationException
+            throws AlignmentException, TreeException, SimulationException, RateException
     {
 	List<Site> data = new ArrayList<>();
 
@@ -628,7 +676,7 @@ public class Simulate
 	return ret;
     }
 
-    private String getRandomStart(RateCategory r, String siteClass)
+    private String getRandomStart(RateCategory r, String siteClass) throws RateException
     {
         //Get a random root assignment
 	double tot = 0.0;
@@ -641,7 +689,8 @@ public class Simulate
 	    {
 		ret  = s;
 	    }
-	    tot = tot + P.get(siteClass).getFreq(r, s);
+	    //tot = tot + P.get(siteClass).getFreq(r, s);
+            tot = tot + P.get(siteClass).getRoot(r).getFreq(s);
 	}
         
 	return ret;

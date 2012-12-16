@@ -134,7 +134,7 @@ public class SimulateTest
                         sm.put("orangutan", o);
                         Site s = new Site(sm);
                         
-                        Map<String, NodeLikelihood> nl = s.getInitialNodeLikelihoods(t, P.getArrayMap());
+                        Map<String, NodeLikelihood> nl = s.getInitialNodeLikelihoods(t, P.getMap());
                         
                         SiteCalculator sc = new SiteCalculator(t,P,nl);
                         double l = sc.calculate().getLikelihood().toDouble();

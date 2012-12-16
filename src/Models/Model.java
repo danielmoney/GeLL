@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -137,17 +136,7 @@ public class Model implements Iterable<RateCategory>
 
     /**
      * Gets a map from the rate name to its index in the rate matrix
-     * Called this as {@link #getMap()} is kept for comptability
-     * @return ArrayMap from rate name to index
-     */
-    public Map<String,Integer> getArrayMap()
-    {
-	return map;
-    }
- 
-    /**
-     * Gets a map from the rate name to its index in the rate matrix
-     * @return ArrayMap from rate name to index
+     * @return Map from rate name to index
      */
     public Map<String,Integer> getMap()
     {

@@ -111,7 +111,7 @@ public abstract class Calculator<R extends Likelihood>
          * @param t Tree
          * @param tp Pre-computed datastructure containing probabilities
          * @param nl Initalised node likelihoods based on the site.
-         * See {@link Site#getInitialNodeLikelihoods(Trees.Tree, Utils.ArrayMap)}.
+         * See {@link Site#getInitialNodeLikelihoods(Trees.Tree, java.util.Map)}.
          */
         public SiteCalculator(Tree t, Probabilities tp, Map<String,NodeLikelihood> nl)
         {
@@ -175,12 +175,12 @@ public abstract class Calculator<R extends Likelihood>
                         //for (String startState: tp.getAllStates())
                         Real[] nl = nodeLikelihoods.get(b.getChild()).getLikelihoods();
                         //for (int j = 0; j < tp.getAllStates().size(); j ++)
-                        Real l = nl[0].multiply(bp.getPosition(tp.getArrayMap().get(endState), 0));
+                        Real l = nl[0].multiply(bp.getPosition(tp.getMap().get(endState), 0));
                         for (int j = 1; j < nl.length; j++)
                         {
                             //Add the likelihood of going from start state to
                             //end state along that branch in that ratecategory
-                            l = l.add(nl[j].multiply(bp.getPosition(tp.getArrayMap().get(endState), j)));
+                            l = l.add(nl[j].multiply(bp.getPosition(tp.getMap().get(endState), j)));
                         }
                         //Now multiply the likelihood of the parent by this total value.
                         //This will happen for each possible child as per standard techniques
@@ -192,8 +192,11 @@ public abstract class Calculator<R extends Likelihood>
                 Real ratetotal = null;//SiteLikelihood.getReal(0.0);//new Real(0.0);
                 //Get the root likelihoods
                 NodeLikelihood rootL = nodeLikelihoods.get(t.getRoot());
+                
+                ratetotal = tp.getRoot(rc).calculate(rootL);
+                
                 //For each possible state
-                for (String state: this.tp.getAllStates())
+                /*for (String state: this.tp.getAllStates())
                 {
                     try
                     {
@@ -214,7 +217,7 @@ public abstract class Calculator<R extends Likelihood>
                         // have been claculated and only ask for that
                         throw new UnexpectedError(ex);
                     }
-                }
+                }*/
                 //Store the results for that rate
                 rateLikelihoods.put(rc, new RateLikelihood(ratetotal,nodeLikelihoods));
                 //Update the total site likelihood with the likelihood for the rate

@@ -155,7 +155,7 @@ public class AncestralJointBB extends AncestralJoint
 	return new Alignment(alignment);
     }
 
-    Site calculateSite(Site ca, Probabilities P) throws TreeException, AncestralException, LikelihoodException
+    Site calculateSite(Site ca, Probabilities P) throws TreeException, AncestralException, LikelihoodException, RateException
     {
         //Based on Pupko 2002 but without the second bound metioned.
         //Seems to be efficient without it.  The second bound could be
@@ -168,7 +168,7 @@ public class AncestralJointBB extends AncestralJoint
         Assignment assignment = new Assignment();
         
         //Calculate the site likelihood
-        SiteLikelihood sl = (new SiteCalculator(t,P,assignment.getInitialNodeLikelihoods(t, ca, P.getArrayMap()))).calculate();
+        SiteLikelihood sl = (new SiteCalculator(t,P,assignment.getInitialNodeLikelihoods(t, ca, P.getMap()))).calculate();
 	RateCategory br = null;
         //And then use this to find the rate category that contributes the most likelihood
 	Real brs = null;
@@ -239,7 +239,7 @@ public class AncestralJointBB extends AncestralJoint
 	if (isFull(assign))
 	{
             //Calculate the likelihood of that reconstruction
-            Real s = (new SiteCalculator(t,P,assign.getInitialNodeLikelihoods(t, site, P.getArrayMap()))).calculate().getLikelihood();
+            Real s = (new SiteCalculator(t,P,assign.getInitialNodeLikelihoods(t, site, P.getMap()))).calculate().getLikelihood();
             //If it's better than the bext reconstruction we've encountered so far
             //update the best and return it
 	    if ((best.score == null) || s.greaterThan(best.score))
@@ -259,7 +259,7 @@ public class AncestralJointBB extends AncestralJoint
         //assignment we do already have.  This bound is calculated by summing accross
         //all possible states at unassigned nodes using the normal (quick) likelihood
         //calculation method.
-        Real bound = (new SiteCalculator(t,P,assign.getInitialNodeLikelihoods(t, site, P.getArrayMap()))).calculate().getLikelihood();
+        Real bound = (new SiteCalculator(t,P,assign.getInitialNodeLikelihoods(t, site, P.getMap()))).calculate().getLikelihood();
 
 
         //If the bounded value is less the best econstruction we've aleady found

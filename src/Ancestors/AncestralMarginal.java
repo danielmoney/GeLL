@@ -148,7 +148,7 @@ public class AncestralMarginal
      * each state at each node
      * @throws TreeException Thrown if there is a problem with the tree. 
      */
-    SiteResult calculateSite(Site s, Probabilities P) throws TreeException, AlignmentException, LikelihoodException
+    SiteResult calculateSite(Site s, Probabilities P) throws TreeException, AlignmentException, LikelihoodException, RateException
     {
         //Calculalate the probability of each state for each node...
         Map<String,HashMap<String,Real>> nr = new HashMap<>();
@@ -161,7 +161,7 @@ public class AncestralMarginal
         return new SiteResult(nr,s);
     }
     
-    private HashMap<String,Real> calculateNode(Site s, Probabilities P, String node) throws TreeException, AlignmentException, LikelihoodException
+    private HashMap<String,Real> calculateNode(Site s, Probabilities P, String node) throws TreeException, AlignmentException, LikelihoodException, RateException
     {
         //As we want to be able to use non-time reversible models we can't use
         //the normal re-root the tree at this node trick.  Instead we do a variation
@@ -194,12 +194,12 @@ public class AncestralMarginal
             Map<String,NodeLikelihood> l = new HashMap<>();
             for (String n: t.getLeaves())
             {
-                l.put(n, new NodeLikelihood(P.getArrayMap(), s.getCharacter(n)));
+                l.put(n, new NodeLikelihood(P.getMap(), s.getCharacter(n)));
             }
 
             for (String n: t.getInternal())
             {
-                l.put(n, new NodeLikelihood(P.getArrayMap()));
+                l.put(n, new NodeLikelihood(P.getMap()));
             }
 
             //Traverse the normal branches in the same manner as for a normal
@@ -230,7 +230,8 @@ public class AncestralMarginal
             //Apply the root frequencies to the original root
             for (String st: P.getAllStates())
             {
-                l.get(t.getRoot()).multiply(st, P.getFreq(r, st));
+                //l.get(t.getRoot()).multiply(st, P.getFreq(r, st));
+                l.get(t.getRoot()).multiply(st, P.getRoot(r).getFreq(st));
             }
             
             //Now traverse the "backwards" branches in a similar manner to normal
@@ -408,7 +409,7 @@ public class AncestralMarginal
                     " and state " + state, null);
         }
         
-        public final String getMaxKey(HashMap<String,Real> map)
+        private final String getMaxKey(HashMap<String,Real> map)
         {
             Real mv = null;
             String mk = null;

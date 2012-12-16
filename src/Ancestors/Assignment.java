@@ -88,7 +88,7 @@ public class Assignment
      * @param t The tree to create the node likelihood for.
      * @param s The site being reconstructed
      * @param map A map from state to position in array
-     * @return An ArrayMap of NodeLikelihoods which can be used to initialise
+     * @return An Map of NodeLikelihoods which can be used to initialise
      * likelihood calculations
      * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if all states are initialised to a zero likelihood 
      */

@@ -60,7 +60,7 @@ public abstract class AncestralJoint
      */
     public abstract Alignment calculate(Parameters params) throws RateException, ModelException, AncestralException, TreeException, ParameterException, AlignmentException, LikelihoodException;
 
-    abstract Site calculateSite(Site s, Probabilities P) throws AncestralException, TreeException, LikelihoodException;
+    abstract Site calculateSite(Site s, Probabilities P) throws AncestralException, TreeException, LikelihoodException, RateException;
     
     /**
      * Returns an object of this class that can be used for joint reconstruction.

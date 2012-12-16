@@ -322,13 +322,13 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
             Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(t.getNumberBranches() + 1);
             for (String l: t.getLeaves())
             {
-                nodeLikelihoods.put(l, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap(), s.getCharacter(l)));
+                nodeLikelihoods.put(l, new NodeLikelihood(m.get(s.getSiteClass()).getMap(), s.getCharacter(l)));
             }
 
             //And now internal nodes using
             for (String i: t.getInternal())
             {
-                nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap()));
+                nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getMap()));
             }
             snl.put(s, nodeLikelihoods);
         }
@@ -339,13 +339,13 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
                 Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(t.getNumberBranches() + 1);
                 for (String l: t.getLeaves())
                 {
-                    nodeLikelihoods.put(l, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap(), s.getCharacter(l)));
+                    nodeLikelihoods.put(l, new NodeLikelihood(m.get(s.getSiteClass()).getMap(), s.getCharacter(l)));
                 }
 
                 //And now internal nodes using
                 for (String i: t.getInternal())
                 {
-                    nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getArrayMap()));
+                    nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getMap()));
                 }
                 snl.put(s, nodeLikelihoods);
             }

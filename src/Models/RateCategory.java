@@ -20,6 +20,9 @@ package Models;
 import Exceptions.GeneralException;
 import Exceptions.InputException;
 import Exceptions.UnexpectedError;
+import Likelihood.FitzJohnRoot;
+import Likelihood.Root;
+import Likelihood.StandardRoot;
 import Maths.CompiledFunction;
 import Maths.CompiledFunction.Multiply;
 import Parameters.Parameters;
@@ -298,18 +301,24 @@ public class RateCategory implements Serializable
         {
             //Calculate and store the rate matrix and frequency
             //If freq type is MODEL then we want to update the frequencies first so
-            //they can be used in the matrix.  Else we need to update the matrix first
+            //they can be used in the matrix.  If the freq type is FITZJOHN we don't
+            //need frequencies so just update matrix.  Else we need to update the matrix first
             //so that the (quasi-)stationary distribution is calculated on the right
             //matrix
-            if (freqType == FrequencyType.MODEL)
+            //if (freqType == FrequencyType.MODEL)
+            //{
+            switch (freqType)
             {
-                f = calculateFreq(p);
-                m = calculateMatrix(p);
-            }
-            else
-            {
-                m = calculateMatrix(p);
-                f = calculateFreq(p);
+                case MODEL:
+                    f = calculateFreq(p);
+                    m = calculateMatrix(p);
+                    break;
+                case FITZJOHN:
+                    m = calculateMatrix(p);
+                    break;
+                default:
+                    m = calculateMatrix(p);
+                    f = calculateFreq(p);
             }
 
             //Since we have a new rate matrix we need a new cache.  This effectively
@@ -421,6 +430,24 @@ public class RateCategory implements Serializable
     public double[] getFreq()
     {
 	return f;
+    }
+    
+    /**
+     * Get a root object that can be used to calculate the total likelihood
+     * from the root node likelihoods or provide the frequencies of the various
+     * states at the root
+     * @return A root object
+     */
+    public Root getRoot()
+    {
+        if (freqType == FrequencyType.FITZJOHN)
+        {
+            return new FitzJohnRoot(map.keySet());
+        }
+        else
+        {
+            return new StandardRoot(f,map);
+        }
     }
 
     private double[] calculateFreq(Parameters params) throws RateException
@@ -635,7 +662,11 @@ public class RateCategory implements Serializable
         /**
          * Use the quasi-stationary distribution of the rate matrix
          */
-        QSTAT
+        QSTAT,
+        /**
+         * Use the method of FitzJohn et al 2009
+         */
+        FITZJOHN
     }
 
     /**
@@ -749,7 +780,7 @@ public class RateCategory implements Serializable
     /**
      * Exception thrown if there is a problem within a RateClass
      */
-    public class RateException extends GeneralException
+    public static class RateException extends GeneralException
     {
         
         /**

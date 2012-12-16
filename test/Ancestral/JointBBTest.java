@@ -128,13 +128,13 @@ public class JointBBTest
                     Map<String, NodeLikelihood> nl = new HashMap<>(t.getNumberBranches() + 1);
                     for (String l: t.getLeaves())
                     {
-                        nl.put(l, new NodeLikelihood(P.getArrayMap(), s.getCharacter(l)));
+                        nl.put(l, new NodeLikelihood(P.getMap(), s.getCharacter(l)));
                     }
 
                     //And now internal nodes
                     for (String i: t.getInternal())
                     {
-                        nl.put(i, new NodeLikelihood(P.getArrayMap(), sc.getAssignment(i)));
+                        nl.put(i, new NodeLikelihood(P.getMap(), sc.getAssignment(i)));
                     }
                     
                     SiteCalculator calc = new SiteCalculator(t,P,nl);

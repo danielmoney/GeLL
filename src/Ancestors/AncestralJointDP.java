@@ -133,7 +133,7 @@ public class AncestralJointDP extends AncestralJoint
 	return new Alignment(alignment);
     }
 	
-    Site calculateSite(Site s, Probabilities P) throws AncestralException, TreeException
+    Site calculateSite(Site s, Probabilities P) throws AncestralException, TreeException, RateException
     {
         HashMap<String,Map<String,Real>> L = new HashMap<>();
 	HashMap<String,Map<String,String>> C = new HashMap<>();
@@ -199,7 +199,8 @@ public class AncestralJointDP extends AncestralJoint
 	String maxC = null;
         for (String j: P.getAllStates())
 	{
-	    Real cl = RealFactory.getReal(type, P.getFreq(r.get(s.getSiteClass()), j));
+	    //Real cl = RealFactory.getReal(type, P.getFreq(r.get(s.getSiteClass()), j));
+            Real cl = RealFactory.getReal(type, P.getRoot(r.get(s.getSiteClass())).getFreq(j));
 	    for (Branch ch: t.getBranchesByParent(t.getRoot()))
 	    {
 		cl = cl.multiply(L.get(ch.getChild()).get(j));

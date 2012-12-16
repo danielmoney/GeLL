@@ -60,9 +60,10 @@ public class Probabilities
         //Set the parameters in the model
         m.setParameters(p);
         rateClasses = m.getRates();
-        map = m.getArrayMap();
+        map = m.getMap();
         P = new HashMap<>(rateClasses.size());
         freq = new HashMap<>();
+        roots = new HashMap<>();
         rateP = new HashMap<>();
         states = map.keySet();
         //Calculate and store the various probabilities
@@ -79,6 +80,7 @@ public class Probabilities
             }
             P.put(rc, new RateProbabilities(bP));
             freq.put(rc,rc.getFreq());
+            roots.put(rc,rc.getRoot());
             rateP.put(rc,m.getFreq(rc));
         }
     }
@@ -114,14 +116,15 @@ public class Probabilities
     }
     
     /**
-     * Gets the root frequency for a specified state under a specified RateClass
-     * @param r The rate class
-     * @param state The state
-     * @return The frequency of the state under the rate class
+     * Get a root object, for the given rate category, that can be used to 
+     * the total likelihood from the root node likelihoods or provide the
+     * frequencies of the various states at the root
+     * @param r The rate category to get the root object for
+     * @return A root object
      */
-    public double getFreq(RateCategory r, String state)
+    public Root getRoot(RateCategory r)
     {
-        return freq.get(r)[map.get(state)];
+        return roots.get(r);
     }
     
     /**
@@ -135,10 +138,10 @@ public class Probabilities
     }
     
     /**
-     * Gets an ArrayMap linking states to position in an array
+     * Gets an Map linking states to position in an array
      * @return Map linking state to positions
      */
-    public Map<String,Integer> getArrayMap()
+    public Map<String,Integer> getMap()
     {
         return map;
     }
@@ -147,6 +150,7 @@ public class Probabilities
     private Map<String,Integer> map;
     private Map<RateCategory,RateProbabilities> P;
     private Map<RateCategory,double[]> freq;
+    private Map<RateCategory,Root> roots;
     private Map<RateCategory,Double> rateP;
     private Set<String> states;
     
