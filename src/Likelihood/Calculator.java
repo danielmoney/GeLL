@@ -21,7 +21,6 @@ import Alignments.Site;
 import Exceptions.GeneralException;
 import Exceptions.UnexpectedError;
 import Likelihood.Probabilities.RateProbabilities;
-import Likelihood.SiteLikelihood.LikelihoodException;
 import Likelihood.SiteLikelihood.NodeLikelihood;
 import Likelihood.SiteLikelihood.RateLikelihood;
 import Maths.Real;
@@ -30,15 +29,21 @@ import Models.Model;
 import Models.Model.ModelException;
 import Models.RateCategory;
 import Models.RateCategory.RateException;
+import Parameters.Parameter;
 import Parameters.Parameters;
 import Parameters.Parameters.ParameterException;
 import Trees.Branch;
 import Trees.Tree;
 import Trees.TreeException;
+import Utils.DaemonThreadFactory;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Abstract class for calculating a likelihood
@@ -80,8 +85,116 @@ public abstract class Calculator<R extends Likelihood>
      * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive
      * or NaN) log likelihood is calculated 
      */
-    public abstract R calculate(Parameters p) throws TreeException, RateException, ModelException, ParameterException, CalculatorException;
+    public R calculate(Parameters p) throws TreeException, RateException, ModelException, ParameterException, CalculatorException
+    {
+        //If the parameters setting doesn't include branch lengths parameters then
+        //add them from the tree.  The paramter / branch length interaction is a
+        //bit counter-inutative and probably needs changing but in the mean time
+        //this is here to make errors less likely.  If the branch has a length add
+        //it as a fixed parameter, else as an estimated parameter.
+        for (Branch b: t)
+	{
+            if (!p.hasParam(b.getChild()))
+            {
+                if (b.hasLength())
+                {
+                    p.addParameter(Parameter.newFixedParameter(b.getChild(),
+                       b.getLength()));
+                }
+                else
+                {
+                    p.addParameter(Parameter.newEstimatedPositiveParameter(b.getChild()));
+                }
+            }
+	}
+        
+        Map<Site,SiteLikelihood> sites = siteCalculate(p);
+        
+        return combineSites(sites, p);
+    }
+    //MAKE ABOVE NOT ABSTRACT AND GET IT TO CALL THE ABSTRACT ONE BELOW.  calculateSite will
+    //possibly be called from within the sitecaluclator class (I think that's possible)
     
+    
+    public abstract R combineSites(Map<Site,SiteLikelihood> sites, Parameters p) throws CalculatorException;
+    
+    public abstract SiteLikelihood calculateSite(Tree t, Probabilities tp, Map<String,NodeLikelihood> nl);
+    
+    /**
+     * Calculates the likelihood for each site
+     * @param p The parameters to be used in the calculation
+     * @return A Map from site to result
+     * @throws TreeException Thrown if there is a problem with the Tree (e.g. if
+     * there is a branch with no length given in parameters)
+     * @throws Models.RateCategory.RateException Thrown if there is an issue with
+     * a rate category in the model (e.g. a badly formatted rate).
+     * @throws Models.Model.ModelException Thrown if there is a problem with the
+     * model (e.g. the rate categories differ in their states)
+     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
+     * with the parameters (e.g. a requied parameter is not present)
+     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive
+     * or NaN) log likelihood is calculated 
+     */
+    protected Map<Site,SiteLikelihood> siteCalculate(Parameters p) throws TreeException, RateException, ModelException, ParameterException, CalculatorException
+    {
+        //Doing threaded calculation can be slower in small cases due to the
+        //overhead in creating threads.  However haven't tested when this is the
+        //case and is likely to depend on both tree and rate matrix size so for
+        //now always doing it threaded.
+        try
+        {
+            //Calculate all the probabilites associated with this model, tree and
+            //set of parameters
+            Map<String,Probabilities> tp = new HashMap<>(m.size());
+            for (Entry<String,Model> e: m.entrySet())
+            {
+                tp.put(e.getKey(), new Probabilities(e.getValue(),t,p));
+            }
+            
+            //For each unique site in both the alignment and unobserved sites
+            //create a callable object to calculate it and send it to
+            // be executed.
+            Map<Site, SiteCalculator> sites = new HashMap<>(snl.size());
+            
+            List<SiteCalculator> scs = new ArrayList<>();
+            for (Entry<Site,Map<String,NodeLikelihood>> e: snl.entrySet())
+            {
+                SiteCalculator temp = new SiteCalculator(t, 
+                        tp.get(e.getKey().getSiteClass()),
+                        e.getValue());
+                scs.add(temp);
+                sites.put(e.getKey(), temp);
+            }
+            
+            es.invokeAll(scs);
+                        
+            Map<Site, SiteLikelihood> ret = new HashMap<>(snl.size());
+            for (Entry<Site,SiteCalculator> e: sites.entrySet())
+            {
+                ret.put(e.getKey(),e.getValue().getResult());
+            }
+            
+            return ret;
+        }
+
+        catch(InterruptedException | ResultNotComputed ex)
+        {
+            //Don't think this should happen but in case it does...
+            throw new UnexpectedError(ex);
+        }
+    }
+
+    /**
+     * Set the number of threads to be used during the calculations
+     * @param number Number of threads
+     */
+    public static void setNoThreads(int number)
+    {
+        es = Executors.newFixedThreadPool(number, new DaemonThreadFactory());
+    }
+    
+    private static ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
+            new DaemonThreadFactory());
     
     /**
      * The site node likelihoods.  That is the initial likelihood values
@@ -104,7 +217,7 @@ public abstract class Calculator<R extends Likelihood>
      * @author Daniel Money
      * @version 2.0
      */
-    public static class SiteCalculator implements Callable<SiteLikelihood> //Runnable
+    public class SiteCalculator implements Callable<SiteLikelihood> //Runnable
     {
         /**
          * Standard constructor
@@ -123,8 +236,10 @@ public abstract class Calculator<R extends Likelihood>
         
         public SiteLikelihood call()
         {
-            result = calculate();
-            return result;            
+            result = calculateSite(t,tp,nl);
+            return result;
+            //result = calculate();
+            //return result;            
         }
         
         /**

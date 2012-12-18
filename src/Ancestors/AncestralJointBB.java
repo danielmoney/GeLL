@@ -24,9 +24,13 @@ import Ancestors.AncestralJointDP.MultipleRatesException;
 import Exceptions.UnexpectedError;
 import Likelihood.Probabilities;
 import Likelihood.Calculator.SiteCalculator;
+import Likelihood.Probabilities.RateProbabilities;
 import Likelihood.SiteLikelihood;
 import Likelihood.SiteLikelihood.LikelihoodException;
+import Likelihood.SiteLikelihood.NodeLikelihood;
+import Likelihood.SiteLikelihood.RateLikelihood;
 import Maths.Real;
+import Maths.SquareMatrix;
 import Parameters.Parameters;
 import Models.RateCategory;
 import Models.Model;
@@ -168,7 +172,8 @@ public class AncestralJointBB extends AncestralJoint
         Assignment assignment = new Assignment();
         
         //Calculate the site likelihood
-        SiteLikelihood sl = (new SiteCalculator(t,P,assignment.getInitialNodeLikelihoods(t, ca, P.getMap()))).calculate();
+        //SiteLikelihood sl = (new SiteCalculator(t,P,assignment.getInitialNodeLikelihoods(t, ca, P.getMap()))).calculate();
+        SiteLikelihood sl = calculateSite(t,P,assignment.getInitialNodeLikelihoods(t, ca, P.getMap()));
 	RateCategory br = null;
         //And then use this to find the rate category that contributes the most likelihood
 	Real brs = null;
@@ -239,7 +244,8 @@ public class AncestralJointBB extends AncestralJoint
 	if (isFull(assign))
 	{
             //Calculate the likelihood of that reconstruction
-            Real s = (new SiteCalculator(t,P,assign.getInitialNodeLikelihoods(t, site, P.getMap()))).calculate().getLikelihood();
+            //Real s = (new SiteCalculator(t,P,assign.getInitialNodeLikelihoods(t, site, P.getMap()))).calculate().getLikelihood();
+            Real s = calculateSite(t,P,assign.getInitialNodeLikelihoods(t, site, P.getMap())).getLikelihood();
             //If it's better than the bext reconstruction we've encountered so far
             //update the best and return it
 	    if ((best.score == null) || s.greaterThan(best.score))
@@ -259,7 +265,8 @@ public class AncestralJointBB extends AncestralJoint
         //assignment we do already have.  This bound is calculated by summing accross
         //all possible states at unassigned nodes using the normal (quick) likelihood
         //calculation method.
-        Real bound = (new SiteCalculator(t,P,assign.getInitialNodeLikelihoods(t, site, P.getMap()))).calculate().getLikelihood();
+        //Real bound = (new SiteCalculator(t,P,assign.getInitialNodeLikelihoods(t, site, P.getMap()))).calculate().getLikelihood();
+        Real bound = calculateSite(t,P,assign.getInitialNodeLikelihoods(t, site, P.getMap())).getLikelihood();
 
 
         //If the bounded value is less the best econstruction we've aleady found
@@ -340,6 +347,101 @@ public class AncestralJointBB extends AncestralJoint
 	    }
 	}
 	return true;
+    }
+    
+    public SiteLikelihood calculateSite(Tree t, Probabilities tp, Map<String,NodeLikelihood> nl)
+    {    
+        List<Branch> branches = t.getBranches();
+        Map<RateCategory,RateLikelihood> rateLikelihoods = new HashMap<>(tp.getRateCategory().size());
+
+        //Calculate the likelihood for each RateCategory
+        for (RateCategory rc: tp.getRateCategory())
+        {
+            RateProbabilities rp = tp.getP(rc);
+            //Initalise the lieklihood values at each node.  first internal
+            //using the alignemnt.
+            Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(branches.size() + 1);
+            for (String l: t.getLeaves())
+            {
+                nodeLikelihoods.put(l, nl.get(l).clone());
+            }
+
+            //And now internal nodes
+            for (String i: t.getInternal())
+            {
+                nodeLikelihoods.put(i, nl.get(i).clone());
+            }
+
+            //for each branch.  The order these are returned in from tree means
+            //we visit any branch with a node as it's parent before we visit
+            //the branch with the node as the child.  Hence we treverse the
+            //tree in the standard manner.  For each branch we will update
+            //the likelihood at the parent node...
+            for (Branch b: branches)
+            {
+                //BranchProbabilities bp = rp.getP(b);
+                SquareMatrix bp = rp.getP(b);
+                //So for each state at the parent node...
+                //for (String endState: tp.getAllStates())
+                for (String endState: tp.getAllStates())
+                {
+                    //l keeps track of the total likelihood from each possible
+                    //state at the child
+                    //Real l = SiteLikelihood.getReal(0.0);//new Real(0.0);
+                    //For each possible child state
+                    //for (String startState: tp.getAllStates())
+                    Real[] n = nodeLikelihoods.get(b.getChild()).getLikelihoods();
+                    //for (int j = 0; j < tp.getAllStates().size(); j ++)
+                    Real l = n[0].multiply(bp.getPosition(tp.getMap().get(endState), 0));
+                    for (int j = 1; j < n.length; j++)
+                    {
+                        //Add the likelihood of going from start state to
+                        //end state along that branch in that ratecategory
+                        l = l.add(n[j].multiply(bp.getPosition(tp.getMap().get(endState), j)));
+                    }
+                    //Now multiply the likelihood of the parent by this total value.
+                    //This will happen for each possible child as per standard techniques
+                    nodeLikelihoods.get(b.getParent()).multiply(endState,l);
+                }
+            }
+
+            //Rate total traxcks the total likelihood for this site and rate category
+            Real ratetotal = null;//SiteLikelihood.getReal(0.0);//new Real(0.0);
+            //Get the root likelihoods
+            NodeLikelihood rootL = nodeLikelihoods.get(t.getRoot());
+
+            ratetotal = tp.getRoot(rc).calculate(rootL);
+
+            //For each possible state
+            /*for (String state: this.tp.getAllStates())
+            {
+                try
+                {
+                    //Get the likelihood at the root, multiply by it's root frequency
+                    //and add to the ratde total.
+                    if (ratetotal == null)
+                    {
+                        ratetotal = rootL.getLikelihood(state).multiply(tp.getFreq(rc,state));
+                    }
+                    else
+                    {
+                        ratetotal = ratetotal.add(rootL.getLikelihood(state).multiply(tp.getFreq(rc,state)));
+                    }
+                }
+                catch (LikelihoodException ex)
+                {
+                    //Shouldn't reach here as we know what oinformation should
+                    // have been claculated and only ask for that
+                    throw new UnexpectedError(ex);
+                }
+            }*/
+            //Store the results for that rate
+            rateLikelihoods.put(rc, new RateLikelihood(ratetotal,nodeLikelihoods));
+            //Update the total site likelihood with the likelihood for the rate
+            //category multiplied by the probility of being in that category
+        }
+        //return an object containg the results for that site
+        return new SiteLikelihood(rateLikelihoods, tp);
     }
 
     private class Best

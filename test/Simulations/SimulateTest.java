@@ -17,12 +17,11 @@
 
 package Simulations;
 
-import Likelihood.Calculator.SiteCalculator;
-import Likelihood.SiteLikelihood.NodeLikelihood;
+import Likelihood.StandardLikelihood;
+import Likelihood.StandardCalculator;
 import java.util.ArrayList;
 import java.util.List;
 import Parameters.Parameter;
-import Likelihood.Probabilities;
 import java.util.LinkedHashMap;
 import Alignments.Site;
 import java.util.Map;
@@ -118,7 +117,8 @@ public class SimulateTest
         bases.add("C");
         bases.add("A");
         bases.add("G");
-        Probabilities P = new Probabilities(m,t,p);
+        //Probabilities P = new Probabilities(m,t,p);
+        List<Site> sites = new ArrayList<>();
         for (String h: bases)
         {
             for (String c: bases)
@@ -134,15 +134,26 @@ public class SimulateTest
                         sm.put("orangutan", o);
                         Site s = new Site(sm);
                         
-                        Map<String, NodeLikelihood> nl = s.getInitialNodeLikelihoods(t, P.getMap());
+                        sites.add(s);
                         
-                        SiteCalculator sc = new SiteCalculator(t,P,nl);
-                        double l = sc.calculate().getLikelihood().toDouble();
-                        theory.put(s, l * 1000000);
+                        //Map<String, NodeLikelihood> nl = s.getInitialNodeLikelihoods(t, P.getMap());
+                        
+                        //SiteCalculator sc = new SiteCalculator(t,P,nl);
+                        //double l = sc.calculate().getLikelihood().toDouble();
+                        //theory.put(s, l * 1000000);
                     }
                 }
             }
-        }   
+        }
+        
+        Alignment a = new Alignment(sites);
+        StandardCalculator sc = new StandardCalculator(m,a,t);
+        StandardLikelihood l = sc.calculate(p);
+        for (Site s: sites)
+        {
+            double sl = l.getSiteLikelihood(s).getLikelihood().toDouble();
+            theory.put(s, sl * 1000000);
+        }
         
         double chi2 = 0.0;
         for (Site s: theory.keySet())

@@ -21,28 +21,22 @@ import Alignments.Alignment;
 import Alignments.AlignmentException;
 import Alignments.Site;
 import Alignments.UniqueSite;
-import Exceptions.UnexpectedError;
 import Likelihood.Calculator.CalculatorException;
+import Likelihood.Probabilities.RateProbabilities;
 import Likelihood.SiteLikelihood.LikelihoodException;
 import Likelihood.SiteLikelihood.NodeLikelihood;
+import Likelihood.SiteLikelihood.RateLikelihood;
 import Maths.Real;
+import Maths.SquareMatrix;
 import Models.Model;
-import Models.Model.ModelException;
-import Models.RateCategory.RateException;
-import Parameters.Parameter;
+import Models.RateCategory;
 import Parameters.Parameters;
-import Parameters.Parameters.ParameterException;
 import Trees.Branch;
 import Trees.Tree;
 import Trees.TreeException;
-import Utils.DaemonThreadFactory;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Calculates the likelihood for different parameter values.  Succesive calls
@@ -130,44 +124,9 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
         }
     }
     
-    /**
-     * Calculates the likelihood for a given set of parameters
-     * @param p The parameters to be used in the calculation
-     * @return A Likelihood object which contains the likelihood as well as
-     * likelihoods for each site.
-     * @throws TreeException Thrown if there is a problem with the Tree (e.g. if
-     * there is a branch with no length given in parameters)
-     * @throws Models.RateCategory.RateException Thrown if there is an issue with
-     * a rate category in the model (e.g. a badly formatted rate).
-     * @throws Models.Model.ModelException Thrown if there is a problem with the
-     * model (e.g. the rate categories differ in their states)
-     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present)
-     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated 
-     */
-    public StandardLikelihood calculate(Parameters p) throws TreeException, RateException, ModelException, ParameterException, CalculatorException
-    {
-        //If the parameters setting doesn't include branch lengths parameters then
-        //add them from the tree.  The paramter / branch length interaction is a
-        //bit counter-inutative and probably needs changing but in the mean time
-        //this is here to make errors less likely.  If the branch has a length add
-        //it as a fixed parameter, else as an estimated parameter.
-        for (Branch b: t)
-	{
-            if (!p.hasParam(b.getChild()))
-            {
-                if (b.hasLength())
-                {
-                    p.addParameter(Parameter.newFixedParameter(b.getChild(),
-                       b.getLength()));
-                }
-                else
-                {
-                    p.addParameter(Parameter.newEstimatedPositiveParameter(b.getChild()));
-                }
-            }
-	}
-        
+
+    public StandardLikelihood combineSites(Map<Site,SiteLikelihood> sites, Parameters p) throws CalculatorException
+    {        
         //The total ikelihood
         double l = 0.0;
         //Stores the likelihood of sites in the alignment
@@ -181,9 +140,7 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
         else
         {
             missingLikelihoods = null;
-        }
-            
-        Map<Site,SiteLikelihood> sites = siteCalculate(p);
+        }        
 
         //Get the result for each site and calculate the total likelihood (l)
         //of the alignemnt taking into account how often each unique site occurs
@@ -195,121 +152,139 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
             l += us.getCount() * sl.getLikelihood().ln();
         }
             
-            //Get the result for each site and calculate the total likelihood (m)
-            //of the unobserved data.  Follows Felsenstein 1992.
-            HashMap<String, Real> ml = new HashMap<>();
-            if (missing != null)
+        //Get the result for each site and calculate the total likelihood (m)
+        //of the unobserved data.  Follows Felsenstein 1992.
+        HashMap<String, Real> ml = new HashMap<>();
+        if (missing != null)
+        {
+            for (UniqueSite us: missing.getUniqueSites())
             {
-                for (UniqueSite us: missing.getUniqueSites())
+                SiteLikelihood sl = sites.get(us);
+                missingLikelihoods.put(us,sl);
+                String sc = us.getSiteClass();
+                if (ml.containsKey(sc))
                 {
-                    SiteLikelihood sl = sites.get(us);
-                    missingLikelihoods.put(us,sl);
-                    String sc = us.getSiteClass();
-                    if (ml.containsKey(sc))
-                    {
-                        ml.put(sc, ml.get(sc).add(sl.getLikelihood()));
-                    }
-                    else
-                    {
-                        ml.put(sc, sl.getLikelihood());
-                    }
+                    ml.put(sc, ml.get(sc).add(sl.getLikelihood()));
                 }
-                //Now modify the alignment likelihood to account for unobserved data,
-                //again per Felsenstein 1992
-                for (String sc: ml.keySet())
+                else
                 {
-                    l = l - (a.getClassSize(sc) * ml.get(sc).ln1m());
+                    ml.put(sc, sl.getLikelihood());
                 }
             }
-            if (l > 0)
+            //Now modify the alignment likelihood to account for unobserved data,
+            //again per Felsenstein 1992
+            for (String sc: ml.keySet())
             {
-                throw new CalculatorException("Positive Log Likelihood");
+                l = l - (a.getClassSize(sc) * ml.get(sc).ln1m());
             }
-            if (Double.isNaN(l))
-            {
-                throw new CalculatorException("NaN Log Likelihood");
-            }
+        }
+        if (l > 0)
+        {
+            throw new CalculatorException("Positive Log Likelihood");
+        }
+        if (Double.isNaN(l))
+        {
+            throw new CalculatorException("NaN Log Likelihood");
+        }
         return new StandardLikelihood(l,siteLikelihoods,missingLikelihoods,p);
     }
     
-    /**
-     * Calculates the likelihood for each site
-     * @param p The parameters to be used in the calcl
-     * @return A Map from site to result
-     * @throws TreeException Thrown if there is a problem with the Tree (e.g. if
-     * there is a branch with no length given in parameters)
-     * @throws Models.RateCategory.RateException Thrown if there is an issue with
-     * a rate category in the model (e.g. a badly formatted rate).
-     * @throws Models.Model.ModelException Thrown if there is a problem with the
-     * model (e.g. the rate categories differ in their states)
-     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present)
-     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive
-     * or NaN) log likelihood is calculated 
-     */
-    protected Map<Site,SiteLikelihood> siteCalculate(Parameters p) throws TreeException, RateException, ModelException, ParameterException, CalculatorException
-    {
-        //Doing threaded calculation can be slower in small cases due to the
-        //overhead in creating threads.  However haven't tested when this is the
-        //case and is likely to depend on both tree and rate matrix size so for
-        //now always doing it threaded.
-        try
-        {
-            //Calculate all the probabilites associated with this model, tree and
-            //set of parameters
-            Map<String,Probabilities> tp = new HashMap<>(m.size());
-            for (Entry<String,Model> e: m.entrySet())
-            {
-                tp.put(e.getKey(), new Probabilities(e.getValue(),t,p));
-            }
-            
-            //For each unique site in both the alignment and unobserved sites
-            //create a callable object to calculate it and send it to
-            // be executed.
-            Map<Site, SiteCalculator> sites = new HashMap<>(snl.size());
-            
-            List<SiteCalculator> scs = new ArrayList<>();
-            for (Entry<Site,Map<String,NodeLikelihood>> e: snl.entrySet())
-            {
-                SiteCalculator temp = new SiteCalculator(t, 
-                        tp.get(e.getKey().getSiteClass()),
-                        e.getValue());
-                scs.add(temp);
-                sites.put(e.getKey(), temp);
-            }
-            
-            es.invokeAll(scs);
-                        
-            Map<Site, SiteLikelihood> ret = new HashMap<>(snl.size());
-            for (Entry<Site,SiteCalculator> e: sites.entrySet())
-            {
-                ret.put(e.getKey(),e.getValue().getResult());
-            }
-            
-            return ret;
-        }
+    public SiteLikelihood calculateSite(Tree t, Probabilities tp, Map<String,NodeLikelihood> nl)
+    {    
+            List<Branch> branches = t.getBranches();
+            Map<RateCategory,RateLikelihood> rateLikelihoods = new HashMap<>(tp.getRateCategory().size());
 
-        catch(InterruptedException | ResultNotComputed ex)
-        {
-            //Don't think this should happen but in case it does...
-            throw new UnexpectedError(ex);
-        }
+            //Calculate the likelihood for each RateCategory
+            for (RateCategory rc: tp.getRateCategory())
+            {
+                RateProbabilities rp = tp.getP(rc);
+                //Initalise the lieklihood values at each node.  first internal
+                //using the alignemnt.
+                Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(branches.size() + 1);
+                for (String l: t.getLeaves())
+                {
+                    nodeLikelihoods.put(l, nl.get(l).clone());
+                }
+
+                //And now internal nodes
+                for (String i: t.getInternal())
+                {
+                    nodeLikelihoods.put(i, nl.get(i).clone());
+                }
+
+                //for each branch.  The order these are returned in from tree means
+                //we visit any branch with a node as it's parent before we visit
+                //the branch with the node as the child.  Hence we treverse the
+                //tree in the standard manner.  For each branch we will update
+                //the likelihood at the parent node...
+                for (Branch b: branches)
+                {
+                    //BranchProbabilities bp = rp.getP(b);
+                    SquareMatrix bp = rp.getP(b);
+                    //So for each state at the parent node...
+                    //for (String endState: tp.getAllStates())
+                    for (String endState: tp.getAllStates())
+                    {
+                        //l keeps track of the total likelihood from each possible
+                        //state at the child
+                        //Real l = SiteLikelihood.getReal(0.0);//new Real(0.0);
+                        //For each possible child state
+                        //for (String startState: tp.getAllStates())
+                        Real[] n = nodeLikelihoods.get(b.getChild()).getLikelihoods();
+                        //for (int j = 0; j < tp.getAllStates().size(); j ++)
+                        Real l = n[0].multiply(bp.getPosition(tp.getMap().get(endState), 0));
+                        for (int j = 1; j < n.length; j++)
+                        {
+                            //Add the likelihood of going from start state to
+                            //end state along that branch in that ratecategory
+                            l = l.add(n[j].multiply(bp.getPosition(tp.getMap().get(endState), j)));
+                        }
+                        //Now multiply the likelihood of the parent by this total value.
+                        //This will happen for each possible child as per standard techniques
+                        nodeLikelihoods.get(b.getParent()).multiply(endState,l);
+                    }
+                }
+
+                //Rate total traxcks the total likelihood for this site and rate category
+                Real ratetotal = null;//SiteLikelihood.getReal(0.0);//new Real(0.0);
+                //Get the root likelihoods
+                NodeLikelihood rootL = nodeLikelihoods.get(t.getRoot());
+                
+                ratetotal = tp.getRoot(rc).calculate(rootL);
+                
+                //For each possible state
+                /*for (String state: this.tp.getAllStates())
+                {
+                    try
+                    {
+                        //Get the likelihood at the root, multiply by it's root frequency
+                        //and add to the ratde total.
+                        if (ratetotal == null)
+                        {
+                            ratetotal = rootL.getLikelihood(state).multiply(tp.getFreq(rc,state));
+                        }
+                        else
+                        {
+                            ratetotal = ratetotal.add(rootL.getLikelihood(state).multiply(tp.getFreq(rc,state)));
+                        }
+                    }
+                    catch (LikelihoodException ex)
+                    {
+                        //Shouldn't reach here as we know what oinformation should
+                        // have been claculated and only ask for that
+                        throw new UnexpectedError(ex);
+                    }
+                }*/
+                //Store the results for that rate
+                rateLikelihoods.put(rc, new RateLikelihood(ratetotal,nodeLikelihoods));
+                //Update the total site likelihood with the likelihood for the rate
+                //category multiplied by the probility of being in that category
+            }
+            //return an object containg the results for that site
+            return new SiteLikelihood(rateLikelihoods, tp);
     }
-    
-        /**
-     * Set the number of threads to be used during the calculations
-     * @param number Number of threads
-     */
-    public static void setNoThreads(int number)
-    {
-        es = Executors.newFixedThreadPool(number, new DaemonThreadFactory());
-    }
-    
-    private static ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
-            new DaemonThreadFactory());
     
     private Alignment a;
-    private Tree t;
     private Alignment missing;
     
     
