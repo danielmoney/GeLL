@@ -189,7 +189,7 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
         return new StandardLikelihood(l,siteLikelihoods,missingLikelihoods,p);
     }
     
-    public SiteLikelihood calculateSite(Tree t, Probabilities tp, Map<String,NodeLikelihood> nl)
+    public SiteLikelihood calculateSite(Site s, Tree t, Parameters p, Probabilities tp, Map<String,NodeLikelihood> nl)
     {    
             List<Branch> branches = t.getBranches();
             Map<RateCategory,RateLikelihood> rateLikelihoods = new HashMap<>(tp.getRateCategory().size());

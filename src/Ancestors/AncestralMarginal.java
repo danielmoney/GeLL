@@ -409,7 +409,7 @@ public class AncestralMarginal
                     " and state " + state, null);
         }
         
-        private final String getMaxKey(HashMap<String,Real> map)
+        private String getMaxKey(HashMap<String,Real> map)
         {
             Real mv = null;
             String mk = null;

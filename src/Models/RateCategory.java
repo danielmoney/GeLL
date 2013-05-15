@@ -603,6 +603,15 @@ public class RateCategory implements Serializable
     }
     
     /**
+     * Gets the scaled rate matrix
+     * @return The scaled rate matrix
+     */
+    public SquareMatrix getScaledMatrix()
+    {
+        return sm;
+    }
+    
+    /**
      * Sets the name of the rate category.  Used so there is something meaningful
      * to return to the user'
      * @param name The rate category's name

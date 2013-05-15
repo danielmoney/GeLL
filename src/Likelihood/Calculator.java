@@ -20,14 +20,9 @@ package Likelihood;
 import Alignments.Site;
 import Exceptions.GeneralException;
 import Exceptions.UnexpectedError;
-import Likelihood.Probabilities.RateProbabilities;
 import Likelihood.SiteLikelihood.NodeLikelihood;
-import Likelihood.SiteLikelihood.RateLikelihood;
-import Maths.Real;
-import Maths.SquareMatrix;
 import Models.Model;
 import Models.Model.ModelException;
-import Models.RateCategory;
 import Models.RateCategory.RateException;
 import Parameters.Parameter;
 import Parameters.Parameters;
@@ -116,9 +111,9 @@ public abstract class Calculator<R extends Likelihood>
     //possibly be called from within the sitecaluclator class (I think that's possible)
     
     
-    public abstract R combineSites(Map<Site,SiteLikelihood> sites, Parameters p) throws CalculatorException;
+    public abstract R combineSites(Map<Site,SiteLikelihood> sites, Parameters p) throws CalculatorException, TreeException, ParameterException, RateException, ModelException;
     
-    public abstract SiteLikelihood calculateSite(Tree t, Probabilities tp, Map<String,NodeLikelihood> nl);
+    public abstract SiteLikelihood calculateSite(Site s, Tree t, Parameters p, Probabilities tp, Map<String,NodeLikelihood> nl) throws ParameterException;
     
     /**
      * Calculates the likelihood for each site
@@ -159,7 +154,7 @@ public abstract class Calculator<R extends Likelihood>
             List<SiteCalculator> scs = new ArrayList<>();
             for (Entry<Site,Map<String,NodeLikelihood>> e: snl.entrySet())
             {
-                SiteCalculator temp = new SiteCalculator(t, 
+                SiteCalculator temp = new SiteCalculator(e.getKey(),t,p,
                         tp.get(e.getKey().getSiteClass()),
                         e.getValue());
                 scs.add(temp);
@@ -226,121 +221,24 @@ public abstract class Calculator<R extends Likelihood>
          * @param nl Initalised node likelihoods based on the site.
          * See {@link Site#getInitialNodeLikelihoods(Trees.Tree, java.util.Map)}.
          */
-        public SiteCalculator(Tree t, Probabilities tp, Map<String,NodeLikelihood> nl)
+        public SiteCalculator(Site s, Tree t, Parameters p, Probabilities tp, Map<String,NodeLikelihood> nl)
         {
+            this.s = s;
             this.t = t;
+            this.p = p;
             this.tp = tp;
             this.nl = nl;
             result = null;
         }
         
-        public SiteLikelihood call()
+        public SiteLikelihood call() throws ParameterException
         {
-            result = calculateSite(t,tp,nl);
+            result = calculateSite(s,t,p,tp,nl);
             return result;
             //result = calculate();
             //return result;            
         }
         
-        /**
-         * Calculates the likelihood
-         * @return Object containing the likelihood and the results of intermediate
-         * calculations.
-         */
-        public SiteLikelihood calculate()
-        {
-            List<Branch> branches = t.getBranches();
-            Map<RateCategory,RateLikelihood> rateLikelihoods = new HashMap<>(tp.getRateCategory().size());
-
-            //Calculate the likelihood for each RateCategory
-            for (RateCategory rc: tp.getRateCategory())
-            {
-                RateProbabilities rp = tp.getP(rc);
-                //Initalise the lieklihood values at each node.  first internal
-                //using the alignemnt.
-                Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(branches.size() + 1);
-                for (String l: t.getLeaves())
-                {
-                    nodeLikelihoods.put(l, nl.get(l).clone());
-                }
-
-                //And now internal nodes
-                for (String i: t.getInternal())
-                {
-                    nodeLikelihoods.put(i, nl.get(i).clone());
-                }
-
-                //for each branch.  The order these are returned in from tree means
-                //we visit any branch with a node as it's parent before we visit
-                //the branch with the node as the child.  Hence we treverse the
-                //tree in the standard manner.  For each branch we will update
-                //the likelihood at the parent node...
-                for (Branch b: branches)
-                {
-                    //BranchProbabilities bp = rp.getP(b);
-                    SquareMatrix bp = rp.getP(b);
-                    //So for each state at the parent node...
-                    //for (String endState: tp.getAllStates())
-                    for (String endState: tp.getAllStates())
-                    {
-                        //l keeps track of the total likelihood from each possible
-                        //state at the child
-                        //Real l = SiteLikelihood.getReal(0.0);//new Real(0.0);
-                        //For each possible child state
-                        //for (String startState: tp.getAllStates())
-                        Real[] nl = nodeLikelihoods.get(b.getChild()).getLikelihoods();
-                        //for (int j = 0; j < tp.getAllStates().size(); j ++)
-                        Real l = nl[0].multiply(bp.getPosition(tp.getMap().get(endState), 0));
-                        for (int j = 1; j < nl.length; j++)
-                        {
-                            //Add the likelihood of going from start state to
-                            //end state along that branch in that ratecategory
-                            l = l.add(nl[j].multiply(bp.getPosition(tp.getMap().get(endState), j)));
-                        }
-                        //Now multiply the likelihood of the parent by this total value.
-                        //This will happen for each possible child as per standard techniques
-                        nodeLikelihoods.get(b.getParent()).multiply(endState,l);
-                    }
-                }
-
-                //Rate total traxcks the total likelihood for this site and rate category
-                Real ratetotal = null;//SiteLikelihood.getReal(0.0);//new Real(0.0);
-                //Get the root likelihoods
-                NodeLikelihood rootL = nodeLikelihoods.get(t.getRoot());
-                
-                ratetotal = tp.getRoot(rc).calculate(rootL);
-                
-                //For each possible state
-                /*for (String state: this.tp.getAllStates())
-                {
-                    try
-                    {
-                        //Get the likelihood at the root, multiply by it's root frequency
-                        //and add to the ratde total.
-                        if (ratetotal == null)
-                        {
-                            ratetotal = rootL.getLikelihood(state).multiply(tp.getFreq(rc,state));
-                        }
-                        else
-                        {
-                            ratetotal = ratetotal.add(rootL.getLikelihood(state).multiply(tp.getFreq(rc,state)));
-                        }
-                    }
-                    catch (LikelihoodException ex)
-                    {
-                        //Shouldn't reach here as we know what oinformation should
-                        // have been claculated and only ask for that
-                        throw new UnexpectedError(ex);
-                    }
-                }*/
-                //Store the results for that rate
-                rateLikelihoods.put(rc, new RateLikelihood(ratetotal,nodeLikelihoods));
-                //Update the total site likelihood with the likelihood for the rate
-                //category multiplied by the probility of being in that category
-            }
-            //return an object containg the results for that site
-            return new SiteLikelihood(rateLikelihoods, tp);
-        }
         
         /**
          * Gets the computed result
@@ -359,7 +257,9 @@ public abstract class Calculator<R extends Likelihood>
                 throw new ResultNotComputed();
             }
         }
+        private Site s;
         private Tree t;
+        private Parameters p;
         private Probabilities tp;
         private SiteLikelihood result;
         private Map<String,NodeLikelihood> nl;

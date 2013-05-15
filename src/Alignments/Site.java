@@ -263,7 +263,7 @@ public class Site implements Serializable
      */
     public Map<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t, Map<String,Integer> map) throws LikelihoodException
     {        
-         Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(t.getNumberBranches() + 1);        
+        Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(t.getNumberBranches() + 1);        
         for (String l: t.getLeaves())
         {
             nodeLikelihoods.put(l, new NodeLikelihood(map, this.getCharacter(l)));

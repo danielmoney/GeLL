@@ -88,7 +88,8 @@ public class PhylipAlignment extends Alignment
             int seqLength = -1;
             while ((line = in.readLine()) != null)
             {
-                if (!line.equals("") && !paramLine)
+                //if (!line.equals("") && !paramLine)
+                if (!line.matches("\\s*") && !paramLine)
                 {
                     String[] parts = line.split("\\s+", 2);
                     

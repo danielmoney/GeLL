@@ -133,6 +133,30 @@ public class StandardDouble implements Serializable, Real
         return Double.toString(d);
     }
     
+    public boolean equals(Object o)
+    {
+        if (o instanceof StandardDouble)
+        {
+            StandardDouble sd = (StandardDouble) o;
+            return sd.d == d;
+        }
+        if (o instanceof Double)
+        {
+            Double dd = (Double) o;
+            return dd == d;
+        }
+        if (o instanceof SmallDouble)
+        {
+            return o.equals(this);
+        }
+        return false;
+    }
+    
+    public int hashCode()
+    {
+        return (new Double(d)).hashCode();
+    }
+    
     private double d;
     
     /**

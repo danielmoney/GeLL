@@ -180,6 +180,30 @@ public class SmallDouble implements Serializable, Real
         return this;
     }
     
+    public boolean equals(Object o)
+    {
+        if (o instanceof SmallDouble)
+        {
+            SmallDouble d = (SmallDouble) o;
+            return ((m == d.m) && (e == d.e));
+        }
+        if (o instanceof StandardDouble)
+        {
+            StandardDouble d = (StandardDouble) o;
+            return equals(d.toSmallDouble());
+        }
+        if (o instanceof Double)
+        {
+            return equals(new SmallDouble((Double) o));
+        }
+        return false;
+    }
+    
+    public int hashCode()
+    {
+        return (new Double(m)).hashCode();
+    }
+    
     private double m;
     private int e;
     

@@ -316,6 +316,39 @@ public class Alignment implements Iterable<Site>
         }
     }
     
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof Alignment))
+        {
+            return false;
+        }
+        Alignment a = (Alignment) o;
+        if (a.getLength() != getLength())
+        {
+            return false;
+        }
+        for (int i = 0; i <  getLength(); i++)
+        {
+            if (!getSite(i).equals(a.getSite(i)))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public int hashCode()
+    {
+        if (getLength() > 0)
+        {
+            return getSite(0).hashCode();
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    
     /**
      * The list of sites in the alignment
      */
