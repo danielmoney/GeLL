@@ -132,7 +132,7 @@ public class Site implements Serializable
         this.id = id;
     }
     
-    Site(Site s)
+    public Site(Site s)
     {
         this.sites = s.sites;
         this.ambig = s.ambig;
@@ -297,7 +297,8 @@ public class Site implements Serializable
                 ns.put(s.getKey(),s.getValue());
             }
         }
-        return new Site(ns,ambig,siteClass);
+        //return new Site(ns,ambig,siteClass);
+        return new Site(ns,siteClass);
     }
 
     /**

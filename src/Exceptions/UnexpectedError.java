@@ -34,4 +34,9 @@ public class UnexpectedError extends Error
     {
 	super("Private Error\nThis condition wasn't expected to be reached.", cause);
     }
+    
+    public UnexpectedError()
+    {
+        super("Private Error\nThis condition wasn't expected to be reached.");
+    }
 }

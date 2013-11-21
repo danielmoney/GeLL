@@ -24,6 +24,7 @@ import Likelihood.SiteLikelihood.NodeLikelihood;
 import Models.Model;
 import Models.Model.ModelException;
 import Models.RateCategory.RateException;
+import Optimizers.Optimizable;
 import Parameters.Parameter;
 import Parameters.Parameters;
 import Parameters.Parameters.ParameterException;
@@ -46,7 +47,7 @@ import java.util.concurrent.Executors;
  * @version 2.0
  * @param <R> The return type from the calculation
  */
-public abstract class Calculator<R extends Likelihood>
+public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
 {
     /**
      * Default constructor.  The Site-Node-Likelihoods (snl) are passed here
@@ -146,30 +147,42 @@ public abstract class Calculator<R extends Likelihood>
                 tp.put(e.getKey(), new Probabilities(e.getValue(),t,p));
             }
             
-            //For each unique site in both the alignment and unobserved sites
-            //create a callable object to calculate it and send it to
-            // be executed.
-            Map<Site, SiteCalculator> sites = new HashMap<>(snl.size());
-            
-            List<SiteCalculator> scs = new ArrayList<>();
-            for (Entry<Site,Map<String,NodeLikelihood>> e: snl.entrySet())
+            if (thread)
             {
-                SiteCalculator temp = new SiteCalculator(e.getKey(),t,p,
-                        tp.get(e.getKey().getSiteClass()),
-                        e.getValue());
-                scs.add(temp);
-                sites.put(e.getKey(), temp);
+                //For each unique site in both the alignment and unobserved sites
+                //create a callable object to calculate it and send it to
+                // be executed.
+                Map<Site, SiteCalculator> sites = new HashMap<>(snl.size());
+
+                List<SiteCalculator> scs = new ArrayList<>();
+                for (Entry<Site,Map<String,NodeLikelihood>> e: snl.entrySet())
+                {
+                    SiteCalculator temp = new SiteCalculator(e.getKey(),t,p,
+                            tp.get(e.getKey().getSiteClass()),
+                            e.getValue());
+                    scs.add(temp);
+                    sites.put(e.getKey(), temp);
+                }
+
+                es.invokeAll(scs);
+
+                Map<Site, SiteLikelihood> ret = new HashMap<>(snl.size());
+                for (Entry<Site,SiteCalculator> e: sites.entrySet())
+                {
+                    ret.put(e.getKey(),e.getValue().getResult());
+                }
+
+                return ret;
             }
-            
-            es.invokeAll(scs);
-                        
-            Map<Site, SiteLikelihood> ret = new HashMap<>(snl.size());
-            for (Entry<Site,SiteCalculator> e: sites.entrySet())
+            else
             {
-                ret.put(e.getKey(),e.getValue().getResult());
+                Map<Site, SiteLikelihood> ret = new HashMap<>(snl.size());
+                for (Entry<Site,Map<String,NodeLikelihood>> e: snl.entrySet())
+                {
+                    ret.put(e.getKey(), calculateSite(e.getKey(),t,p,tp.get(e.getKey().getSiteClass()),e.getValue()));
+                }
+                return ret;
             }
-            
-            return ret;
         }
 
         catch(InterruptedException | ResultNotComputed ex)
@@ -177,6 +190,11 @@ public abstract class Calculator<R extends Likelihood>
             //Don't think this should happen but in case it does...
             throw new UnexpectedError(ex);
         }
+    }
+    
+    public void setThread(boolean thread)
+    {
+        this.thread = thread;
     }
 
     /**
@@ -190,6 +208,8 @@ public abstract class Calculator<R extends Likelihood>
     
     private static ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
             new DaemonThreadFactory());
+    
+    private boolean thread = true;
     
     /**
      * The site node likelihoods.  That is the initial likelihood values
@@ -284,6 +304,11 @@ public abstract class Calculator<R extends Likelihood>
         public CalculatorException(String reason)
         {
             super("Rates Exception\n\tReason:\t" + reason,null);
+        }
+        
+        public CalculatorException(String reason, Exception cause)
+        {
+            super("Rates Exception\n\tReason:\t" + reason,cause);
         }
     }
 }

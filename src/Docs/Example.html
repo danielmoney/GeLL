@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>GeLL Example</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <script type="text/javascript" src="exscript.js"></script>
+    </head>
+    <body>
+        <div style="width: 800px; margin: 0px auto;">
+            <H1>GeLL Example</H1>
+            <p>Here we work through a example use of GeLL code explaining the various
+            compenents.  This is based on <code>example.java</code> included in the
+            distributed packages.  Comments have been removed, file names shortened
+            and the taxa names in the newick tree shortened to allow for a smaller
+            code snippet.</p>
+            
+            <div style="border-style:solid; border-color:lightskyblue;height:500px;width:800px">
+            <div style="height:500px;width:525px;float:left;font-family:monospace;white-space: pre;">public static void main(String[] args) throws Exception
+{
+    <mark class="high1" onmouseover="show('tree')" onmouseout="hide('tree')">Tree t = Tree.fromNewickString</mark>
+        <mark class="high1" onmouseover="show('tree')" onmouseout="hide('tree')">("(((Hum, Chi)A, Gor)B, Ora, Gib)C;")</mark>
+    
+    <mark class="high2" onmouseover="show('alignment')" onmouseout="hide('alignment')">Alignment a = new PhylipAlignment(new File("brown.nuc"));</mark>
+    
+    <mark class="high1" onmouseover="show('parameters')" onmouseout="hide('parameters')">Parameters p = t.getParametersForEstimation();</mark>
+
+    <mark class="high2" onmouseover="show('model')" onmouseout="hide('model')">Model m = DNAModelFactory.GTR_Gamma(p, 4);</mark>
+
+    <mark class="high1" onmouseover="show('calculator')" onmouseout="hide('calculator')">StandardCalculator c = new StandardCalculator(m,a,t);</mark>
+
+    <mark class="high2" onmouseover="show('optimizer')" onmouseout="hide('optimizer')">Optimizer o = new GoldenSection();</mark>
+
+    <mark class="high1" onmouseover="show('likelihood')" onmouseout="hide('likelihood')">StandardLikelihood l = o.maximise(c, p);</mark>
+    <mark class="high1" onmouseover="show('likelihood')" onmouseout="hide('likelihood')">p = l.getParameters();</mark>
+
+    <mark class="high2" onmouseover="show('output')" onmouseout="hide('output')">System.out.println("Likelihood: " + l.getLikelihood());</mark>
+    <mark class="high2" onmouseover="show('output')" onmouseout="hide('output')">System.out.println();</mark>
+    <mark class="high2" onmouseover="show('output')" onmouseout="hide('output')">System.out.println("Parameters:");</mark>
+    <mark class="high2" onmouseover="show('output')" onmouseout="hide('output')">System.out.println(p);</mark>
+
+    <mark class="high1" onmouseover="show('ancestor')" onmouseout="hide('ancestor')">AncestralJoint aj = AncestralJoint.newInstance(m, a, t);</mark>
+    <mark class="high1" onmouseover="show('ancestor')" onmouseout="hide('ancestor')">Alignment anc = aj.calculate(p);</mark>
+
+    <mark class="high2" onmouseover="show('alignout')" onmouseout="hide('alignout')">PhylipAlignment.writeFile(anc, new File("ancestor.dat"));</mark>
+
+    <mark class="high1" onmouseover="show('simulate')" onmouseout="hide('simulate')">Simulate s = new Simulate(m,t,p);</mark>
+    <mark class="high1" onmouseover="show('simulate')" onmouseout="hide('simulate')">Alignment sim = s.getAlignment(500);</mark>
+
+    <mark class="high2" onmouseover="show('alignout')" onmouseout="hide('alignout')">PhylipAlignment.writeFile(sim, new File("simulated.dat"));</mark>
+}                
+            </div>
+            <div class="explain" id="standard" style="display:block">
+                <h2>Code Explanation</h2>
+                Mouse over any of the highlighted code to see an explantion of it here.
+            </div>
+            <div class="explain" id="tree">
+                <h2>Tree</h2>
+                All of the computation classes of GeLL make use of a tree object.  The easiest way to input a tree
+                is in Newick format.  The Newick string can either be passed directy to <code>
+                <a href="javadoc/Trees/Tree.html#fromFile(java.io.File)">Tree.fromNewickString()</a></code>
+                or be read from a file using <code><a href="javadoc/Trees/Tree.html#fromFile(java.io.File)">
+                        Tree.fromFile()</a></code>.
+            </div>
+            <div class="explain" id="alignment">
+                <h2>Alignment</h2>
+                As well as a tree most GeLL computations need to be supplied with an alignment.
+            </div>
+            <div class="explain" id="parameters">
+                <h2>Parameters</h2>
+            </div>
+            <div class="explain" id="model">
+                <h2>Model</h2>
+            </div>
+            <div class="explain" id="calculator">
+                <h2>Calculator</h2>
+            </div>
+            <div class="explain" id="optimizer">
+                <h2>Optimizer</h2>
+            </div>
+            <div class="explain" id="likelihood">
+                <h2>Likelihood</h2>
+            </div>
+            <div class="explain" id="output">
+                <h2>Output</h2>
+            </div>
+            <div class="explain" id="ancestor">
+                <h2>Ancestor</h2>
+            </div>
+            <div class="explain" id="alignout">
+                <h2>Alignment Output</h2>
+            </div>
+            <div class="explain" id="simulate">
+                <h2>Simulate</h2>
+            </div>
+            </div>
+        </div>
+    </body>
+</html>

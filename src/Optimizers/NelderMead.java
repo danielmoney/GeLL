@@ -17,18 +17,13 @@
 
 package Optimizers;
 
+import Exceptions.GeneralException;
 import Exceptions.InputException;
 import Exceptions.OutputException;
-import Likelihood.Calculator.CalculatorException;
-import Likelihood.Calculator;
 import Likelihood.Likelihood;
 import Likelihood.SiteLikelihood;
-import Models.Model.ModelException;
-import Models.RateCategory.RateException;
 import Parameters.Parameter;
 import Parameters.Parameters;
-import Parameters.Parameters.ParameterException;
-import Trees.TreeException;
 import Utils.TimePassed;
 import java.io.File;
 import java.io.FileInputStream;
@@ -66,14 +61,15 @@ public class NelderMead implements Optimizer
     {
 	this.debug = debug;
         timePassed = new TimePassed(365,TimeUnit.DAYS);
+        maxPassed = new TimePassed(365,TimeUnit.DAYS);
     }
     
-    public <R extends Likelihood> R maximise(Calculator<R> l, Parameters params) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
+    public <R extends Likelihood> R maximise(Optimizable<R> l, Parameters params) throws GeneralException
     {
 	return maximise(l,System.out,new Data(params,l));
     }
 
-    public <R extends Likelihood> R maximise(Calculator<R> l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
+    public <R extends Likelihood> R maximise(Optimizable<R> l, Parameters params, File log) throws GeneralException
     {
         try
         {
@@ -91,18 +87,23 @@ public class NelderMead implements Optimizer
     //See the Data class for a fuller description but effectively this stores
     //the state of the optimizer.  When created the parameters within it are
     //initalised.
-    private <R extends Likelihood> R maximise(Calculator<R> l, PrintStream out, Data data) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
+    private <R extends Likelihood> R maximise(Optimizable<R> l, PrintStream out, Data data) throws GeneralException
     {
         //Don't keep Node Likelihoods while we are otimizing
         SiteLikelihood.optKeepNL(false);
         //Reset the timer
         timePassed.reset();
+        maxPassed.reset();
 	do
 	{
             //If enough time has passed write a checkpoint.
             if (timePassed.hasPassed())
             {
                 writeCheckPoint(data);
+            }
+            if (maxPassed.hasPassed())
+            {
+                throw new OptimizerException("Maximum time has passed");
             }
             
             //Do a round of optimization.  Follows the algorithm in
@@ -226,7 +227,7 @@ public class NelderMead implements Optimizer
         return l.calculate(data.vnew.getParameters());
     }
 
-    private static <R extends Likelihood> R evaluate(double[] params, Data data, Calculator<R> l) throws RateException, ModelException, TreeException, ParameterException, CalculatorException
+    private static <R extends Likelihood> R evaluate(double[] params, Data data, Optimizable<R> l) throws GeneralException
     {
 	for (int i = 0; i < params.length; i++)
 	{
@@ -280,12 +281,12 @@ public class NelderMead implements Optimizer
 	return index;
     }
     
-    public <R extends Likelihood> R restart(Calculator<R> l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
+    public <R extends Likelihood> R restart(Optimizable<R> l, File checkPoint) throws GeneralException
     {
         return restart(l, checkPoint, System.out);
     }
     
-    public <R extends Likelihood> R restart(Calculator<R> l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
+    public <R extends Likelihood> R restart(Optimizable<R> l, File checkPoint, File log) throws GeneralException
     {
         try
         {
@@ -300,7 +301,7 @@ public class NelderMead implements Optimizer
         }
     }   
     
-    private <R extends Likelihood> R restart(Calculator<R> l, File f, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, CalculatorException
+    private <R extends Likelihood> R restart(Optimizable<R> l, File f, PrintStream out) throws GeneralException
     {
         Object o;
         try
@@ -342,6 +343,11 @@ public class NelderMead implements Optimizer
         timePassed = new TimePassed(num, unit);
     }
     
+    public void setMaximumRunTime(int num, TimeUnit unit) throws OptimizerException
+    {
+        maxPassed = new TimePassed(num, unit);
+    }
+    
     private void writeCheckPoint(Data data) throws OutputException
     {
         if (checkPoint != null)
@@ -371,6 +377,7 @@ public class NelderMead implements Optimizer
     private DebugLevel debug;
     private File checkPoint;
     private TimePassed timePassed;
+    private TimePassed maxPassed;
     
     /**
      * Enumeration of the debug level
@@ -395,7 +402,7 @@ public class NelderMead implements Optimizer
     private static class Data implements Serializable
     {
         //Constructer initialises various parameters.
-        private <R extends Likelihood> Data(Parameters p, Calculator<R> l) throws RateException, ModelException, TreeException, ParameterException, CalculatorException
+        private <R extends Likelihood> Data(Parameters p, Optimizable<R> l) throws GeneralException
         {
             params = p.clone();
             num = params.numberEstimate();

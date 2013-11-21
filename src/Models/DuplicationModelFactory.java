@@ -495,4 +495,172 @@ public class DuplicationModelFactory
         return m;
     }
 
+    
+        /**
+     * Creates a simple BDI model
+     * @param p Parameters structure to add the model parameters to
+     * @param num The maximum family size
+     * @param fixed Whether fixed branch lengths are being used (and so whether
+     * or not one parameter should have a fixed value)
+     * @return The model
+     */
+    public static Model BDIE(Parameters p, int num, boolean fixed)
+    {
+        String[][] matrix = new String[num+1][num+1];
+        HashMap<String,Integer> map = new HashMap<>();
+        for (int i = 0; i <= num; i++)
+        {
+            map.put(Integer.toString(i), i);
+        }
+        for (int i = 0; i <= num; i++)
+        {
+            for (int j = 0; j <= num; j++)
+            {
+                matrix[i][j] = "0.0";
+                if (i-j == 1)
+                {
+                    matrix[i][j] = "d";
+                }
+                if (j-i == 1)
+                {
+                    matrix[i][j] = "b";
+                }
+                if ((i == 0) && (j == 1))
+                {
+                    matrix[i][j] = "i";
+                }
+                if ((i == 1) && (j == 0))
+                {
+                    matrix[i][j] = "e";
+                }
+            }
+        }
+        
+        Model m = null;
+        try
+        {
+            m = new Model(new RateCategory(matrix,RateCategory.FrequencyType.STATIONARY,map));
+        }
+        catch (RateException ex)
+        {
+            //Shouldn't get here as we've cretaed the rate category but just in
+            //case...
+            throw new UnexpectedError(ex);
+        }
+        
+        if (fixed)
+        {
+            p.addParameter(Parameter.newEstimatedBoundedParameter("b",1e-4,Double.MAX_VALUE));
+            m.setRescale(false);
+        }
+        else
+        {
+            p.addParameter(Parameter.newFixedParameter("b", 1.0));
+        }
+        //Bound parameters so they can't go to zero as this would create a sink state model
+        p.addParameter(Parameter.newEstimatedBoundedParameter("d",1e-4,Double.MAX_VALUE));
+        //Further bound the innovation parameter, otherwise can go to infinity
+        //on some simulated datasets with very little change.  This is due
+        //to there being zero probability of being in state zero at the root
+        //and very little chance of changing to zero over the tree.  If the
+        //simulated dataset has no zero innovation will go to infinity if
+        //not bound.
+        p.addParameter(Parameter.newEstimatedBoundedParameter("i",1e-4,10.0));
+        
+        p.addParameter(Parameter.newEstimatedBoundedParameter("e",1e-4,10.0));
+        
+        return m;
+    }
+
+    /**
+     * Creates a simple BDI model with gamma-distributed rate
+     * across sites.  Assumes branch lengths are estimated
+     * @param p Parameters structure to add the model parameters to
+     * @param num The maximum family size
+     * @param numCats The number of gamma categories to use
+     * @return The model
+     */
+    public static Model BDIE_Gamma(Parameters p, int num, int numCats)
+    {
+        return BDI_Gamma(p,num,numCats,false);
+    }
+    
+    /**
+     * Creates a simple BDI model with gamma-distributed rate
+     * across sites
+     * @param p Parameters structure to add the model parameters to
+     * @param num The maximum family size
+     * @param numCats The number of gamma categories to use
+     * @param fixed Whether fixed branch lengths are being used (and so whether
+     * or not one parameter should have a fixed value)
+     * @return The model
+     */
+    public static Model BDIE_Gamma(Parameters p, int num, int numCats, boolean fixed)
+    {
+        String[][] matrix = new String[num+1][num+1];
+        HashMap<String,Integer> map = new HashMap<>();
+        for (int i = 0; i <= num; i++)
+        {
+            map.put(Integer.toString(i), i);
+        }
+        for (int i = 0; i <= num; i++)
+        {
+            for (int j = 0; j <= num; j++)
+            {
+                matrix[i][j] = "0.0";
+                if (i-j == 1)
+                {
+                    matrix[i][j] = "d";
+                }
+                if (j-i == 1)
+                {
+                    matrix[i][j] = "b";
+                }
+                if ((i == 0) && (j == 1))
+                {
+                    matrix[i][j] = "i";
+                }
+                if ((i == 1) && (j == 0))
+                {
+                    matrix[i][j] = "e";
+                }
+            }
+        }
+        
+        Model m = null;
+        try
+        {
+            m = Model.gammaRates(new RateCategory(matrix,RateCategory.FrequencyType.STATIONARY,map),"g",numCats);
+        }
+        catch (RateException ex)
+        {
+            //Shouldn't get here as we've cretaed the rate category but just in
+            //case...
+            throw new UnexpectedError(ex);
+        }
+        
+        if (fixed)
+        {
+            p.addParameter(Parameter.newEstimatedBoundedParameter("b",1e-4,Double.MAX_VALUE));
+            m.setRescale(false);
+        }
+        else
+        {
+            p.addParameter(Parameter.newFixedParameter("b", 1.0));
+        }
+        //Bound parameters so they can't go to zero as this would create a sink state model
+        p.addParameter(Parameter.newEstimatedBoundedParameter("d",1e-4,Double.MAX_VALUE));
+        //Further bound the innovation parameter, otherwise can go to infinity
+        //on some simulated datasets with very little change.  This is due
+        //to there being zero probability of being in state zero at the root
+        //and very little chance of changing to zero over the tree.  If the
+        //simulated dataset has no zero innovation will go to infinity if
+        //not bound.
+        p.addParameter(Parameter.newEstimatedBoundedParameter("i",1e-4,10.0));
+        
+        p.addParameter(Parameter.newEstimatedBoundedParameter("e",1e-4,10.0));
+        p.addParameter(Parameter.newEstimatedBoundedParameter("g", 0.2, 10.0));
+        
+        return m;
+    }
 }

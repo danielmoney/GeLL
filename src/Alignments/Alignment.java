@@ -360,7 +360,7 @@ public class Alignment implements Iterable<Site>
     protected Set<String> taxa = new HashSet<>();
     
     /**
-     * Whether the sites in this alignment contain site information
+     * Whether the sites in this alignment contain class information
      */
     protected boolean hasClasses = false;
     

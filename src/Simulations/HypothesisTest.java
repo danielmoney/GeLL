@@ -2,6 +2,7 @@ package Simulations;
 
 import Alignments.Alignment;
 import Alignments.AlignmentException;
+import Exceptions.GeneralException;
 import Exceptions.OutputException;
 import Likelihood.Calculator.CalculatorException;
 import Likelihood.StandardCalculator;
@@ -68,8 +69,7 @@ public class HypothesisTest
      *      (most probably due to the state at the node not being in the model).  
      */
     public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams)
-            throws RateException, ModelException, TreeException, ParameterException,
-            OutputException, AlignmentException, SimulationException, CalculatorException, LikelihoodException
+            throws GeneralException
     {
         return test(t,a,unobserved,nullParams,altParams,null);
     }
@@ -104,8 +104,7 @@ public class HypothesisTest
      */
     public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams,
             Map<String,String> recode)
-            throws RateException, ModelException, TreeException, ParameterException,
-            OutputException, AlignmentException, SimulationException, CalculatorException, LikelihoodException
+            throws GeneralException
     {
         //Calculate the difference in likelihood between the two models for the given alignment
         StandardCalculator nullCalc = new StandardCalculator(nullModel, a, t, unobserved);
@@ -134,8 +133,7 @@ public class HypothesisTest
     private double[] getDistribution(Tree t, int alignLength, Alignment missing,
             Parameters simParams, Parameters nullParams, Parameters altParams,
             Map<String,String> rec) 
-            throws RateException, ModelException, TreeException, ParameterException,
-            OutputException, AlignmentException, SimulationException, CalculatorException, LikelihoodException
+            throws GeneralException
     {
         //Stores the distribution
         double[] dist = new double[reps];

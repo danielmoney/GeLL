@@ -41,6 +41,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -843,6 +844,40 @@ public class Tree implements Iterable<Branch>
 	out.close();        
     }
     
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof Tree))
+        {
+            return false;
+        }
+        
+        Tree t = (Tree) o;
+        if (branches.size() != t.branches.size())
+        {
+            return false;
+        }
+        
+        for (Branch b: branches)
+        {
+            if (!t.branches.contains(b))
+            {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    public int hashCode()
+    {
+        int hashCode = 0;
+        for (Branch b: branches)
+        {
+            hashCode = hashCode * 31 + b.hashCode();
+        }
+        return hashCode;
+    }
+    
     private List<Branch> branches;
     private String root;
     private List<String> leaves;
@@ -980,5 +1015,38 @@ public class Tree implements Iterable<Branch>
 	{
 	    throw new InputException(f.getAbsolutePath(),line,"Not a valid tree",e);
 	}
+    }
+    
+    public static Tree randomTree(List<String> taxa, boolean rooted) throws TreeException
+    {
+        if ( (rooted && (taxa.size() <= 1)) ||
+                (!rooted && (taxa.size() <= 2)))
+        {
+            throw new TreeException("Not enough taxa to create a tree");
+        }
+        
+        Random random = new Random();
+        
+        int i = 1;
+        List<Branch> b = new ArrayList();
+        LinkedList<String> t = new LinkedList<>(taxa);
+        
+        b.add(new Branch("_" + Integer.toString(i), t.pollFirst()));
+        b.add(new Branch("_" + Integer.toString(i), t.pollFirst()));
+        if (!rooted)
+        {
+            b.add(new Branch("_" + Integer.toString(i), t.pollFirst()));
+        }
+        
+        while (!t.isEmpty())
+        {
+            i++;
+            Branch rb = b.remove(random.nextInt(b.size()));
+            b.add(new Branch(rb.getParent(), "_" + Integer.toString(i)));
+            b.add(new Branch("_" + Integer.toString(i), rb.getChild()));
+            b.add(new Branch("_" + Integer.toString(i), t.pollFirst()));
+        }
+        
+        return new Tree(b);
     }
 }

@@ -30,11 +30,10 @@ import java.util.HashMap;
  */
 public class DNAModelFactory
 {
-    private DNAModelFactory()
+    public DNAModelFactory(DNAModel model, int numCats)
     {
-        // This class has all static methods so no need for a constructor.
-        // As that's not possible make the only constructor private so it can't
-        // be called.
+        this.model = model;
+        this.numCats = numCats;
     }
     
     /**
@@ -44,6 +43,11 @@ public class DNAModelFactory
      * @return The model
      */
     public static Model JukesCantor(Parameters p)
+    {
+        return JukesCantor();
+    }
+    
+    public static Model JukesCantor()
     {
         String[][] ma = new String[4][4];
         ma[0][0] = "-"; ma[0][1] = "1.0"; ma[0][2] = "1.0"; ma[0][3] = "1.0";
@@ -82,6 +86,12 @@ public class DNAModelFactory
      */
     public static Model JukesCantor_Gamma(Parameters p, int numCats)
     {
+        p.addParameters(JukesCantor_Gamma_Parameters());
+        return JukesCantor_Gamma(numCats);
+    }
+    
+    public static Model JukesCantor_Gamma(int numCats)
+    {
         String[][] ma = new String[4][4];
         ma[0][0] = "-"; ma[0][1] = "1.0"; ma[0][2] = "1.0"; ma[0][3] = "1.0";
         ma[1][0] = "1.0"; ma[1][1] = "-"; ma[1][2] = "1.0"; ma[1][3] = "1.0";
@@ -95,8 +105,6 @@ public class DNAModelFactory
         map.put("C",1);
         map.put("A",2);
         map.put("G",3);
-        
-        p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
 
         try
         {
@@ -110,12 +118,30 @@ public class DNAModelFactory
         }
     }
     
+    private static Parameters JukesCantor_Parameters()
+    {
+        return new Parameters();
+    }
+    
+    private static Parameters JukesCantor_Gamma_Parameters()
+    {
+        Parameters p = JukesCantor_Parameters();
+        p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        return p;
+    }
+    
     /**
      * Creates an instance of a Kimura 2-paramter model
      * @param p Parameters structure to add the model parameters to 
      * @return The model
      */
     public static Model Kimura(Parameters p)
+    {
+        p.addParameters(Kimura_Parameters());
+        return Kimura();
+    }
+    
+    public static Model Kimura()
     {
         String[][] ma = new String[4][4];
         ma[0][0] = "-"; ma[0][1] = "k"; ma[0][2] = "1.0"; ma[0][3] = "1.0";
@@ -130,8 +156,6 @@ public class DNAModelFactory
         map.put("C",1);
         map.put("A",2);
         map.put("G",3);
-        
-        p.addParameter(Parameter.newEstimatedPositiveParameter("k"));
         
         try
         {
@@ -154,6 +178,12 @@ public class DNAModelFactory
      */
     public static Model Kimura_Gamma(Parameters p, int numCats)
     {
+        p.addParameters(Kimura_Gamma_Parameters());
+        return Kimura_Gamma(numCats);
+    }
+    
+    public static Model Kimura_Gamma(int numCats)
+    {
         String[][] ma = new String[4][4];
         ma[0][0] = "-"; ma[0][1] = "k"; ma[0][2] = "1.0"; ma[0][3] = "1.0";
         ma[1][0] = "k"; ma[1][1] = "-"; ma[1][2] = "1.0"; ma[1][3] = "1.0";
@@ -166,11 +196,7 @@ public class DNAModelFactory
         map.put("T",0);
         map.put("C",1);
         map.put("A",2);
-        map.put("G",3);
-        
-        p.addParameter(Parameter.newEstimatedPositiveParameter("k"));
-        
-        p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        map.put("G",3);        
 
         try
         {
@@ -184,12 +210,32 @@ public class DNAModelFactory
         }
     }
     
+    private static Parameters Kimura_Parameters()
+    {
+        Parameters p = new Parameters();
+        p.addParameter(Parameter.newEstimatedPositiveParameter("k"));
+        return p;
+    }
+    
+    private static Parameters Kimura_Gamma_Parameters()
+    {
+        Parameters p = Kimura_Parameters();
+        p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        return p;
+    }
+    
     /**
      * Creates an instance of a Felsenstein 81 model
      * @param p Parameters structure to add the model parameters to 
      * @return The model
      */
     public static Model Felsenstein81(Parameters p)
+    {
+        p.addParameters(Felsenstein81_Parameters());
+        return Felsenstein81();
+    }
+    
+    public static Model Felsenstein81()
     {
         String[][] ma = new String[4][4];
         ma[0][0] = "-"; ma[0][1] = "pC"; ma[0][2] = "pA"; ma[0][3] = "pG";
@@ -204,11 +250,6 @@ public class DNAModelFactory
         map.put("C",1);
         map.put("A",2);
         map.put("G",3);
-        
-        p.addParameter(Parameter.newFixedParameter("pT",1.0));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pC"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pA"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pG"));
         
         try
         {
@@ -231,6 +272,12 @@ public class DNAModelFactory
      */
     public static Model Felsenstein81_Gamma(Parameters p, int numCats)
     {
+        p.addParameters(Felsenstein81_Gamma_Parameters());
+        return Felsenstein81_Gamma(numCats);
+    }
+    
+    public static Model Felsenstein81_Gamma(int numCats)
+    {
         String[][] ma = new String[4][4];
         ma[0][0] = "-"; ma[0][1] = "pC"; ma[0][2] = "pA"; ma[0][3] = "pG";
         ma[1][0] = "pT"; ma[1][1] = "-"; ma[1][2] = "pA"; ma[1][3] = "pG";
@@ -245,13 +292,6 @@ public class DNAModelFactory
         map.put("A",2);
         map.put("G",3);
         
-        p.addParameter(Parameter.newFixedParameter("pT",1.0));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pC"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pA"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pG"));
-        
-        p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
-
         try
         {
             return Model.gammaRates(new RateCategory(ma,freq,map),"g",numCats);
@@ -264,12 +304,35 @@ public class DNAModelFactory
         }
     }
     
+    private static Parameters Felsenstein81_Parameters()
+    {
+        Parameters p = new Parameters();
+        p.addParameter(Parameter.newFixedParameter("pT",1.0));
+        p.addParameter(Parameter.newEstimatedPositiveParameter("pC"));
+        p.addParameter(Parameter.newEstimatedPositiveParameter("pA"));
+        p.addParameter(Parameter.newEstimatedPositiveParameter("pG"));
+        return p;
+    }
+    
+    private static Parameters Felsenstein81_Gamma_Parameters()
+    {
+        Parameters p = Felsenstein81_Parameters();
+        p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        return p;
+    }
+    
     /**
      * Creates an instance of a HKY model
      * @param p Parameters structure to add the model parameters to 
      * @return The model
      */
     public static Model HKY(Parameters p)
+    {
+        p.addParameters(HKY_Parameters());
+        return HKY();
+    }            
+            
+    public static Model HKY()
     {
         String[][] ma = new String[4][4];
         ma[0][0] = "-"; ma[0][1] = "k*pC"; ma[0][2] = "pA"; ma[0][3] = "pG";
@@ -283,14 +346,7 @@ public class DNAModelFactory
         map.put("T",0);
         map.put("C",1);
         map.put("A",2);
-        map.put("G",3);
-        
-        p.addParameter(Parameter.newEstimatedPositiveParameter("k"));
-        
-        p.addParameter(Parameter.newFixedParameter("pT",1.0));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pC"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pA"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pG"));
+        map.put("G",3);        
 
         try
         {
@@ -313,6 +369,12 @@ public class DNAModelFactory
      */
     public static Model HKY_Gamma(Parameters p, int numCats)
     {
+        p.addParameters(HKY_Gamma_Parameters());
+        return HKY_Gamma(numCats);
+    }
+    
+    public static Model HKY_Gamma(int numCats)
+    {
         String[][] ma = new String[4][4];
         ma[0][0] = "-"; ma[0][1] = "k*pC"; ma[0][2] = "pA"; ma[0][3] = "pG";
         ma[1][0] = "k*pT"; ma[1][1] = "-"; ma[1][2] = "pA"; ma[1][3] = "pG";
@@ -326,15 +388,6 @@ public class DNAModelFactory
         map.put("C",1);
         map.put("A",2);
         map.put("G",3);
-        
-        p.addParameter(Parameter.newEstimatedPositiveParameter("k"));
-        
-        p.addParameter(Parameter.newFixedParameter("pT",1.0));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pC"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pA"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pG"));
-        
-        p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
 
         try
         {
@@ -347,6 +400,25 @@ public class DNAModelFactory
             throw new UnexpectedError(ex);
         }
     }
+    
+    private static Parameters HKY_Parameters()
+    {
+        Parameters p = new Parameters();
+        p.addParameter(Parameter.newEstimatedPositiveParameter("k"));
+        
+        p.addParameter(Parameter.newFixedParameter("pT",1.0));
+        p.addParameter(Parameter.newEstimatedPositiveParameter("pC"));
+        p.addParameter(Parameter.newEstimatedPositiveParameter("pA"));
+        p.addParameter(Parameter.newEstimatedPositiveParameter("pG"));
+        return p;
+    }
+    
+    private static Parameters HKY_Gamma_Parameters()
+    {
+        Parameters p = HKY_Parameters();
+        p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        return p;
+    }
 
     /**
      * Creates an instance of a General Time Reversable model
@@ -354,6 +426,12 @@ public class DNAModelFactory
      * @return The model
      */
     public static Model GTR(Parameters p)
+    {
+        p.addParameters(GTR_Parameters());
+        return GTR();
+    }
+    
+    public static Model GTR()
     {
         String[][] ma = new String[4][4];
         ma[0][0] = "-"; ma[0][1] = "a*pC"; ma[0][2] = "b*pA"; ma[0][3] = "c*pG";
@@ -368,17 +446,6 @@ public class DNAModelFactory
         map.put("C",1);
         map.put("A",2);
         map.put("G",3);
-        
-        p.addParameter(Parameter.newEstimatedPositiveParameter("a"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("b"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("c"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("d"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("e"));
-        
-        p.addParameter(Parameter.newFixedParameter("pT",1.0));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pC"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pA"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pG"));
         
         try
         {
@@ -401,6 +468,12 @@ public class DNAModelFactory
      */
     public static Model GTR_Gamma(Parameters p, int numCats)
     {
+        p.addParameters(GTR_Gamma_Parameters());
+        return GTR_Gamma(numCats);
+    }
+    
+    public static Model GTR_Gamma(int numCats)
+    {
         String[][] ma = new String[4][4];
         ma[0][0] = "-"; ma[0][1] = "a*pC"; ma[0][2] = "b*pA"; ma[0][3] = "c*pG";
         ma[1][0] = "a*pT"; ma[1][1] = "-"; ma[1][2] = "d*pA"; ma[1][3] = "e*pG";
@@ -415,6 +488,28 @@ public class DNAModelFactory
         map.put("A",2);
         map.put("G",3);
         
+        try
+        {
+            return Model.gammaRates(new RateCategory(ma,freq,map),"g",numCats);
+        }
+        catch (RateException ex)
+        {
+            //Shouldn't get here as we've cretaed the rate category but just in
+            //case...
+            throw new UnexpectedError(ex);
+        }
+    }
+    
+    private static Parameters GTR_Gamma_Parameters()
+    {
+        Parameters p = GTR_Parameters();
+        p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        return p;
+    }
+    
+    private static Parameters GTR_Parameters()
+    {
+        Parameters p = new Parameters();
         p.addParameter(Parameter.newEstimatedPositiveParameter("a"));
         p.addParameter(Parameter.newEstimatedPositiveParameter("b"));
         p.addParameter(Parameter.newEstimatedPositiveParameter("c"));
@@ -426,18 +521,93 @@ public class DNAModelFactory
         p.addParameter(Parameter.newEstimatedPositiveParameter("pC"));
         p.addParameter(Parameter.newEstimatedPositiveParameter("pA"));
         p.addParameter(Parameter.newEstimatedPositiveParameter("pG"));
-        
-        p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
 
-        try
+        return p;
+    }
+    
+    public Model getModel()
+    {
+        if (numCats > 1)
         {
-            return Model.gammaRates(new RateCategory(ma,freq,map),"g",numCats);
+            switch (model)
+            {
+                case F81:
+                    return Felsenstein81_Gamma(numCats);
+                case GTR:
+                    return GTR_Gamma(numCats);
+                case HKY:
+                    return HKY_Gamma(numCats);
+                case JC:
+                    return JukesCantor_Gamma(numCats);
+                case K2P:
+                    return Kimura_Gamma(numCats);
+            }
         }
-        catch (RateException ex)
+        else
         {
-            //Shouldn't get here as we've cretaed the rate category but just in
-            //case...
-            throw new UnexpectedError(ex);
+            switch (model)
+            {
+                case F81:
+                    return Felsenstein81();
+                case GTR:
+                    return GTR();
+                case HKY:
+                    return HKY();
+                case JC:
+                    return JukesCantor();
+                case K2P:
+                    return Kimura();
+            }
         }
+        throw new UnexpectedError();
+    }
+    
+    public Parameters getParameters()
+    {
+        if (numCats > 1)
+        {
+            switch (model)
+            {
+                case F81:
+                    return Felsenstein81_Gamma_Parameters();
+                case GTR:
+                    return GTR_Gamma_Parameters();
+                case HKY:
+                    return HKY_Gamma_Parameters();
+                case JC:
+                    return JukesCantor_Gamma_Parameters();
+                case K2P:
+                    return Kimura_Gamma_Parameters();
+            }
+        }
+        else
+        {
+            switch (model)
+            {
+                case F81:
+                    return Felsenstein81_Parameters();
+                case GTR:
+                    return GTR_Parameters();
+                case HKY:
+                    return HKY_Parameters();
+                case JC:
+                    return JukesCantor_Parameters();
+                case K2P:
+                    return Kimura_Parameters();
+            }
+        }
+        throw new UnexpectedError();
+    }
+    
+    private DNAModel model;
+    private int numCats;
+    
+    public enum DNAModel
+    {
+        F81,
+        GTR,
+        HKY,
+        JC,
+        K2P
     }
 }
