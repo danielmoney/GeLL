@@ -35,6 +35,9 @@ public class UnexpectedError extends Error
 	super("Private Error\nThis condition wasn't expected to be reached.", cause);
     }
     
+    /**
+     * Constructor to use when no other throwable caused the problem
+     */
     public UnexpectedError()
     {
         super("Private Error\nThis condition wasn't expected to be reached.");

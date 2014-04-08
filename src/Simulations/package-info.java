@@ -16,6 +16,6 @@
  */
 
 /**
- * Provides a class to create simulate data.
+ * Provides a class to create simulated data.
  */
 package Simulations;

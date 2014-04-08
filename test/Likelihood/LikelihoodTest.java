@@ -55,7 +55,7 @@ public class LikelihoodTest
     public static void setUpClass() throws Exception
     {
         Tree t = Tree.fromNewickString("(((Human: 0.057987, Chimpanzee: 0.074612)A: 0.035490, Gorilla: 0.074352)B: 0.131394, Orangutan: 0.350156, Gibbon: 0.544601)C;");
-        a = new PhylipAlignment(new File("test\\PAML\\Likelihood\\brown.nuc"));
+        a = PhylipAlignment.fromFile(new File("test\\PAML\\Likelihood\\brown.nuc"));
 
         String[][] ma = new String[4][4];
 

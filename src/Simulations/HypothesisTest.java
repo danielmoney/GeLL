@@ -50,23 +50,7 @@ public class HypothesisTest
      * @param nullParams The paramters of the null model
      * @param altParams The parameters of the alternative model
      * @return A p-value
-     * @throws AlignmentException Thrown if there is a problem with the alignment
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
-     * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
-     * with the simulation (currently only if attempting to simulate for a site class
-     * we don't have a model for)
-     * @throws Models.RateCategory.RateException Thrown if there is an issue with
-     * a rate category in the model (e.g. a badly formatted rate).
-     * @throws Models.Model.ModelException Thrown if there is a problem with the
-     * model (e.g. the rate categories differ in their states)
-     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present) 
-     * @throws OutputException Should not currently be thrown as would only be thrown
-     * when an optimizer try to write a checkpoint file and that isn't currently supported
-     * in this class.  Included as should be in a future version.
-     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated
-     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
-     *      (most probably due to the state at the node not being in the model).  
+     * @throws GeneralException When there is a problem performing the hypothesis test
      */
     public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams)
             throws GeneralException
@@ -84,23 +68,7 @@ public class HypothesisTest
      * @param recode The recoding to be passed to the simulator.  See 
      * {@link Simulate#getAlignment(int, java.util.Map)} for while this is neccessary.
      * @return A p-value
-     * @throws AlignmentException Thrown if there is a problem with the alignment
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
-     * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
-     * with the simulation (currently only if attempting to simulate for a site class
-     * we don't have a model for)
-     * @throws Models.RateCategory.RateException Thrown if there is an issue with
-     * a rate category in the model (e.g. a badly formatted rate).
-     * @throws Models.Model.ModelException Thrown if there is a problem with the
-     * model (e.g. the rate categories differ in their states)
-     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present) 
-     * @throws OutputException Should not currently be thrown as would only be thrown
-     * when an optimizer try to write a checkpoint file and that isn't currently supported
-     * in this class.  Included as should be in a future version.
-     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated
-     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
-     *      (most probably due to the state at the node not being in the model).  
+     * @throws GeneralException When there is a problem performing the hypothesis test
      */
     public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams,
             Map<String,String> recode)

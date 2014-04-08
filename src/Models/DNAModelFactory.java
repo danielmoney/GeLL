@@ -18,6 +18,7 @@
 package Models;
 
 import Exceptions.UnexpectedError;
+import Models.Model.ModelException;
 import Models.RateCategory.RateException;
 import Parameters.Parameter;
 import Parameters.Parameters;
@@ -30,9 +31,31 @@ import java.util.HashMap;
  */
 public class DNAModelFactory
 {
-    public DNAModelFactory(DNAModel model, int numCats)
+    /**
+     * Constructor so that calls to {@link #getModel()} and {@link #getParameters()}
+     * return the appropiate model or the appropiate parameters.
+     * @param model The model
+     */
+    public DNAModelFactory(DNAModel model)
     {
         this.model = model;
+        this.numCats = 1;
+    }
+    
+    /**
+     * Constructor so that calls to {@link #getModel()} and {@link #getParameters()}
+     * return the appropiate model or the appropiate parameters.
+     * @param model The model
+     * @param numCats The number of categories for the model
+     * @throws Models.Model.ModelException
+     */
+    public DNAModelFactory(DNAModel model, int numCats) throws ModelException
+    {
+        this.model = model;
+        if (numCats < 1)
+        {
+            throw new ModelException("Models must have at least one category");
+        }
         this.numCats = numCats;
     }
     
@@ -46,7 +69,11 @@ public class DNAModelFactory
     {
         return JukesCantor();
     }
-    
+
+    /**
+     * Creates an instance of a Jukes-Cantor model
+     * @return The model
+     */
     public static Model JukesCantor()
     {
         String[][] ma = new String[4][4];
@@ -89,7 +116,13 @@ public class DNAModelFactory
         p.addParameters(JukesCantor_Gamma_Parameters());
         return JukesCantor_Gamma(numCats);
     }
-    
+
+    /**
+     * Creates an instance of a Jukes-Cantor model with gamma-distributed rate
+     * across sites
+     * @param numCats The number of gamma categories to use
+     * @return The model
+     */    
     public static Model JukesCantor_Gamma(int numCats)
     {
         String[][] ma = new String[4][4];
@@ -141,6 +174,10 @@ public class DNAModelFactory
         return Kimura();
     }
     
+    /**
+     * Creates an instance of a Kimura 2-paramter model
+     * @return The model
+     */
     public static Model Kimura()
     {
         String[][] ma = new String[4][4];
@@ -182,6 +219,12 @@ public class DNAModelFactory
         return Kimura_Gamma(numCats);
     }
     
+    /**
+     * Creates an instance of a Kimura 2-parameter model with gamma-distributed rate
+     * across sites
+     * @param numCats The number of gamma categories to use
+     * @return The model
+     */
     public static Model Kimura_Gamma(int numCats)
     {
         String[][] ma = new String[4][4];
@@ -235,6 +278,10 @@ public class DNAModelFactory
         return Felsenstein81();
     }
     
+    /**
+     * Creates an instance of a Felsenstein 81 model
+     * @return The model
+     */
     public static Model Felsenstein81()
     {
         String[][] ma = new String[4][4];
@@ -275,7 +322,13 @@ public class DNAModelFactory
         p.addParameters(Felsenstein81_Gamma_Parameters());
         return Felsenstein81_Gamma(numCats);
     }
-    
+
+    /**
+     * Creates an instance of a JFelsenstein 81 model with gamma-distributed rate
+     * across sites
+     * @param numCats The number of gamma categories to use
+     * @return The model
+     */
     public static Model Felsenstein81_Gamma(int numCats)
     {
         String[][] ma = new String[4][4];
@@ -332,6 +385,10 @@ public class DNAModelFactory
         return HKY();
     }            
             
+    /**
+     * Creates an instance of a HKY model
+     * @return The model
+     */
     public static Model HKY()
     {
         String[][] ma = new String[4][4];
@@ -373,6 +430,12 @@ public class DNAModelFactory
         return HKY_Gamma(numCats);
     }
     
+    /**
+     * Creates an instance of a HKY model with gamma-distributed rate
+     * across sites
+     * @param numCats The number of gamma categories to use
+     * @return The model
+     */
     public static Model HKY_Gamma(int numCats)
     {
         String[][] ma = new String[4][4];
@@ -431,6 +494,10 @@ public class DNAModelFactory
         return GTR();
     }
     
+    /**
+     * Creates an instance of a General Time Reversable model
+     * @return The model
+     */
     public static Model GTR()
     {
         String[][] ma = new String[4][4];
@@ -472,6 +539,12 @@ public class DNAModelFactory
         return GTR_Gamma(numCats);
     }
     
+    /**
+     * Creates an instance of a General Time Reversable model with gamma-distributed rate
+     * across sites
+     * @param numCats The number of gamma categories to use
+     * @return The model
+     */
     public static Model GTR_Gamma(int numCats)
     {
         String[][] ma = new String[4][4];
@@ -525,6 +598,10 @@ public class DNAModelFactory
         return p;
     }
     
+    /**
+     * Returns a new instance of the relevant model
+     * @return The new model
+     */
     public Model getModel()
     {
         if (numCats > 1)
@@ -562,6 +639,10 @@ public class DNAModelFactory
         throw new UnexpectedError();
     }
     
+    /**
+     * Gets the parameters for the relevant model
+     * @return The parameters
+     */
     public Parameters getParameters()
     {
         if (numCats > 1)
@@ -602,12 +683,30 @@ public class DNAModelFactory
     private DNAModel model;
     private int numCats;
     
+    /**
+     * Represents the various types of DNA models
+     */
     public enum DNAModel
     {
+        /**
+         * Felsenstein 81 model
+         */
         F81,
+        /**
+         * General Time Reversible (GTR) model
+         */
         GTR,
+        /**
+         * The HKY model
+         */
         HKY,
+        /**
+         * The Jukes-Cantor model
+         */
         JC,
+        /**
+         * The Kimura 2-parameter model
+         */
         K2P
     }
 }

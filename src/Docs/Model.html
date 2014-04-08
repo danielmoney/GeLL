@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Models and Parameters</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <script type="text/javascript" src="script.js"></script>
+    </head>
+    <body>
+        <div style="width: 800px; margin: 0px auto">
+            <H1>Models and Parameters</H1>
+            <p>The core capability of GeLL is the ability to define and use new models.
+            There are two main classes involved in defining a model, <a href=""><code>Model</code></a>
+            and <a href=""><code>RateCategory</code></a>.  A model consists of one or more
+            rate categories where a rate category represents a rate matrix and some method of
+            determing root frequencies.</p>
+            
+            <p>Here we show how to define models, starting with the simplist
+            model, the Jukes-Cantor model which has no parameters and consists of a single rate category.
+            We then extend this example to the GTR model, which introduces parameters, before introducing
+            mutiple rate categories and showing how the GTR+&Gamma; model is defined.  Next we define the
+            GTR+&Gamma;+I model which highlights most of the capabilities of GeLL.</p>
+            
+            <p>We also show how to use the more unusual root distributions supported by GeLL.  Finally we
+            look at how we define the parameters used in the models.</p>
+            
+            <div class="collapsetop">Jukes-Cantor: A very simple model
+                <span class="show" onclick="show('jc')" id="jcS">Show</span>
+                <span class="hide" onclick="hide('jc')" id="jcH">Hide</span>
+            </div>
+            <div class="collapseinner" id="jc" style="display:block">
+                Blah...
+            </div>
+            
+            <div class="collapsetop">GTR: Introducing parameters
+                <span class="show" onclick="show('gtr')" id="gtrS">Show</span>
+                <span class="hide" onclick="hide('gtr')" id="gtrH">Hide</span>
+            </div>
+            <div class="collapseinner" id="gtr" style="display:block">
+                Blah...
+            </div>
+            
+            <div class="collapsetop">GTR+&Gamma;: Using multiple rate categories
+                <span class="show" onclick="show('gamma')" id="gammaS">Show</span>
+                <span class="hide" onclick="hide('gamma')" id="gammaH">Hide</span>
+            </div>
+            <div class="collapseinner" id="gamma" style="display:block">
+                Blah...
+            </div>
+            
+            <div class="collapsetop">GTR+&Gamma;+I: More complex rate categories
+                <span class="show" onclick="show('i')" id="iS">Show</span>
+                <span class="hide" onclick="hide('i')" id="iH">Hide</span>
+            </div>
+            <div class="collapseinner" id="i" style="display:block">
+                Blah...
+            </div>
+            
+            <div class="collapsetop">Root distributions
+                <span class="show" onclick="show('root')" id="rootS">Show</span>
+                <span class="hide" onclick="hide('root')" id="rootH">Hide</span>
+            </div>
+            <div class="collapseinner" id="root" style="display:block">
+                Blah...
+            </div>
+            
+            <div class="collapsetop">Parameters: Defining and constraining
+                <span class="show" onclick="show('param')" id="paramS">Show</span>
+                <span class="hide" onclick="hide('param')" id="paramH">Hide</span>
+            </div>
+            <div class="collapseinner" id="param" style="display:block">
+                Blah...
+            </div>
+        </div>
+        <div style="text-align:center; margin-top:10px"><a href="GeLL.html">Back to Top Level Documentation</a></div>
+
+        <script type="text/javascript">                
+             hide('gtr'); hide('gamma'); hide('i'); hide('root'); hide('param'); show('jc')
+        </script>
+    </body>
+</html>

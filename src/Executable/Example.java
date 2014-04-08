@@ -20,6 +20,7 @@ package Executable;
 import Alignments.Alignment;
 import Alignments.PhylipAlignment;
 import Ancestors.AncestralJoint;
+import Exceptions.GeneralException;
 import Likelihood.StandardCalculator;
 import Likelihood.StandardLikelihood;
 import Models.DNAModelFactory;
@@ -47,16 +48,16 @@ public class Example
     /**
      * Main function
      * @param args Command line arguments
-     * @throws Exception This is example code so to keep it simple we just
+     * @throws GeneralException This is example code so to keep it simple we just
      * throw any exception we encounter.
      */
-    public static void main(String[] args) throws Exception
+    public static void main(String[] args) throws GeneralException
     {
         //Create a tree object.  Here we are going to estimate branch lengths so
         //no point including them in the tree
         Tree t = Tree.fromNewickString("(((Human, Chimpanzee)A, Gorilla)B, Orangutan, Gibbon)C;");
         //Load an alignment
-        Alignment a = new PhylipAlignment(new File("src\\Executable\\example\\brown.nuc"));
+        Alignment a = PhylipAlignment.fromFile(new File("src\\Executable\\example\\brown.nuc"));
         //Get the parameters from the tree.  This step is recommended although due
         //to it's wierdness will be done automatically if missed out.
         Parameters p = t.getParametersForEstimation();

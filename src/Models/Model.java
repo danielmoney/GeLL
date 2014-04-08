@@ -48,7 +48,7 @@ import java.util.regex.Pattern;
  * Represents an evolutionary model.  May contain many different {@link RateCategory}.<br><br>
  * Rates and frequencies within a model (including the frequency of the different
  * rate classes) are represent by strings.  These strings may contain "parameters"
- * represented by a letter followed by a alphanumeric character which may later
+ * represented by a letter followed by alphanumeric characters which may later
  * (see {@link Parameters.Parameter}) be assigned a fixed value or optimised.  
  * They may also contain numbers and mathematical operations.  See 
  * {@link FunctionParser} for more on how these rates are evaluated.
@@ -404,7 +404,7 @@ public class Model implements Iterable<RateCategory>
     /**
      * Exception thrown when there is a problem with the model
      */
-    public class ModelException extends GeneralException
+    public static class ModelException extends GeneralException
     {
         /**
          * Constructor when there is no underlying Throwable that caused the problem.

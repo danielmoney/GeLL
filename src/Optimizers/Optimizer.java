@@ -43,15 +43,7 @@ public interface Optimizer
      * @param p The parameters to maximise.  Parameters are modified.
      * @return The maximised likelihood (in a structure that includes most
      * intermediate likelihoods).
-     * @throws Models.RateCategory.RateException Thrown if there is an issue with
-     * a rate category in the model (e.g. a badly formatted rate).
-     * @throws Models.Model.ModelException Thrown if there is a problem with the
-     * model (e.g. the rate categories differ in their states)
-     * @throws TreeException Thrown if there is a problem with the tree.
-     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present)
-     * @throws OutputException Thrown if unable to write a checkpoint file
-     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
+     * @throws GeneralException When there is a problem in finding an optimaable solution.
      */
     public <R extends Likelihood> R maximise(Optimizable<R> l, Parameters p) throws GeneralException;
 
@@ -64,15 +56,7 @@ public interface Optimizer
      * @param log The log file
      * @return The maximised likelihood (in a structure that includes most
      * intermediate likelihoods).
-     * @throws Models.RateCategory.RateException Thrown if there is an issue with
-     * a rate category in the model (e.g. a badly formatted rate).
-     * @throws Models.Model.ModelException Thrown if there is a problem with the
-     * model (e.g. the rate categories differ in their states)
-     * @throws TreeException Thrown if there is a problem with the tree.
-     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present)
-     * @throws OutputException Thrown if unable to write a checkpoint file
-     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
+     * @throws GeneralException When there is a problem in finding an optimaable solution
      */
     public <R extends Likelihood> R maximise(Optimizable<R> l, Parameters params, File log) throws GeneralException;
 
@@ -84,18 +68,7 @@ public interface Optimizer
      * @param checkPoint The checkpoint file
      * @return The maximised likelihood (in a structure that includes most
      * intermediate likelihoods).
-     * @throws Models.RateCategory.RateException Thrown if there is an issue with
-     * a rate category in the model (e.g. a badly formatted rate).
-     * @throws Models.Model.ModelException Thrown if there is a problem with the
-     * model (e.g. the rate categories differ in their states)
-     * @throws TreeException Thrown if there is a problem with the tree.
-     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present)
-     * @throws OutputException Thrown if unable to write a checkpoint file 
-     * @throws InputException Thrown if there is a problem with the checkpoint file
-     * @throws Optimizers.Optimizer.OptimizerException Thrown if optomizer is unable
-     * to restart from a checkpoint file
-     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
+     * @throws GeneralException When there is a problem in finding an optimaable solution
      */
     public <R extends Likelihood> R restart(Optimizable<R> l, File checkPoint) throws GeneralException;
     
@@ -108,18 +81,7 @@ public interface Optimizer
      * @param log The log file
      * @return The maximised likelihood (in a structure that includes most
      * intermediate likelihoods).
-     * @throws Models.RateCategory.RateException Thrown if there is an issue with
-     * a rate category in the model (e.g. a badly formatted rate).
-     * @throws Models.Model.ModelException Thrown if there is a problem with the
-     * model (e.g. the rate categories differ in their states)
-     * @throws TreeException Thrown if there is a problem with the tree.
-     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present)
-     * @throws OutputException Thrown if unable to write a checkpoint file 
-     * @throws InputException Thrown if there is a problem with the checkpoint file
-     * @throws Optimizers.Optimizer.OptimizerException Thrown if optomizer is unable
-     * to restart from a checkpoint file
-     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
+     * @throws GeneralException When there is a problem in finding an optimaable solution
      */
     public <R extends Likelihood> R restart(Optimizable<R> l, File checkPoint, File log) throws GeneralException;
     
@@ -145,6 +107,14 @@ public interface Optimizer
      */
     public void setCheckPointFrequency(int num, TimeUnit unit) throws OptimizerException;
     
+    /**
+     * Set a maximum time the optimizer should run for
+     * @param num The number of time units that should pass between checkpoint
+     * writes.
+     * @param unit The time unit
+     * @throws Optimizers.Optimizer.OptimizerException Thrown if the optomizer
+     * does not implement a maximum run time.
+     */
     public void setMaximumRunTime(int num, TimeUnit unit) throws OptimizerException;
 
     /**

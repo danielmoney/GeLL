@@ -27,17 +27,25 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Represents a sequence alignment in FASTA format
+ * Static classes for reading/writing sequence alignment in FASTA format
  * @author Daniel Money
  * @version 2.0
  */
-public class FastaAlignment extends Alignment
+public class FastaAlignment
 {
+    private FastaAlignment()
+    {
+        
+    }
+    
     /**
      * Creates a sequence alignment from a file.  File should be in Fasta format
      * File should consist of a line beginningb with a ">" followed by the taxa name -
@@ -48,13 +56,14 @@ public class FastaAlignment extends Alignment
      * assumed not to be a taxa but rather gives the class of each site (which can be any
      * single character).
      * @param f The input file
+     * @return The alignment created from the file
      * @throws InputException Thrown if there is a problem with the input file
      * @throws Alignments.AlignmentException Thrown if there issomething wrong with the alignment, e.g.
      * different length sequences
      */
-    public FastaAlignment(File f) throws InputException, AlignmentException
+    public static Alignment fromFile(File f) throws InputException, AlignmentException
     {
-        this(f, new Ambiguous(new HashMap<String,Set<String>>()));
+        return fromFile(f, new Ambiguous(new HashMap<String,Set<String>>()));
     }
 
     /**
@@ -62,15 +71,19 @@ public class FastaAlignment extends Alignment
      * be in {@link #FastaAlignment(java.io.File)}
      * @param f The input file
      * @param ambig Desription of the ambiguous data
+     * @return The alignment created from the file
      * @throws InputException Thrown if there is a problem with the input file
      * @throws Alignments.AlignmentException Thrown if there issomething wrong with the alignment, e.g.
      * different length sequences
      */
-    public FastaAlignment(File f, Ambiguous ambig) throws InputException, AlignmentException
+    public static Alignment fromFile(File f, Ambiguous ambig) throws InputException, AlignmentException
     {
 	// Create the hashmap to store the sequences (seq name =>  sequence)
         LinkedHashMap<String,String> seq = new LinkedHashMap<>();
         String classLine = null;
+        Set<String> taxa = new HashSet<>();
+        List<Site> data = new ArrayList<>();
+        boolean hasClasses = false;
 
 	BufferedReader in;
         try
@@ -95,7 +108,7 @@ public class FastaAlignment extends Alignment
                     {
                         if (name != null)
                         {
-                            if (checkSequence(name,sequence,seqLength,classLine))
+                            if (checkSequence(name,sequence,seqLength,classLine,taxa))
                             {
                                 seq.put(name, sequence);
                                 seqLength = sequence.length();
@@ -120,12 +133,14 @@ public class FastaAlignment extends Alignment
             
             if (name != null)
             {
-                if (checkSequence(name,sequence,seqLength,classLine))
+                if (checkSequence(name,sequence,seqLength,classLine,taxa))
                 {
+                    taxa.add(name);
                     seq.put(name, sequence);
                 }
                 else
                 {
+                    hasClasses = true;
                     classLine = sequence;
                 }
             }
@@ -149,6 +164,7 @@ public class FastaAlignment extends Alignment
                 }
                 data.add(new Site(col,ambig,c));
             }
+            return new Alignment(data);
         }
         catch (IOException e)
 	{
@@ -156,7 +172,8 @@ public class FastaAlignment extends Alignment
 	}
     }
     
-    private boolean checkSequence(String name, String sequence, int seqLength, String classLine) throws AlignmentException
+    private static boolean checkSequence(String name, String sequence, int seqLength, String classLine,
+            Set<String> taxa) throws AlignmentException
     {
         if (sequence.length() == 0)
         {
@@ -174,7 +191,6 @@ public class FastaAlignment extends Alignment
         {
             if (!taxa.contains(name))
             {
-                taxa.add(name);
                 return true;
             }
             else
@@ -186,7 +202,6 @@ public class FastaAlignment extends Alignment
         {
             if (classLine == null)
             {
-                hasClasses = true;
                 return false;
             }
             else
@@ -231,7 +246,7 @@ public class FastaAlignment extends Alignment
                 out.println();
             }
             
-            if (a.hasClasses)
+            if (a.hasClasses())
             {
                 out.println();
                 out.print(">*Class*     ");

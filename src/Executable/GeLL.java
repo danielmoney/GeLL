@@ -381,11 +381,11 @@ public class GeLL
         Alignment a = null;
         if (type.equals("Duplication"))
         {
-            a = new DuplicationAlignment(new File(file));
+            a = DuplicationAlignment.fromFile(new File(file));
         }
         if (type.equals("Sequence"))
         {
-            a = new PhylipAlignment(new File(file));
+            a = PhylipAlignment.fromFile(new File(file));
         }
         if (a == null)
         {
@@ -399,12 +399,12 @@ public class GeLL
         Alignment missing = null;
         if (type.equals("Duplication"))
         {
-            missing = new DuplicationAlignment(new File(file),
+            missing = DuplicationAlignment.fromFile(new File(file),
                     Ambiguous.fromFile(new File(ambig)));
         }
         if (type.equals("Sequence"))
         {
-            missing = new PhylipAlignment(new File(file));
+            missing = PhylipAlignment.fromFile(new File(file));
         }
         if (missing == null)
         {

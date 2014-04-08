@@ -132,6 +132,10 @@ public class Site implements Serializable
         this.id = id;
     }
     
+    /**
+     * Creates a copy of a site
+     * @param s The site to copy
+     */
     public Site(Site s)
     {
         this.sites = s.sites;

@@ -44,7 +44,7 @@ public class Alignment implements Iterable<Site>
      * Classes that do extend this class should ensure that they populate data
      * and taxa appropiately.
      */
-    protected Alignment()
+    private Alignment()
     {
         this.classSizes = null;
     }
@@ -316,6 +316,15 @@ public class Alignment implements Iterable<Site>
         }
     }
     
+    /**
+     * Checks whether the sites in this alignment have classes
+     * @return Whether the sites have clases
+     */
+    public boolean hasClasses()
+    {
+        return hasClasses;
+    }
+    
     public boolean equals(Object o)
     {
         if (!(o instanceof Alignment))
@@ -352,17 +361,17 @@ public class Alignment implements Iterable<Site>
     /**
      * The list of sites in the alignment
      */
-    protected List<Site> data = new ArrayList<>();
+    private List<Site> data = new ArrayList<>();
     
     /**
      * The list of taxa in the alignment
      */
-    protected Set<String> taxa = new HashSet<>();
+    private Set<String> taxa = new HashSet<>();
     
     /**
      * Whether the sites in this alignment contain class information
      */
-    protected boolean hasClasses = false;
+    private boolean hasClasses = false;
     
     private List<UniqueSite> us;
     

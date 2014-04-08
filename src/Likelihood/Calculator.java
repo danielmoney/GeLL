@@ -192,6 +192,10 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
         }
     }
     
+    /**
+     * Set whether threaded calculations should be performed
+     * @param thread Whether to perform threaded calculations
+     */
     public void setThread(boolean thread)
     {
         this.thread = thread;
@@ -236,7 +240,9 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
     {
         /**
          * Standard constructor
-         * @param t Tree
+         * @param s The site to calculate the likelihood for
+         * @param t The tree to be used in the calcualtion
+         * @param p The parameters to be used in the calculation
          * @param tp Pre-computed datastructure containing probabilities
          * @param nl Initalised node likelihoods based on the site.
          * See {@link Site#getInitialNodeLikelihoods(Trees.Tree, java.util.Map)}.
@@ -306,6 +312,11 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
             super("Rates Exception\n\tReason:\t" + reason,null);
         }
         
+        /**
+         * Constructor when there is an underlying Throwable that caused the problem.
+         * @param reason The reason for the exception
+         * @param cause The underlying throwable
+         */
         public CalculatorException(String reason, Exception cause)
         {
             super("Rates Exception\n\tReason:\t" + reason,cause);

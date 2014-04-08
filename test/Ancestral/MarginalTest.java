@@ -59,7 +59,7 @@ public class MarginalTest
         SquareMatrix.setExpMethod(Calculation.EIGEN);
         
         Tree t = Tree.fromNewickString("(((Human: 0.056428, Chimpanzee: 0.070879)A: 0.029155, Gorilla: 0.073129)B: 0.102499, Orangutan: 0.274348, Gibbon: 0.433137)C;");
-        Alignment a = new PhylipAlignment(new File("test\\PAML\\MarginalReconstruction\\brown.nuc"));
+        Alignment a = PhylipAlignment.fromFile(new File("test\\PAML\\MarginalReconstruction\\brown.nuc"));
 
         String[][] ma = new String[4][4];
 

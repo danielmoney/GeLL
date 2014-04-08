@@ -1017,6 +1017,14 @@ public class Tree implements Iterable<Branch>
 	}
     }
     
+    /**
+     * Creates a random rooted or unrooted tree from a list of taxa
+     * @param taxa A list of taxa to include in the tree
+     * @param rooted Whether the tree should be rooted
+     * @return A random tree
+     * @throws TreeException Thrown if there are too through taxa passed and so
+     * there are no trees to select a random tree from.
+     */
     public static Tree randomTree(List<String> taxa, boolean rooted) throws TreeException
     {
         if ( (rooted && (taxa.size() <= 1)) ||
@@ -1028,7 +1036,7 @@ public class Tree implements Iterable<Branch>
         Random random = new Random();
         
         int i = 1;
-        List<Branch> b = new ArrayList();
+        List<Branch> b = new ArrayList<>();
         LinkedList<String> t = new LinkedList<>(taxa);
         
         b.add(new Branch("_" + Integer.toString(i), t.pollFirst()));

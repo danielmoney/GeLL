@@ -306,6 +306,16 @@ public class AncestralMarginal
     private Map<String,Model> m;
     private Tree t;
     
+    public static AncestralMarginal newInstance(Model m, Alignment a, Tree t)
+    {
+        return new AncestralMarginal(m,a,t);
+    }
+    
+    public static AncestralMarginal newInstance(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException
+    {
+        return new AncestralMarginal(m,a,t);
+    }
+    
     /**
      * Class to store the results of a marginal ancestral reconstruction
      */
