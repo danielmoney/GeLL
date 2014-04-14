@@ -4,13 +4,14 @@ import Alignments.Alignment;
 import Alignments.DuplicationAlignment;
 import Exceptions.GeneralException;
 import Exceptions.UnexpectedError;
-import Likelihood.Calculator;
 import Likelihood.Likelihood;
 import Likelihood.StandardCalculator;
+import Likelihood.StandardLikelihood;
 import Models.Model;
 import Models.RateCategory;
 import Models.RateCategory.RateException;
 import Optimizers.GoldenSection;
+import Optimizers.Optimizable;
 import Optimizers.Optimizer;
 import Parameters.Parameter;
 import Parameters.Parameters;
@@ -23,7 +24,7 @@ import java.util.HashMap;
  * (2010) and is an example of how to define a new model, something not done
  * in {@link Example}.
  * @author Daniel Money
- * @version 1.4
+ * @version 2.0
  */
 public class Mayrose
 {
@@ -103,7 +104,7 @@ public class Mayrose
         Tree t = Tree.fromFile(new File(tree));
         p.addParameters(t.getParameters());
         
-        Calculator c = new StandardCalculator(m,a,t);
+        Optimizable<StandardLikelihood> c = new StandardCalculator(m,a,t);
         
         Optimizer o = new GoldenSection();
         

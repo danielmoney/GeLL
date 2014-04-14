@@ -32,7 +32,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Tests the ConjugateGradient optimizer is working right
+ * Tests the ConjugateGradient optimiser is working right
  * @author Daniel Money
  * @version 2.0
  */
@@ -40,7 +40,7 @@ public class ConjugateGradientTest
 {
 
     /**
-     * Tests by comaping the optimised likelihood to PAML
+     * Tests by comparing the optimised likelihood to PAML
      * @throws Exception Thrown if something went wrong!
      */
     @Test

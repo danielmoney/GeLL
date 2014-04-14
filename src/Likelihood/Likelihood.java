@@ -20,7 +20,7 @@ package Likelihood;
 import Parameters.Parameters;
 
 /**
- * Represents the simplist possible likelihood result, i.e. the likelihood
+ * Represents the simplest possible likelihood result, i.e. the likelihood
  * and the parameters used
  * @author Daniel Money
  * @version 2.0
@@ -49,7 +49,7 @@ public class Likelihood
     
     /**
      * Gets the parameters used to calculate the likelihood
-     * @return The paameters
+     * @return The parameters
      */
     public Parameters getParameters()
     {

@@ -1,22 +1,13 @@
 package Simulations;
 
 import Alignments.Alignment;
-import Alignments.AlignmentException;
 import Exceptions.GeneralException;
-import Exceptions.OutputException;
-import Likelihood.Calculator.CalculatorException;
 import Likelihood.StandardCalculator;
 import Likelihood.StandardLikelihood;
-import Likelihood.SiteLikelihood.LikelihoodException;
 import Models.Model;
-import Models.Model.ModelException;
-import Models.RateCategory.RateException;
 import Optimizers.Optimizer;
 import Parameters.Parameters;
-import Parameters.Parameters.ParameterException;
-import Simulations.Simulate.SimulationException;
 import Trees.Tree;
-import Trees.TreeException;
 import java.util.Map;
 
 /**
@@ -30,7 +21,7 @@ public class HypothesisTest
      * Constructor
      * @param nullModel The null model
      * @param altModel The alternative model
-     * @param o The optimizer to be used
+     * @param o The optimiser to be used
      * @param reps The number of samples of the null distribution to generate
      */
     public HypothesisTest(Model nullModel, Model altModel, 
@@ -43,11 +34,11 @@ public class HypothesisTest
     }
     
     /**
-     * Does a hpyothesis test on the given data and gives a p-value
+     * Does a hypothesis test on the given data and gives a p-value
      * @param t The tree
      * @param a The alignment
      * @param unobserved Any unobserved states
-     * @param nullParams The paramters of the null model
+     * @param nullParams The parameters of the null model
      * @param altParams The parameters of the alternative model
      * @return A p-value
      * @throws GeneralException When there is a problem performing the hypothesis test
@@ -59,14 +50,14 @@ public class HypothesisTest
     }
     
     /**
-     * Does a hpyothesis test on the given data and gives a p-value
+     * Does a hypothesis test on the given data and gives a p-value
      * @param t The tree
      * @param a The alignment
      * @param unobserved Any unobserved states
-     * @param nullParams The paramters of the null model
+     * @param nullParams The parameters of the null model
      * @param altParams The parameters of the alternative model
      * @param recode The recoding to be passed to the simulator.  See 
-     * {@link Simulate#getAlignment(int, java.util.Map)} for while this is neccessary.
+     * {@link Simulate#getAlignment(int, java.util.Map)} for while this is necessary.
      * @return A p-value
      * @throws GeneralException When there is a problem performing the hypothesis test
      */

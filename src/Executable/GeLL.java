@@ -59,7 +59,7 @@ import java.util.concurrent.TimeUnit;
  * the distribution for information on how to run this driver.
  * 
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public class GeLL
 {
@@ -174,12 +174,6 @@ public class GeLL
 		Simulate sim = new Simulate(sm,st,sp,smissing);
 		Alignment simAlign = sim.getAlignment(getLength(settings.getSetting("Simulation","Parameters")));
 
-		String sat = settings.getSetting("Simulation", "AlignmentType");
-		if (sat == null)
-		{
-		    sat = settings.getSetting("Likelihood", "AlignmentType");
-		}
-
                 String alignmentType = getAlignmentType(settings.getSetting("Simulation", "AlignmentType"),
                         settings.getSetting("Likelihood", "AlignmentType"));
                 outputAlignment(settings.getSetting("Simulation", "Output"),
@@ -212,7 +206,7 @@ public class GeLL
 	    out.println(e.toString());
 	    out.close();
 	}
-	catch (Exception ee)
+	catch (FileNotFoundException ee)
 	{
 	    System.err.println("Unable to write to debug file");
 	    System.err.println("\t" + ee.getMessage());

@@ -47,7 +47,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Class to perform joint ancestral reconstrion using the method of Pupko 2000
+ * Class to perform joint ancestral reconstruction using the method of Pupko 2000
  * @author Daniel Money
  * @version 2.0
  */
@@ -199,7 +199,6 @@ public class AncestralJointDP extends AncestralJoint
 	String maxC = null;
         for (String j: P.getAllStates())
 	{
-	    //Real cl = RealFactory.getReal(type, P.getFreq(r.get(s.getSiteClass()), j));
             Real cl = RealFactory.getReal(type, P.getRoot(r.get(s.getSiteClass())).getFreq(j));
 	    for (Branch ch: t.getBranchesByParent(t.getRoot()))
 	    {

@@ -56,8 +56,8 @@ import java.util.TreeSet;
 public class RateCategory implements Serializable
 {
     /**
-     * Constrcutor for when the root distribution is defined as the stationary
-     * or quasi-staionary distribution.
+     * Constructor for when the root distribution is defined as the stationary
+     * or quasi-stationary distribution.
      * @param rates Array representing the rate matrix
      * @param freqType How the root frequency is calculated
      * @param map Map from State to position in matrix (0-index).  For example
@@ -83,7 +83,7 @@ public class RateCategory implements Serializable
      * (column and row) of the matrix and in the first position of the root frequency
      * array.
      * @throws Models.RateCategory.RateException  If the rate matrix is not square
-     * or the frequncy array is not the same length as the rate matrix.
+     * or the frequency array is not the same length as the rate matrix.
      */
     public RateCategory(String[][] rates, String[] freq, Map<String, Integer> map) throws RateException
     {
@@ -247,7 +247,7 @@ public class RateCategory implements Serializable
 
     /**
      * Updates the parameters in the RateCategory and recalculates matrices /
-     * frequencies if neccessary.
+     * frequencies if necessary.
      * @param p The new parameters
      * @throws Models.RateCategory.RateException If the parameters passed does not
      * include all the parameters in the model.
@@ -538,13 +538,13 @@ public class RateCategory implements Serializable
     }
 
     /**
-     * Returns a new RateClass where every position in the rate matrix is multiplied
+     * Returns a new RateCategory where every position in the rate matrix is multiplied
      * by a given value
      * @param mult Value to be multiplied (as a string as it will be evaluated as
      * a equation)
      * @return The new RateClass
      */
-    RateCategory multiplyBy(String mult) throws RateException
+    public RateCategory multiplyBy(String mult) throws RateException
     {
         CompiledFunction cm;
         try
@@ -687,16 +687,16 @@ public class RateCategory implements Serializable
      * <li>First line contains the number of states the RateCategory has</li>
      * <li>Second line is blank</li>
      * <li>Third line is a list of states in the order they appear in the rate matrix,
-     * tab-seprated</li>
+     * tab-separated</li>
      * <li>Forth line is blank</li>
-     * <li>Fifth and subsquent lines contain the rate matrix, one row per line.  Columns
-     * in a row are serated by tabs.  Each entry can be an equation.</li>
+     * <li>Fifth and subsequent lines contain the rate matrix, one row per line.  Columns
+     * in a row are separated by tabs.  Each entry can be an equation.</li>
      * <li>The rate matrix is followed by a blank line</li>
-     * <li>Finally thee is a line giivng the base frequencies.  Three different
+     * <li>Finally thee is a line giving the base frequencies.  Three different
      * values are allowed:
      * <ol>
      * <li><i>Model frequencies</i> - This line contains an equation for the frequency
-     * of each state, in the same order as the rate matrix and tab-seperated
+     * of each state, in the same order as the rate matrix and tab-separated
      * <li><i>Stationary distribution</i> - Line contains just "**S" (without the quotes)
      * <li><i>Quasi-stationary distribution</i> - Line contains just "**Q" 
      * (without the quotes)

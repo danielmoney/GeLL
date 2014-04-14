@@ -25,7 +25,7 @@ package Maths;
 public class WrongNumberOfVariables extends Exception
 {
     /**
-     * Default constrcutor
+     * Default constructor
      * @param name The name of the function
      * @param wanted The number of variables the function takes
      * @param found The number of variables that were actually passed

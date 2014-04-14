@@ -40,7 +40,7 @@ import java.util.HashMap;
 import static org.junit.Assert.*;
 
 /**
- * Tests whether we're doing likeliohood calcualations right by comparing results
+ * Tests whether we're doing likelihood calculations right by comparing results
  * to PAML
  * @author Daniel Money
  * @version 2.0
@@ -92,7 +92,7 @@ public class LikelihoodTest
     }
     
     /**
-     * Tests the rate assignments by comaping GeLL to PAML
+     * Tests the rate assignments by comparing GeLL to PAML
      * @throws Exception
      */
     @Test
@@ -135,7 +135,7 @@ public class LikelihoodTest
     }
     
     /**
-     * Tests the site class methods by splititng an alignment in two
+     * Tests the site class methods by splitting an alignment in two
      * and using a different model calculate the likelihood for each half.
      * Compare the sum of these two likelihoods with the result using the site
      * class method.

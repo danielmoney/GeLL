@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * Class for visualising trees.  Produces a SVG file.<br>
  * <b>Note this class is still being developed.  It works but may not have all
- * appropiate error checking nor have all needed methods been written.
+ * appropriate error checking nor have all needed methods been written.
  * I make no guarantees that future versions will have the same methods.</b>
  * @author Daniel Money
  * @version 2.0
@@ -21,7 +21,7 @@ public class TreeFigure
 {
     /**
      * Constructor
-     * @param t The tree to visualize
+     * @param t The tree to visualise
      * @throws TreeException If the tree does not have branch lengths
      */
     public TreeFigure(Tree t) throws TreeException
@@ -74,10 +74,10 @@ public class TreeFigure
     }
     
     /**
-     * Sets the color of branches.  Default is black, either if this method
-     * is not called at all or it is not bassed a color for a branch.  
-     * Colors should be defined as in a SVG file.
-     * @param colors Map from branch to color
+     * Sets the colour of branches.  Default is black, either if this method
+     * is not called at all or it is not passed a colour for a branch.  
+     * Colours should be defined as in a SVG file.
+     * @param colors Map from branch to colour
      */
     public void setBranchColors(Map<Branch, String> colors)
     {
@@ -88,9 +88,9 @@ public class TreeFigure
     }
     
     /**
-     * Sets the color of the leaf text.  Default is black, either if this method
-     * is not called at all or it is not bassed a color for a branch
-     * @param colors Map from leaf name to color.  Colors should be defined as
+     * Sets the colour of the leaf text.  Default is black, either if this method
+     * is not called at all or it is not passed a colour for a leaf.
+     * @param colors Map from leaf name to colour.  Colours should be defined as
      * in a SVG file.
      */
     public void setLeafColor(Map<String,String> colors)
@@ -99,9 +99,9 @@ public class TreeFigure
     }
     
     /**
-     * Sets the color of the root branch.  Defaults to black if this method is
+     * Sets the colour of the root branch.  Defaults to black if this method is
      * not called
-     * @param color The color of the branch.  Color should be defined as
+     * @param color The colour of the branch.  Colour should be defined as
      * in a SVG file.
      */
     public void setRootBranchColor(String color)

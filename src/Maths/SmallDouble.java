@@ -20,7 +20,7 @@ package Maths;
 import java.io.Serializable;
 
 /**
- * Represents a real number.  Stores the exponent seperately as an Integer so
+ * Represents a real number.  Stores the exponent separately as an Integer so
  * can store much smaller (or indeed larger) reals than the standard double.
  * @author Daniel Money
  * @version 2.0

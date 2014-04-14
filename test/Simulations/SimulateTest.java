@@ -38,10 +38,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Tests the simulation method.  Note that this test will occassionally fail due
- * the random nature of the simulation which means we would expect the simulated
- * data to have a significant different distribution in 5% of tests (as this is
- * the significance level we use).
+ * Tests the simulation method.  Uses a set random number seed so that it should
+ * always pass.
  * @author Daniel Money
  * @version 2.0
  */
@@ -49,7 +47,7 @@ public class SimulateTest
 {
     /**
      * Tests by comparing the frequency of each state computed by counting simulator
-     * output with the theoritical distribution (which is easily calculable for a small
+     * output with the theoretical distribution (which is easily calculable for a small
      * tree like this).
      * @throws Exception Thrown if something went wrong!
      */
@@ -95,6 +93,8 @@ public class SimulateTest
         
         Simulate sim = new Simulate(m,t,p);
         
+        sim.setSeed(125745);
+        
         Alignment gepul = sim.getAlignment(1000000);
         
         Map<Site,Integer> gepulCounts = new HashMap<>();
@@ -117,7 +117,6 @@ public class SimulateTest
         bases.add("C");
         bases.add("A");
         bases.add("G");
-        //Probabilities P = new Probabilities(m,t,p);
         List<Site> sites = new ArrayList<>();
         for (String h: bases)
         {
@@ -135,12 +134,6 @@ public class SimulateTest
                         Site s = new Site(sm);
                         
                         sites.add(s);
-                        
-                        //Map<String, NodeLikelihood> nl = s.getInitialNodeLikelihoods(t, P.getMap());
-                        
-                        //SiteCalculator sc = new SiteCalculator(t,P,nl);
-                        //double l = sc.calculate().getLikelihood().toDouble();
-                        //theory.put(s, l * 1000000);
                     }
                 }
             }

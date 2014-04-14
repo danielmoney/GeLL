@@ -18,7 +18,7 @@
 package Utils;
 
 /**
- * Used to represent a range (using doubkes)
+ * Used to represent a range (using doubles)
  * @author Daniel Money
  * @version 2.0
  */

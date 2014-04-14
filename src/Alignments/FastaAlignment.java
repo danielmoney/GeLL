@@ -48,9 +48,9 @@ public class FastaAlignment
     
     /**
      * Creates a sequence alignment from a file.  File should be in Fasta format
-     * File should consist of a line beginningb with a ">" followed by the taxa name -
+     * File should consist of a line beginning with a ">" followed by the taxa name -
      * anything after a "|" is ignored.  The following lines to the next line
-     * beginning with ">" are tjhe sequence associated with that taxa.  Blank lines
+     * beginning with ">" are the sequence associated with that taxa.  Blank lines
      * are ignored.  Comments, i.e. lines beginning with ";" are NOT supported.
      * A taxa name of <code>*class*</code> is
      * assumed not to be a taxa but rather gives the class of each site (which can be any
@@ -58,7 +58,7 @@ public class FastaAlignment
      * @param f The input file
      * @return The alignment created from the file
      * @throws InputException Thrown if there is a problem with the input file
-     * @throws Alignments.AlignmentException Thrown if there issomething wrong with the alignment, e.g.
+     * @throws Alignments.AlignmentException Thrown if there is something wrong with the alignment, e.g.
      * different length sequences
      */
     public static Alignment fromFile(File f) throws InputException, AlignmentException
@@ -67,13 +67,13 @@ public class FastaAlignment
     }
 
     /**
-     * Creates a sequence alignment from a file with ambiguouis data.  File should
-     * be in {@link #FastaAlignment(java.io.File)}
+     * Creates a sequence alignment from a file with ambiguous data.  File should
+     * be in {@link #fromFile(java.io.File) }
      * @param f The input file
-     * @param ambig Desription of the ambiguous data
+     * @param ambig Description of the ambiguous data
      * @return The alignment created from the file
      * @throws InputException Thrown if there is a problem with the input file
-     * @throws Alignments.AlignmentException Thrown if there issomething wrong with the alignment, e.g.
+     * @throws Alignments.AlignmentException Thrown if there is something wrong with the alignment, e.g.
      * different length sequences
      */
     public static Alignment fromFile(File f, Ambiguous ambig) throws InputException, AlignmentException
@@ -213,7 +213,7 @@ public class FastaAlignment
 
     /**
      * Writes a alignment to a file in the format described in 
-     * {@link #FastaAlignment(java.io.File)}.
+     * {@link #fromFile(java.io.File)}.
      * @param a The alignment to write to the file. Need not be a sequence alignment
      * @param f The file to write to
      * @throws OutputException Thrown if there is a problem creating the file

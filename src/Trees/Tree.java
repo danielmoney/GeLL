@@ -117,7 +117,7 @@ public class Tree implements Iterable<Branch>
 
     /**
      * Duplicates a tree topology while replacing branch lengths using
-     * the appropiate parameter
+     * the appropriate parameter
      * @param old The old tree
      * @param p The parameters used for the new branch lengths
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
@@ -198,7 +198,7 @@ public class Tree implements Iterable<Branch>
     /**
      * Returns a Parameters object containing a parameter for each branch length.
      * Parameters are fixed at the relevance branch length
-     * @return Parameters object containiing branch lengths
+     * @return Parameters object containing branch lengths
      * @throws Trees.TreeException Thrown if the tree does not have branch lengths
      */
     public Parameters getParameters() throws TreeException
@@ -215,7 +215,7 @@ public class Tree implements Iterable<Branch>
     /**
      * Returns a Parameters object containing a parameter for each branch length.
      * Parameters are estimation parameters.
-     * @return Parameters object containiing branch lengths
+     * @return Parameters object containing branch lengths
      */
     public Parameters getParametersForEstimation()
     {
@@ -271,7 +271,7 @@ public class Tree implements Iterable<Branch>
     /**
      * Gets the set of branches which have the passed node as a parent
      * @param parent The parent node
-     * @return The set of banches with the given parent
+     * @return The set of branches with the given parent
      * @throws Trees.TreeException If the node does not exist in the tree or is a leaf
      */
     public Set<Branch> getBranchesByParent(String parent) throws TreeException
@@ -507,7 +507,7 @@ public class Tree implements Iterable<Branch>
 
     /**
      * Returns the most recent common ancestor of a set of leaves.
-     * Although this only mkaes sense for rooted trees it will produce a result
+     * Although this only makes sense for rooted trees it will produce a result
      * for all trees per the explanation in the class description.
      * @param leaves Set of leaves to calculate the MRCA for
      * @return The MRCA
@@ -596,7 +596,7 @@ public class Tree implements Iterable<Branch>
     
     /**
      * Gets the splits that represent the tree
-     * @return A set of splites
+     * @return A set of splits
      * @throws TreeException If the tree is invalid
      */
     public Set<Split> getSplits() throws TreeException
@@ -648,7 +648,7 @@ public class Tree implements Iterable<Branch>
      * Calculates the RF distance between this tree and another tree
      * @param t The other tree
      * @return The RF distance
-     * @throws TreeException If one tree or the other is not valud
+     * @throws TreeException If one tree or the other is not valid
      */
     public int RF(Tree t) throws TreeException
     {
@@ -670,7 +670,7 @@ public class Tree implements Iterable<Branch>
      * Calculates the weighted (by branch length) RF distance between this tree and another tree
      * @param t The other tree
      * @return The weighted RF distance
-     * @throws TreeException If one tree or the other is not valud
+     * @throws TreeException If one tree or the other is not valid
      */
     public double weightedRF(Tree t) throws TreeException
     {
@@ -692,7 +692,7 @@ public class Tree implements Iterable<Branch>
      * Calculates the branch score distance between this tree and another tree
      * @param t The other tree
      * @return The branch score distance
-     * @throws TreeException If one tree or the other is not valud
+     * @throws TreeException If one tree or the other is not valid
      */
     public double branchScore(Tree t) throws TreeException
     {
@@ -823,7 +823,7 @@ public class Tree implements Iterable<Branch>
     }
     
     /**
-     * Wrtites the tree to a file with taxa names limited to 25 characters
+     * Writes the tree to a file with taxa names limited to 25 characters
      * for use in PAML.  At the moment no checking is done for any duplicated
      * taxa names that may be created.
      * @param f The file to write the tree to

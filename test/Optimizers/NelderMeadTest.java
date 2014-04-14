@@ -32,14 +32,14 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Tests the Nelder-Mead optimizer is working right
+ * Tests the Nelder-Mead optimiser is working right
  * @author Daniel Money
  * @version 2.0
  */
 public class NelderMeadTest
 {
     /**
-     * Tests by comaping the optimised likelihood to PAML
+     * Tests by comparing the optimised likelihood to PAML
      * @throws Exception Thrown if something went wrong!
      */
     @Test

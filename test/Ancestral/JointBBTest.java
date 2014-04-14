@@ -23,7 +23,6 @@ import Maths.Real;
 import Maths.SquareMatrix;
 import Trees.Branch;
 import java.util.Map;
-import Likelihood.Calculator.SiteCalculator;
 import Likelihood.SiteLikelihood.LikelihoodException;
 import Likelihood.SiteLikelihood.NodeLikelihood;
 import java.util.ArrayList;
@@ -159,7 +158,7 @@ public class JointBBTest
         return maxA;
     }
     
-    public SiteLikelihood calculateSite(Tree t, Probabilities tp, Map<String,NodeLikelihood> nl)
+    private SiteLikelihood calculateSite(Tree t, Probabilities tp, Map<String,NodeLikelihood> nl)
     {    
         List<Branch> branches = t.getBranches();
         Map<RateCategory,RateLikelihood> rateLikelihoods = new HashMap<>(tp.getRateCategory().size());

@@ -26,3 +26,4 @@ a { color: blue; text-decoration:none}
 .high2 {background-color:mistyrose;}
 .explain {height:490px;width:255px;float:left;border-color:aliceblue; background-color:aliceblue;
          display:none; padding: 5px 10px; text-align: left}
+.codesnip {font-family:monospace; padding-left: 25px}

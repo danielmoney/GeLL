@@ -18,7 +18,7 @@
 package Exceptions;
 
 /**
- * Represnts an error that should never occur.  Used when someone else's code
+ * Represents an error that should never occur.  Used when someone else's code
  * (normally Java) throws an error but you know the condition that caused the
  * error should never occur.
  * @author Daniel Money

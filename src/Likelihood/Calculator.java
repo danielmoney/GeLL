@@ -42,7 +42,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Abstract class for calculating a likelihood
+ * Abstract class for calculating a likelihood.  Likelihood calculators should
+ * extend this class as then this class will deal with multi-threading.
  * @author Daniel Money
  * @version 2.0
  * @param <R> The return type from the calculation
@@ -51,7 +52,7 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
 {
     /**
      * Default constructor.  The Site-Node-Likelihoods (snl) are passed here
-     * as it is much quicker to clone them for each calcualtion than re-create them
+     * as it is much quicker to clone them for each calculation than re-create them
      * @param m The model
      * @param t The tree
      * @param snl The site node likelihoods.  That is the initial likelihood values
@@ -77,7 +78,7 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
      * @throws Models.Model.ModelException Thrown if there is a problem with the
      * model (e.g. the rate categories differ in their states)
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present)
+     * with the parameters (e.g. a required parameter is not present)
      * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive
      * or NaN) log likelihood is calculated 
      */
@@ -108,13 +109,39 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
         
         return combineSites(sites, p);
     }
-    //MAKE ABOVE NOT ABSTRACT AND GET IT TO CALL THE ABSTRACT ONE BELOW.  calculateSite will
-    //possibly be called from within the sitecaluclator class (I think that's possible)
     
-    
+    /**
+     * Combines the likelihood from each site into a alignment likelihood
+     * @param sites A map from sites to the likelihood of those sites.
+     * @param p The parameters to use in the calculation
+     * @return The likelihood of the alignment
+     * @throws TreeException Thrown if there is a problem with the Tree (e.g. if
+     * there is a branch with no length given in parameters)
+     * @throws Models.RateCategory.RateException Thrown if there is an issue with
+     * a rate category in the model (e.g. a badly formatted rate).
+     * @throws Models.Model.ModelException Thrown if there is a problem with the
+     * model (e.g. the rate categories differ in their states)
+     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
+     * with the parameters (e.g. a required parameter is not present)
+     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive
+     * or NaN) log likelihood is calculated 
+     */
     public abstract R combineSites(Map<Site,SiteLikelihood> sites, Parameters p) throws CalculatorException, TreeException, ParameterException, RateException, ModelException;
     
-    public abstract SiteLikelihood calculateSite(Site s, Tree t, Parameters p, Probabilities tp, Map<String,NodeLikelihood> nl) throws ParameterException;
+    /**
+     * Calculate the  likelihood for a single site.
+     * @param s The site to calculate the likelihood for
+     * @param t The tree to use in calculating the likelihood
+     * @param p The parameters to use in calculating the likelihood
+     * @param tp Pre-calculated transition probabilities to be used in the
+     * calculation (passed in as they don't need to be calculated separately for
+     * each site).  See {@link Probabilities} for more information
+     * @param nl The starting node-likelihoods are passed here as it is much 
+     * quicker to clone them for each calculation than re-create them
+     * @return An instance of {@link SiteLikelihood} given the likelihood and
+     * any other information
+     */
+    public abstract SiteLikelihood calculateSite(Site s, Tree t, Parameters p, Probabilities tp, Map<String,NodeLikelihood> nl);
     
     /**
      * Calculates the likelihood for each site
@@ -127,7 +154,7 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
      * @throws Models.Model.ModelException Thrown if there is a problem with the
      * model (e.g. the rate categories differ in their states)
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present)
+     * with the parameters (e.g. a required parameter is not present)
      * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive
      * or NaN) log likelihood is calculated 
      */
@@ -241,10 +268,10 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
         /**
          * Standard constructor
          * @param s The site to calculate the likelihood for
-         * @param t The tree to be used in the calcualtion
+         * @param t The tree to be used in the calculation
          * @param p The parameters to be used in the calculation
          * @param tp Pre-computed datastructure containing probabilities
-         * @param nl Initalised node likelihoods based on the site.
+         * @param nl Initialised node likelihoods based on the site.
          * See {@link Site#getInitialNodeLikelihoods(Trees.Tree, java.util.Map)}.
          */
         public SiteCalculator(Site s, Tree t, Parameters p, Probabilities tp, Map<String,NodeLikelihood> nl)
@@ -303,7 +330,7 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
     {
         /**
          * Constructor when there is no underlying Throwable that caused the problem.
-         * Currnetly used when there is a problem constructing the model,
+         * Currently used when there is a problem constructing the model,
          * e.g. different number of states in the RateClasses.
          * @param reason The reason for the exception
          */

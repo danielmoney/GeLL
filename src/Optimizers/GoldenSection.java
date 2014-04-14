@@ -43,8 +43,8 @@ import java.util.concurrent.TimeUnit;
  * Implements a golden section search for parameter optimisation.  Each parameter
  * is optimised in turn until the difference in likelihood falls below a set value.
  * This value starts high and slowly decreased so as to not waste time highly
- * optomizing one parameter while other parameters may be highly sub-optimal.<br><br>
- * The amount of logging can be controlled as can the rigor used (the difference
+ * optimising one parameter while other parameters may be highly sub-optimal.<br><br>
+ * The amount of logging can be controlled as can the rigour used (the difference
  * in likelihood when the search stops).
  * @author Daniel Money
  * @version 2.0
@@ -52,7 +52,7 @@ import java.util.concurrent.TimeUnit;
 public class GoldenSection implements Optimizer
 {
     /**
-     * Constructor that uses default parameters for rigor and output level
+     * Constructor that uses default parameters for rigour and output level
      */
     public GoldenSection()
     {
@@ -60,7 +60,7 @@ public class GoldenSection implements Optimizer
     }
 
     /**
-     * Constrcutor which allows a user define output level
+     * Constructor which allows a user define output level
      * @param progresslevel The output level
      */
     public GoldenSection(ProgressLevel progresslevel)
@@ -69,8 +69,8 @@ public class GoldenSection implements Optimizer
     }
 
     /**
-     * Constructor which allows a user defined rigor
-     * @param rigor Rigor to be used
+     * Constructor which allows a user defined rigour
+     * @param rigor Rigour to be used
      */
     public GoldenSection(double rigor)
     {
@@ -78,8 +78,8 @@ public class GoldenSection implements Optimizer
     }
 
     /**
-     * Constructor which allows a user defined rigor and output level
-     * @param rigor Rigor to be used
+     * Constructor which allows a user defined rigour and output level
+     * @param rigor Rigour to be used
      * @param progresslevel The output level
      */
     public GoldenSection(double rigor, ProgressLevel progresslevel)

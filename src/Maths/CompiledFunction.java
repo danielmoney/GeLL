@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Represents a mahematical function, variable or constant
+ * Represents a mathematical function, variable or constant
  * @author Daniel Money
  * @version 2.0
  */

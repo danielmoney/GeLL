@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 /**
  * Root class for the standard root methods - e.g. root frequencies based on the
  * stationary distribution or given by the model.  Also used if the root distribution
- * is givebn by the quasi-stationary distribution as this uses the same machinary.
+ * is given by the quasi-stationary distribution as this uses the same machinery.
  * @author Daniel Money
  * @version 2.0
  */

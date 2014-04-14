@@ -75,7 +75,7 @@ public class Model implements Iterable<RateCategory>
      * Creates a new model with multiple rate classes
      * @param freq A map from the rate classes in the model to the frequency of
      * the rate class (as a String - see the introduction to this class).
-     * Frequencies need not sum to one as they ae rescaled to do so.
+     * Frequencies need not sum to one as they are rescaled to do so.
      * @throws ModelException If the states in each of the rate classes are not
      * identical.
      */
@@ -303,7 +303,7 @@ public class Model implements Iterable<RateCategory>
 
     /**
      * Creates a new model from a file.  The first line controls the type of model.
-     * Possible types and the subsquent format of the rest of the file are:
+     * Possible types and the subsequent format of the rest of the file are:
      * <ul>
      * <li><i>Gamma distributed rate categories</i>
      * <ul>
@@ -316,12 +316,12 @@ public class Model implements Iterable<RateCategory>
      * <li><i>Equally likely rate categories
      * <ul>
      * <li>First line should contain "**E" (without the quotes)</li>
-     * <li>Subsquent lines should each contain a file path to a RateCategory file
+     * <li>Subsequent lines should each contain a file path to a RateCategory file
      * </ul></li>
      * <li><i>Given frequency rate categories
      * <ul>
      * <li>First line should contain "**F" (without the quotes)</li>
-     * <li>Subsquent lines should each contain an equation describing the frequency
+     * <li>Subsequent lines should each contain an equation describing the frequency
      * of that ratecategory (see {@link Maths.MathsParse} for the format of this
      * equation) followed by a tab followed by a file path to a RateCategoy file.
      * </ul></li>
@@ -408,7 +408,7 @@ public class Model implements Iterable<RateCategory>
     {
         /**
          * Constructor when there is no underlying Throwable that caused the problem.
-         * Currnetly used when there is a problem constructing the model,
+         * Currently used when there is a problem constructing the model,
          * e.g. different number of states in the RateClasses.
          * @param reason The reason for the exception
          */

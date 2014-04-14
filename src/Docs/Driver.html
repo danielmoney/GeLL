@@ -19,12 +19,12 @@
             </div>
             <div class="collapseinner" id="use" style="display:block">
                 <ul>
-                    <li><code>java -jar GePul.jar <i>settings {var1 var2 var3 ...}</i></code></li>
+                    <li><code>java -jar GeLL.jar <i>settings {var1 var2 var3 ...}</i></code></li>
                 </ul>
                 <p>where <code><i>settings</i></code> is the name of a settings file.
                 <code>var1</code> etc are variables that can be "passed" to the setting
                 file.  A <code>$</code> followed by a number in the settings file will
-                be replaced by the corresponding command line arguement.  The format of
+                be replaced by the corresponding command line argument.  The format of
                 the settings file is described below.</p>
                 <br/>
             </div>
@@ -38,8 +38,8 @@
                 The settings file has four options sections.  The start of each of
                 these sections should begin with the sections name in square brackets,
                 e.g. <code>[Control]</code>.  Each section is optional.  The
-                control sectgion contains general control sections while the
-                likelihood section controls lieklihood optimization.  The ancestral
+                control section contains general control sections while the
+                likelihood section controls likelihood optimisation.  The ancestral
                 and simulation sections control the expected processes.  Although
                 each section is optional if a section it may have settings that
                 must be set.  These are shown by the darker background.</p>
@@ -56,7 +56,7 @@
                                 <li><code>2&nbsp;-&nbsp;</code> An error message and stack
                                 trace is logged.</li>
                                 <li><code>3&nbsp;-&nbsp;</code>An error message and stack
-                                trace is logged along with the messgae and trace
+                                trace is logged along with the message and trace
                                 of any underlying exception.
                             </ul>
                         </td> 
@@ -77,7 +77,7 @@
                                 <li><code>Repeat&nbsp;-&nbsp;</code> <i>Default.</i>
                                 Distributions are calculated by repeated application
                                 of a P-matrix to a distribution.</li>
-                                <li><code>Eigen&nbsp;&nbsp;-&nbsp;</code> Distirbutions
+                                <li><code>Eigen&nbsp;&nbsp;-&nbsp;</code> Distributions
                                 are calculated using Eigendecompositions.</li>
                             </ul>
                         </td>
@@ -85,20 +85,20 @@
                     <tr>
                         <th>MatrixExponentation</th>
                         <td>
-                            How matrix exponentations are calculated.  Valid values
+                            How matrix exponentiations are calculated.  Valid values
                             are:
                             <ul>
                                 <li><code>Taylor&nbsp;-&nbsp;</code> <i>Default.</i>
-                                Exponentations are calculated by a Taylor expansion.</li>
-                                <li><code>Eigen&nbsp;&nbsp;-&nbsp;</code> Exponentations
-                                are claculated using Eigendecompositions.</li>                                
+                                Exponentiations are calculated by a Taylor expansion.</li>
+                                <li><code>Eigen&nbsp;&nbsp;-&nbsp;</code> Exponentiations
+                                are calculated using Eigendecompositions.</li>                                
                             </ul>
                         </td>
                     </tr>
                     <tr>
                         <th>ForceSquare</th>
-                        <td>The minimum number of repeated suaring steps to use when
-                        calculating matrix exponentations using the Taylor method.
+                        <td>The minimum number of repeated squaring steps to use when
+                        calculating matrix exponentiations using the Taylor method.
                         Defaults to 0.
                     </tr>
                 </table>
@@ -142,23 +142,23 @@
                         the alignment.</td>
                     </tr>
                     <tr>
-                        <th>Misisng</th>
+                        <th>Missing</th>
                         <td>Path to an alignment that gives the unobserved
                         data.  In the same format as the alignment.</td>
                     </tr>
                     <tr>
-                        <th>MisisngAmbig</th>
+                        <th>MissingAmbig</th>
                         <td>Path to a file describing any ambiguous states in
-                        the misisng alignment.</td>
+                        the missing alignment.</td>
                     </tr>
                     <tr>
                         <th>Optimizer</th>
-                        <td>The optimizer to use. Valid values are:
+                        <td>The optimiser to use. Valid values are:
                             <ul>
                                 <li><code>GoldenSection&nbsp;-&nbsp;</code>
                                 Golden section search.</li>
                                 <li><code>NelderMead&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;</code> 
-                                Neader-Mead opimization.</li>
+                                Neader-Mead optimisation.</li>
                             </ul>
                         </td>
                     </tr>
@@ -175,7 +175,7 @@
                     </tr>
                     <tr>
                         <th>Restart</th>
-                        <td>Checkpoint file to restart optimization from.</td>
+                        <td>Checkpoint file to restart optimisation from.</td>
                     </tr> 
                     <tr>
                         <th>TreeOutput</th>
@@ -254,7 +254,7 @@
                         <code>ParameterInput</code> in Likelihood section.</td>
                     </tr>
                     <tr>
-                        <th>Misisng</th>
+                        <th>Missing</th>
                         <td>Path to an alignment that gives the unobserved
                         data.  In the same format as the alignment.</td>
                     </tr>
@@ -282,14 +282,14 @@
                     per line.  Anything from the start of the line to the first white space is
                     considered the taxa's name.  Anything after the first whitespace is the sequence.
                     Whitespace in the sequence is ignored.  A taxa name of <code>*class*</code> is
-                    assumed not to be a taxa but rather gfives the class of each site (which can be any
+                    assumed not to be a taxa but rather gives the class of each site (which can be any
                     single character).</li>
-                    <li><b>Duplication</b>&nbsp;-&nbsp; File is tab seperated.
+                    <li><b>Duplication</b>&nbsp;-&nbsp; File is tab separated.
                     First row is a header file.  First field is ignored while subsequent fields
                     are the name of the species.  Each additional row represents a family.
                     The first field is an ID for the family while subsequent fields are the
-                    size of the family in the appropiate species.  A family name of <code>*class*</code> is
-                    assumed not to be a taxa but rather gfives the class of each site (which can be any
+                    size of the family in the appropriate species.  A family name of <code>*class*</code> is
+                    assumed not to be a taxa but rather gives the class of each site (which can be any
                     string).</li>
                 </ul>
             </div>
@@ -299,9 +299,9 @@
                 <span class="hide" onclick="hide('param')" id="paramH">Hide</span>
             </div>
             <div class="collapseinner" id="param">
-                <p> Each line represents a single parameter.  Lines are tab seperated.  
+                <p> Each line represents a single parameter.  Lines are tab separated.  
                 The first field is the type of the parameter and the second is the name
-                of the parameter.  Subsquent fields depend on the parameter type.
+                of the parameter.  Subsequent fields depend on the parameter type.
                 Type values are:</p>
                 <ul>
                     <li><code>EB&nbsp;&nbsp;-&nbsp;</code>Estimated bound parameter that is in a rate matrix.  3rd field is 
@@ -322,7 +322,7 @@
             </div>
             <div class="collapseinner" id="model">
                 <p>The first line controls the type of model.
-                Possible types and the subsquent format of the rest of the file are:</p>
+                Possible types and the subsequent format of the rest of the file are:</p>
                 <ul>
                 <li><i>Gamma distributed rate categories</i>
                     <ul>
@@ -336,13 +336,13 @@
                 <li><i>Equally likely rate categories</i>
                     <ul>
                     <li>First line should contain <code>**E</code></li>
-                    <li>Subsquent lines should each contain a file path to a RateCategory file
+                    <li>Subsequent lines should each contain a file path to a RateCategory file
                     </ul>                    
                 </li>
                 <li><i>Given frequency rate categories</i>
                     <ul>
                     <li>First line should contain <code>**F</code></li>
-                    <li>Subsquent lines should each contain an equation describing the frequency
+                    <li>Subsequent lines should each contain an equation describing the frequency
                     of that ratecategory (see Equation Format below for the format of this
                     equation) followed by a tab followed by a file path to a RateCategoy file.
                     </ul>                    
@@ -350,7 +350,7 @@
                 </ul>
                 <p>To use different models for different site classes the format
                 of this file is different.  In this instance each line of the file
-                will represent one class and will contain two fields tab seperated.
+                will represent one class and will contain two fields tab separated.
                 The first field is the class identifier while the second is the file
                 name of a file in the normal model format (above) that defines the
                 model for that class.</p>
@@ -368,16 +368,16 @@
                     <li>First line contains the number of states the RateCategory has</li>
                     <li>Second line is blank</li>
                     <li>Third line is a list of states in the order they appear in the rate matrix,
-                    tab-seprated</li>
+                    tab-separated</li>
                     <li>Forth line is blank</li>
-                    <li>Fifth and subsquent lines contain the rate matrix, one row per line.  Columns
-                    in a row are serated by tabs.  Each entry can be an equation.</li>
+                    <li>Fifth and subsequent lines contain the rate matrix, one row per line.  Columns
+                    in a row are separated by tabs.  Each entry can be an equation.</li>
                     <li>The rate matrix is followed by a blank line</li>
-                    <li>Finally thee is a line giivng the base frequencies.  Three different
+                    <li>Finally thee is a line giving the base frequencies.  Three different
                     values are allowed:
                     <ol>
                         <li><i>Model frequencies</i> - This line contains an equation for the frequency
-                        of each state, in the same order as the rate matrix and tab-seperated
+                        of each state, in the same order as the rate matrix and tab-separated
                         <li><i>Stationary distribution</i> - Line contains just <code>**S</code>
                         <li><i>Quasi-stationary distribution</i> - Line contains just <code>**Q</code>
                     </ol>
@@ -392,7 +392,7 @@
             <div class="collapseinner" id="ambig">
                 <p>File should be a tab
                 delimited file with one ambiguous character per line.  The first field
-                on each line is the ambiguous character while also subsquent field
+                on each line is the ambiguous character while also subsequent field
                 represents a character that could be represented by it</p>
             </div>
             <div class="collapsetop">Equation Format

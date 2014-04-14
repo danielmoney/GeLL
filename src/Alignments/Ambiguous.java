@@ -48,7 +48,7 @@ public class Ambiguous implements Serializable
     /**
      * Constructor for use when there are ambiguous characters
      * @param ambig A map from the ambiguous characters to the set of characters
-     *      the ambiguous charcater could represent.  Recurssive definitions are
+     *      the ambiguous character could represent.  Recursive definitions are
      *      not allowed.
      */
     public Ambiguous(Map<String,Set<String>> ambig)
@@ -57,9 +57,9 @@ public class Ambiguous implements Serializable
     }
     
     /**
-     * Gets the characters an ambiguous charcter could represent
+     * Gets the characters an ambiguous character could represent
      * @param c The ambiguous character
-     * @return The set of charcaters that could be represented by it
+     * @return The set of characters that could be represented by it
      */
     public Set<String> getPossible(String c)
     {
@@ -78,9 +78,9 @@ public class Ambiguous implements Serializable
     private Map<String,Set<String>> ambig;
     
     /**
-     * Reads in amiguous data information from a file.  File should be a tab
+     * Reads in ambiguous data information from a file.  File should be a tab
      * delimited file with one ambiguous character per line.  The first field
-     * on each line is the ambiguous character while also subsquent field
+     * on each line is the ambiguous character while also subsequent field
      * represents a character that could be represented by it
      * @param f File object for the input file
      * @return An Ambiguous object

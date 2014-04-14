@@ -53,12 +53,12 @@ public class PhylipAlignment
      * per line.  Anything from the start of the line to the first white space is
      * considered the taxa's name.  Anything after the first whitespace is the sequence.
      * Whitespace in the sequence is ignored.  A taxa name of <code>*class*</code> is
-     * assumed not to be a taxa but rather gfives the class of each site (which can be any
+     * assumed not to be a taxa but rather gives the class of each site (which can be any
      * single character).
      * @param f The input file
      * @return The alignment created from the file
      * @throws InputException Thrown if there is a problem reading the file
-     * @throws Alignments.AlignmentException Thrown if there issomething wrong with the alignment, e.g.
+     * @throws Alignments.AlignmentException Thrown if there is something wrong with the alignment, e.g.
      * different length sequences
      */
     public static Alignment fromFile(File f) throws InputException, AlignmentException
@@ -67,13 +67,13 @@ public class PhylipAlignment
     }
 
     /**
-     * Creates a sequence alignment from a file with ambiguouis data.  File should
-     * be in the format described at {@link #PhylipAlignment(java.io.File)}
+     * Creates a sequence alignment from a file with ambiguous data.  File should
+     * be in the format described at {@link #fromFile(java.io.File)}
      * @param f The input file
-     * @param ambig Desription o the ambiguous data
+     * @param ambig Description o the ambiguous data
      * @return The alignment created from the file
      * @throws InputException Thrown if there is a problem with the input file
-     * @throws Alignments.AlignmentException Thrown if there issomething wrong with the alignment, e.g.
+     * @throws Alignments.AlignmentException Thrown if there is something wrong with the alignment, e.g.
      * different length sequences
      */
     public static Alignment fromFile(File f, Ambiguous ambig) throws InputException, AlignmentException
@@ -179,7 +179,7 @@ public class PhylipAlignment
 
     /**
      * Writes a alignment to a file in the format described in 
-     * {@link #PhylipAlignment(java.io.File)}.
+     * {@link #fromFile(java.io.File)}.
      * @param a The alignment to write to the file. Need not be a sequence alignment
      * @param f The file to write to
      * @throws OutputException Thrown if there is a problem creating the file
@@ -231,7 +231,7 @@ public class PhylipAlignment
     
     /**
      * Writes a alignment to a file in the format described in 
-     * {@link #PhylipAlignment(java.io.File)}.
+     * {@link #fromFile(java.io.File)}.
      * @param a The alignment to write to the file. Need not be a sequence alignment
      * @param f The file to write to
      * @throws OutputException Thrown if there is a problem creating the file

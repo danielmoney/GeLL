@@ -49,7 +49,7 @@ public class Probabilities
      * @throws Models.Model.ModelException Thrown if there is a problem with the
      * model (e.g. the rate categories differ in their states)
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present) 
+     * with the parameters (e.g. a required parameter is not present) 
      */
     public Probabilities(Model m, Tree t, Parameters p) throws TreeException,
             RateException, ModelException, ParameterException
@@ -86,7 +86,7 @@ public class Probabilities
     }
     
     /**
-     * Gets the set of RateClasses that we have calculated probailities for
+     * Gets the set of RateClasses that we have calculated probabilities for
      * @return Set of RateClasses
      */
     public Set<RateCategory> getRateCategory()
@@ -178,11 +178,11 @@ public class Probabilities
         }
         
         /**
-         * Gets the probability fo a single transition on a single branch
+         * Gets the probability of a single transition on a single branch
          * @param b The branch
          * @param startState The start state
          * @param endState The end state
-         * @return The probabiluty of a transition from start state to end state
+         * @return The probability of a transition from start state to end state
          * along the given branch
          */
         public double getP(Branch b, String startState, String endState)

@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Calculates the likelihood for different parameter values.  Succesive calls
+ * Calculates the likelihood for different parameter values.  Successive calls
  * to an instance of this class are used to maximise the parameters values for
  * one case.  Uses the pruning technique of Felenstein 1981 and can account for
  * unobserved states using Felsenstein 1992.
@@ -55,9 +55,9 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
      * @param a The alignment
      * @param t The tree
      * @throws TreeException If there is a problem with the tree
-     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initialised to every state having zero probability
      *      (most probably due to the state at the node not being in the model).
-     * @throws AlignmentException Thrown if the tree and site have incomptiable taxa 
+     * @throws AlignmentException Thrown if the tree and site have incompatible taxa 
      */
     public StandardCalculator(Model m, Alignment a, Tree t) throws TreeException, LikelihoodException, AlignmentException
     {
@@ -72,9 +72,9 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
      * @param t The tree
      * @param unobserved Unobserved data given as another alignment
      * @throws TreeException If there is a problem with the tree
-     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initialised to every state having zero probability
      *      (most probably due to the state at the node not being in the model).
-     * @throws AlignmentException Thrown if the tree and site have incomptiable taxa 
+     * @throws AlignmentException Thrown if the tree and site have incompatible taxa 
      */    
     public StandardCalculator(Model m, Alignment a, Tree t, Alignment unobserved) throws TreeException, LikelihoodException, AlignmentException
     {
@@ -90,7 +90,7 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
      * @throws AlignmentException Thrown if a model isn't given for each site class
      * in the alignment
      * @throws TreeException If there is a problem with the tree
-     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initialised to every state having zero probability
      *      (most probably due to the state at the node not being in the model). 
      */
     public StandardCalculator(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException, TreeException, LikelihoodException
@@ -100,16 +100,15 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
 
     /**
      * Creates a class to calculate the likelihood for a given set of models, an alignment,
-     * a tree and unobserved data.  There should be one model and one
-     * constrainer per site class in the alignment
+     * a tree and unobserved data.  There should be one model per site class in the alignment
      * @param m Map from site class to model
      * @param a The alignment
      * @param t The tree
      * @param unobserved Unobserved data given as another alignment
-     * @throws AlignmentException Thrown if a model and constrainer isn't given
+     * @throws AlignmentException Thrown if a model isn't given
      * for each site class in the alignment
      * @throws TreeException If there is a problem with the tree
-     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initalised to every state having zero probability
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initialised to every state having zero probability
      *      (most probably due to the state at the node not being in the model). 
      */
     public StandardCalculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved) throws AlignmentException, TreeException, LikelihoodException
@@ -198,7 +197,7 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
             for (RateCategory rc: tp.getRateCategory())
             {
                 RateProbabilities rp = tp.getP(rc);
-                //Initalise the lieklihood values at each node.  first internal
+                //Initalise the lieklihood values at each node.  First internal
                 //using the alignemnt.
                 Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(branches.size() + 1);
                 for (String l: t.getLeaves())
@@ -251,30 +250,7 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
                 NodeLikelihood rootL = nodeLikelihoods.get(t.getRoot());
                 
                 ratetotal = tp.getRoot(rc).calculate(rootL);
-                
-                //For each possible state
-                /*for (String state: this.tp.getAllStates())
-                {
-                    try
-                    {
-                        //Get the likelihood at the root, multiply by it's root frequency
-                        //and add to the ratde total.
-                        if (ratetotal == null)
-                        {
-                            ratetotal = rootL.getLikelihood(state).multiply(tp.getFreq(rc,state));
-                        }
-                        else
-                        {
-                            ratetotal = ratetotal.add(rootL.getLikelihood(state).multiply(tp.getFreq(rc,state)));
-                        }
-                    }
-                    catch (LikelihoodException ex)
-                    {
-                        //Shouldn't reach here as we know what oinformation should
-                        // have been claculated and only ask for that
-                        throw new UnexpectedError(ex);
-                    }
-                }*/
+
                 //Store the results for that rate
                 rateLikelihoods.put(rc, new RateLikelihood(ratetotal,nodeLikelihoods));
                 //Update the total site likelihood with the likelihood for the rate

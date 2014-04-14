@@ -92,7 +92,7 @@ public class Parameter implements Serializable
     }
     
     /**
-     * Returns whether this paramater is a parameter that should be estimated
+     * Returns whether this parameter is a parameter that should be estimated
      * @return Whether this parameter is to be estimated
      */
     public boolean getEstimate()
@@ -126,7 +126,7 @@ public class Parameter implements Serializable
      * Creates a new parameter that has to be positive and is estimated.  Defaults
      * to being in a rate matrix.
      * @param name The name of the parameter
-     * @param start The initial value to use when optimizing this parameter
+     * @param start The initial value to use when optimising this parameter
      * @return The parameter
      */
     public static Parameter newEstimatedPositiveParameter(String name, double start)
@@ -136,7 +136,7 @@ public class Parameter implements Serializable
 
 
     /**
-     * Creates a new (unbounded) paramater that is estimated.  Defaults to being
+     * Creates a new (unbounded) parameter that is estimated.  Defaults to being
      * in a rate matrix.
      * @param name The name of the parameter
      * @return The parameter
@@ -147,10 +147,10 @@ public class Parameter implements Serializable
     }
     
     /**
-     * Creates a new (unbounded) paramater that is estimated.  Defaults to being
+     * Creates a new (unbounded) parameter that is estimated.  Defaults to being
      * in a rate matrix.
      * @param name The name of the parameter
-     * @param start The initial value to use when optimizing this parameter
+     * @param start The initial value to use when optimising this parameter
      * @return The parameter
      */
     public static Parameter newEstimatedParameter(String name, double start)
@@ -163,7 +163,7 @@ public class Parameter implements Serializable
      * a rate matrix.
      * @param name The name of the parameter
      * @param lbound The lower bound of the value the parameter can take
-     * @param ubound The upper bound of the value the parameter cantake
+     * @param ubound The upper bound of the value the parameter can take
      * @return The parameter
      */
     public static Parameter newEstimatedBoundedParameter(String name,
@@ -177,8 +177,8 @@ public class Parameter implements Serializable
      * a rate matrix.
      * @param name The name of the parameter
      * @param lbound The lower bound of the value the parameter can take
-     * @param ubound The upper bound of the value the parameter cantake
-     * @param start The initial value to use when optimizing this parameter
+     * @param ubound The upper bound of the value the parameter can take
+     * @param start The initial value to use when optimising this parameter
      * @return The parameter
      */
     public static Parameter newEstimatedBoundedParameter(String name,
@@ -200,9 +200,9 @@ public class Parameter implements Serializable
 
 
     /**
-     * Creates a new paramter from a string. <br><br>
-     * Strings are tab seperated.  The first field is the type of the parameter
-     * and the second is the name of the parameter.  Subsquent fields depend on
+     * Creates a new parameter from a string. <br><br>
+     * Strings are tab separated.  The first field is the type of the parameter
+     * and the second is the name of the parameter.  Subsequent fields depend on
      * the parameter type.<br><br>
      * Type values
      * <ul>
@@ -212,7 +212,7 @@ public class Parameter implements Serializable
      * is the lower bound, 4th the upper.</li>
      * <li>EP - Estimated positive parameter that is in a rate matrix.</li>
      * <li>EPN - Estimate positive parameter that is not in a rate matrix.</li>
-     * <li>E - Estimated (unbounded) paramater that is in a rate matrix.</li>
+     * <li>E - Estimated (unbounded) parameter that is in a rate matrix.</li>
      * <li>EN - Estimated (unbounded) parameter that is not in a rate matrix.</li>
      * <li>F - Fixed parameter.  3rd field is the value.</li>
      * </ul>

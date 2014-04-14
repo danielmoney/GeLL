@@ -256,7 +256,7 @@ public class Site implements Serializable
      * Gets initial node likelihoods based on the site and tree.
      * 
      * Done like this as creating the node likelihoods is time consuming whereas
-     * copying them once initialised is not.  As they only need to be initalised
+     * copying them once initialised is not.  As they only need to be initialised
      * once for each site this saves time as they then need only be copied for
      * each likelihood calculation.
      * @param t The tree
@@ -310,7 +310,7 @@ public class Site implements Serializable
      * new ambiguous states
      * @param recode A map from original state to new state, e.g. to recode
      * DNA to RY it would contains A -> R, G -> R, C -> Y, T -> Y
-     * @param ambig The new ambiiguous states
+     * @param ambig The new ambiguous states
      * @return A recoded site
      */    
     public Site recode(Map<String,String> recode, Ambiguous ambig)

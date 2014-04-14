@@ -43,7 +43,7 @@ public class Assignment
     }
     
     /**
-     * Adds a asssignment 
+     * Adds a assignment 
      * @param n The node
      * @param c The state it is assigned
      */

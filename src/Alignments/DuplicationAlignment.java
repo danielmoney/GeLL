@@ -48,12 +48,12 @@ public class DuplicationAlignment
     }
     
     /**
-     * Creates a duplication alignment from a file.  File is tab seperated.
+     * Creates a duplication alignment from a file.  File is tab separated.
      * First row is a header file.  First field is ignored while subsequent fields
      * are the name of the species.  Each additional row represents a family.
      * The first field is an ID for the family while subsequent fields are the
-     * size of the family in the appropiate species.  A family name of <code>*class*</code> is
-     * assumed not to be a taxa but rather gfives the class of each site (which can be any
+     * size of the family in the appropriate species.  A family name of <code>*class*</code> is
+     * assumed not to be a taxa but rather gives the class of each site (which can be any
      * string).
      * @param f The input file
      * @return The alignment created from the file
@@ -68,9 +68,9 @@ public class DuplicationAlignment
 
     /**
      * Creates a duplication alignment which contains ambiguous data.  File format
-     * is described {@link #DuplicationAlignment(java.io.File)}.
+     * is described {@link #fromFile(java.io.File)}.
      * @param f The input file
-     * @param ambig Desription o the ambiguous data
+     * @param ambig Description o the ambiguous data
      * @return The alignment created from the file
      * @throws InputException Thrown if there is a problem with the input file
      * @throws Alignments.AlignmentException Thrown if any family contains the wrong number

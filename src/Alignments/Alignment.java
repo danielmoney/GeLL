@@ -30,7 +30,7 @@ import java.util.Set;
 
 
 /**
- * Represents an "alignment", used very losely.  Classes should extend this to
+ * Represents an "alignment", used very loosely.  Classes should extend this to
  * represent the different types of alignment, e.g. {@link DuplicationAlignment},
  * {@link FastaAlignment}.
  * 
@@ -42,7 +42,7 @@ public class Alignment implements Iterable<Site>
     /**
      * Default constructor.  Called by classed that extend this one.
      * Classes that do extend this class should ensure that they populate data
-     * and taxa appropiately.
+     * and taxa appropriately.
      */
     private Alignment()
     {

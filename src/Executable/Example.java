@@ -36,7 +36,7 @@ import java.io.File;
  * An example executable.  Does not try to be a general driver so a better
  * learning example than {@link GeLL}.
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public class Example
 {    

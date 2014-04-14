@@ -305,12 +305,35 @@ public class AncestralMarginal
     private Alignment a;
     private Map<String,Model> m;
     private Tree t;
-    
+
+    /**
+     * Returns an object of this class that can be used for marginal 
+     * reconstruction.  Included for consistency with {@link AncestralJoint}
+     * which requires a static method as there is two different classes that
+     * are used based on the situation.
+     * @param a The alignment
+     * @param m The model
+     * @param t The tree
+     * @return An object that can be used for reconstruction
+     */
     public static AncestralMarginal newInstance(Model m, Alignment a, Tree t)
     {
         return new AncestralMarginal(m,a,t);
     }
-    
+
+    /**
+     * Returns an object of this class that can be used for marginal 
+     * reconstruction.  Sites can belong to different classes and so use 
+     * different models. Included for consistency with {@link AncestralJoint}
+     * which requires a static method as there is two different classes that
+     * are used based on the situation.
+     * @param a The alignment
+     * @param m Map from site class to model
+     * @param t The tree
+     * @return An object that can be used for reconstruction
+     * @throws AlignmentException Thrown if a model isn't given
+     * for each site class in the alignment  
+     */
     public static AncestralMarginal newInstance(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException
     {
         return new AncestralMarginal(m,a,t);

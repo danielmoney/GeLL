@@ -62,7 +62,7 @@ public class Simulate
      * model (e.g. the rate categories differ in their states)
      * @throws TreeException Thrown if there is a problem with the tree.
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present) 
+     * with the parameters (e.g. a required parameter is not present) 
      */
     public Simulate(Model m, Tree t, Parameters p) throws RateException, ModelException, TreeException, ParameterException
     {
@@ -83,7 +83,7 @@ public class Simulate
      * model (e.g. the rate categories differ in their states)
      * @throws TreeException Thrown if there is a problem with the tree.
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present) 
+     * with the parameters (e.g. a required parameter is not present) 
      */
     public Simulate(Model m, Tree t, Parameters p, Alignment unobserved) throws RateException, ModelException, TreeException, ParameterException
     {
@@ -122,7 +122,7 @@ public class Simulate
      * model (e.g. the rate categories differ in their states)
      * @throws TreeException Thrown if there is a problem with the tree.
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present) 
+     * with the parameters (e.g. a required parameter is not present) 
      */    
     public Simulate(Map<String,Model> m, Tree t, Parameters p) throws RateException, ModelException, TreeException, ParameterException
     {
@@ -143,7 +143,7 @@ public class Simulate
      * model (e.g. the rate categories differ in their states)
      * @throws TreeException Thrown if there is a problem with the tree.
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present) 
+     * with the parameters (e.g. a required parameter is not present) 
      */     
     public Simulate(Map<String,Model> m, Tree t, Parameters p, Alignment unobserved) throws RateException, ModelException, TreeException, ParameterException
     {
@@ -174,7 +174,6 @@ public class Simulate
     /**
      * Gets a simulated site without returning the state of the internal nodes
      * @return The simulated site
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model)
@@ -182,7 +181,7 @@ public class Simulate
      * method at the root as this method requires likelihoods to calculate the frequency
      * and we don't have the likelihoods when simulating.
      */
-    public Site getSite() throws TreeException, SimulationException, RateException
+    public Site getSite() throws SimulationException, RateException
     {
 	return getSite(false, null, null);
     }
@@ -191,7 +190,6 @@ public class Simulate
      * Gets a simulated site without returning the state of the internal nodes
      * @param siteClass The site class to simulate for
      * @return The simulated site
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
@@ -199,7 +197,7 @@ public class Simulate
      * method at the root as this method requires likelihoods to calculate the frequency
      * and we don't have the likelihoods when simulating.
      */
-    public Site getSite(String siteClass) throws TreeException, SimulationException, RateException
+    public Site getSite(String siteClass) throws SimulationException, RateException
     {
 	return getSite(false, null, siteClass);
     }
@@ -208,12 +206,11 @@ public class Simulate
      * Gets a simulated site without returning the state of the internal nodes.
      * Recodes the simulated data before returning.  For example if both "A" and
      * "B" are unobserved states representing an observed state of "0" then this
-     * can be used to change "A" and "B" to zero.  This is neccessay as the simulator
+     * can be used to change "A" and "B" to zero.  This is necessary as the simulator
      * generates unobserved states by default.  The returned site will have ambiguous
-     * data set as appropiate.
+     * data set as appropriate.
      * @param recode Map of recodings
      * @return The simulated site
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
@@ -221,7 +218,7 @@ public class Simulate
      * method at the root as this method requires likelihoods to calculate the frequency
      * and we don't have the likelihoods when simulating.
      */
-    public Site getSite(Map<String,String> recode) throws TreeException, SimulationException, RateException
+    public Site getSite(Map<String,String> recode) throws SimulationException, RateException
     {
 	return getSite(false, recode, null);
     }
@@ -230,13 +227,12 @@ public class Simulate
      * Gets a simulated site without returning the state of the internal nodes.
      * Recodes the simulated data before returning.  For example if both "A" and
      * "B" are unobserved states representing an observed state of "0" then this
-     * can be used to change "A" and "B" to zero.  This is neccessay as the simulator
+     * can be used to change "A" and "B" to zero.  This is necessary as the simulator
      * generates unobserved states by default.  The returned site will have ambiguous
-     * data set as appropiate.
+     * data set as appropriate.
      * @param recode Map of recodings
      * @param siteClass The site class to simulate for
      * @return The simulated site
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
@@ -244,7 +240,7 @@ public class Simulate
      * method at the root as this method requires likelihoods to calculate the frequency
      * and we don't have the likelihoods when simulating.
      */
-    public Site getSite(Map<String,String> recode, String siteClass) throws TreeException, SimulationException, RateException
+    public Site getSite(Map<String,String> recode, String siteClass) throws SimulationException, RateException
     {
 	return getSite(false, recode, siteClass);
     }
@@ -253,7 +249,6 @@ public class Simulate
      * Gets a simulated site
      * @param internal Whether to return the state of the internal nodes
      * @return The simulated site
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
@@ -261,7 +256,7 @@ public class Simulate
      * method at the root as this method requires likelihoods to calculate the frequency
      * and we don't have the likelihoods when simulating.
      */
-    public Site getSite(boolean internal) throws TreeException, SimulationException, RateException
+    public Site getSite(boolean internal) throws SimulationException, RateException
     {
 	return getSite(internal, null, null);
     }
@@ -271,7 +266,6 @@ public class Simulate
      * @param internal Whether to return the state of the internal nodes
      * @param siteClass The site class to simulate for
      * @return The simulated site
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
@@ -279,7 +273,7 @@ public class Simulate
      * method at the root as this method requires likelihoods to calculate the frequency
      * and we don't have the likelihoods when simulating.
      */
-    public Site getSite(boolean internal, String siteClass) throws TreeException, SimulationException, RateException
+    public Site getSite(boolean internal, String siteClass) throws SimulationException, RateException
     {
 	return getSite(internal, null, siteClass);
     }
@@ -288,13 +282,12 @@ public class Simulate
      * Gets a simulated site.
      * Recodes the simulated data before returning.  For example if both "A" and
      * "B" are unobserved states representing an observed state of "0" then this
-     * can be used to change "A" and "B" to zero.  This is neccessay as the simulator
+     * can be used to change "A" and "B" to zero.  This is necessary as the simulator
      * generates unobserved states by default.  The returned site will have ambiguous
-     * data set as appropiate.
+     * data set as appropriate.
      * @param recode Map of recodings
      * @param internal Whether to return the state of the internal nodes
      * @return The simulated site
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
@@ -302,7 +295,7 @@ public class Simulate
      * method at the root as this method requires likelihoods to calculate the frequency
      * and we don't have the likelihoods when simulating.
      */
-    public Site getSite(boolean internal, Map<String, String> recode) throws TreeException, SimulationException, RateException
+    public Site getSite(boolean internal, Map<String, String> recode) throws SimulationException, RateException
     {
         return getSite(internal, recode, null);
     }
@@ -311,14 +304,13 @@ public class Simulate
      * Gets a simulated site.
      * Recodes the simulated data before returning.  For example if both "A" and
      * "B" are unobserved states representing an observed state of "0" then this
-     * can be used to change "A" and "B" to zero.  This is neccessay as the simulator
+     * can be used to change "A" and "B" to zero.  This is necessary as the simulator
      * generates unobserved states by default.  The returned site will have ambiguous
-     * data set as appropiate.
+     * data set as appropriate.
      * @param recode Map of recodings
      * @param internal Whether to return the state of the internal nodes
      * @param siteClass The site class to simulate for
      * @return The simulated site
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
@@ -326,7 +318,7 @@ public class Simulate
      * method at the root as this method requires likelihoods to calculate the frequency
      * and we don't have the likelihoods when simulating.
      */  
-    public Site getSite(boolean internal, Map<String, String> recode, String siteClass) throws TreeException, SimulationException, RateException
+    public Site getSite(boolean internal, Map<String, String> recode, String siteClass) throws SimulationException, RateException
     {
         if (!P.containsKey(siteClass))
         {
@@ -435,11 +427,10 @@ public class Simulate
     }
 
     /**
-     * Gets a simulated alignment, not returing the state of internal nodes
+     * Gets a simulated alignment, not returning the state of internal nodes
      * @param length The length of the alignment
      * @return The simulated alignment
      * @throws AlignmentException Thrown if there is a problem with the alignment
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
@@ -447,7 +438,7 @@ public class Simulate
      * method at the root as this method requires likelihoods to calculate the frequency
      * and we don't have the likelihoods when simulating.
      */
-    public Alignment getAlignment(int length) throws AlignmentException, TreeException, SimulationException, RateException
+    public Alignment getAlignment(int length) throws AlignmentException, SimulationException, RateException
     {
 	return getAlignment(length,false,null);
     }
@@ -458,7 +449,6 @@ public class Simulate
      * @param internal Whether to return the state of the internal nodes
      * @return The simulated alignment
      * @throws AlignmentException Thrown if there is a problem with the alignment
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
@@ -466,23 +456,22 @@ public class Simulate
      * method at the root as this method requires likelihoods to calculate the frequency
      * and we don't have the likelihoods when simulating.
      */
-    public Alignment getAlignment(int length, boolean internal) throws AlignmentException, TreeException, SimulationException, RateException
+    public Alignment getAlignment(int length, boolean internal) throws AlignmentException, SimulationException, RateException
     {
         return getAlignment(length,internal,null);
     }
 
     /**
-     * Gets a simulated alignment, not returing the state of internal nodes.
+     * Gets a simulated alignment, not returning the state of internal nodes.
      * Recodes the simulated data before returning.  For example if both "A" and
      * "B" are unobserved states representing an observed state of "0" then this
-     * can be used to change "A" and "B" to zero.  This is neccessay as the simulator
+     * can be used to change "A" and "B" to zero.  This is necessary as the simulator
      * generates unobserved states by default.  The returned site will have ambiguous
-     * data set as appropiate.
+     * data set as appropriate.
      * @param length The length of the alignment
      * @param recode Map of recodings
      * @return The simulated alignment
      * @throws AlignmentException Thrown if there is a problem with the alignment
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
@@ -490,7 +479,7 @@ public class Simulate
      * method at the root as this method requires likelihoods to calculate the frequency
      * and we don't have the likelihoods when simulating.
      */
-    public Alignment getAlignment(int length, Map<String,String> recode) throws AlignmentException, TreeException, SimulationException, RateException
+    public Alignment getAlignment(int length, Map<String,String> recode) throws AlignmentException, SimulationException, RateException
     {
 	return getAlignment(length,false,recode);
     }
@@ -499,15 +488,14 @@ public class Simulate
      * Gets a simulated alignment.
      * Recodes the simulated data before returning.  For example if both "A" and
      * "B" are unobserved states representing an observed state of "0" then this
-     * can be used to change "A" and "B" to zero.  This is neccessay as the simulator
+     * can be used to change "A" and "B" to zero.  This is necessary as the simulator
      * generates unobserved states by default.  The returned site will have ambiguous
-     * data set as appropiate.
+     * data set as appropriate.
      * @param length The length of the alignment
      * @param internal Whether to return the state of the internal nodes
      * @param recode Map of recodings
      * @return The simulated alignment
      * @throws AlignmentException Thrown if there is a problem with the alignment
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
@@ -516,7 +504,7 @@ public class Simulate
      * and we don't have the likelihoods when simulating.
      */
     public Alignment getAlignment(int length, boolean internal, Map<String,String> recode) 
-            throws AlignmentException, TreeException, SimulationException, RateException
+            throws AlignmentException, SimulationException, RateException
     {
 	List<Site> data = new ArrayList<>();
 
@@ -536,7 +524,6 @@ public class Simulate
      * @param siteClasses List of site classes used to generate the alignment
      * @return The simulated alignment
      * @throws AlignmentException Thrown if there is a problem with the alignment
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
@@ -545,7 +532,7 @@ public class Simulate
      * and we don't have the likelihoods when simulating.
      */
     public Alignment getAlignment(List<String> siteClasses) 
-            throws AlignmentException, TreeException, SimulationException, RateException
+            throws AlignmentException, SimulationException, RateException
     {
         return getAlignment(siteClasses,false,null);
     }
@@ -559,7 +546,6 @@ public class Simulate
      * @param internal Whether to return the state of the internal nodes
      * @return The simulated alignment
      * @throws AlignmentException Thrown if there is a problem with the alignment
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
@@ -568,7 +554,7 @@ public class Simulate
      * and we don't have the likelihoods when simulating.
      */
     public Alignment getAlignment(List<String> siteClasses, boolean internal) 
-            throws AlignmentException, TreeException, SimulationException, RateException
+            throws AlignmentException, SimulationException, RateException
     {
         return getAlignment(siteClasses,internal, null);
     }
@@ -580,14 +566,13 @@ public class Simulate
      * class in siteClasses.
      * Recodes the simulated data before returning.  For example if both "A" and
      * "B" are unobserved states representing an observed state of "0" then this
-     * can be used to change "A" and "B" to zero.  This is neccessay as the simulator
+     * can be used to change "A" and "B" to zero.  This is necessary as the simulator
      * generates unobserved states by default.  The returned site will have ambiguous
-     * data set as appropiate.
+     * data set as appropriate.
      * @param siteClasses List of site classes used to generate the alignment
      * @param recode Map of recodings
      * @return The simulated alignment
      * @throws AlignmentException Thrown if there is a problem with the alignment
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
@@ -596,7 +581,7 @@ public class Simulate
      * and we don't have the likelihoods when simulating.
      */
     public Alignment getAlignment(List<String> siteClasses, Map<String,String> recode) 
-            throws AlignmentException, TreeException, SimulationException, RateException
+            throws AlignmentException, SimulationException, RateException
     {
         return getAlignment(siteClasses,false,recode);
     }
@@ -607,15 +592,14 @@ public class Simulate
      * class in siteClasses.
      * Recodes the simulated data before returning.  For example if both "A" and
      * "B" are unobserved states representing an observed state of "0" then this
-     * can be used to change "A" and "B" to zero.  This is neccessay as the simulator
+     * can be used to change "A" and "B" to zero.  This is necessary as the simulator
      * generates unobserved states by default.  The returned site will have ambiguous
-     * data set as appropiate.
+     * data set as appropriate.
      * @param siteClasses List of site classes used to generate the alignment
      * @param internal Whether to return the state of the internal nodes
      * @param recode Map of recodings
      * @return The simulated alignment
      * @throws AlignmentException Thrown if there is a problem with the alignment
-     * @throws TreeException Thrown if the constrainer has a problem with the tree
      * @throws Simulations.Simulate.SimulationException Thrown if there is a problem
      * with the simulation (currently only if attempting to simulate for a site class
      * we don't have a model for)
@@ -624,7 +608,7 @@ public class Simulate
      * and we don't have the likelihoods when simulating.
      */
     public Alignment getAlignment(List<String> siteClasses, boolean internal, Map<String,String> recode) 
-            throws AlignmentException, TreeException, SimulationException, RateException
+            throws AlignmentException, SimulationException, RateException
     {
 	List<Site> data = new ArrayList<>();
 
@@ -634,6 +618,16 @@ public class Simulate
 	}
 
 	return new Alignment(data);
+    }
+    
+    /**
+     * Seeds the random number generator with the give seed.  Useful for
+     * testing or in the rare cases where repeatable results are required.
+     * @param seed The seed to be used
+     */
+    public void setSeed(long seed)
+    {
+        random.setSeed(seed);
     }
 
     private String getRandomChar(RateCategory r, Branch b, String start, String siteClass)

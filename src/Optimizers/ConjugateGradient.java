@@ -41,7 +41,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Implements the Conjugate Gradient method of parameter optimization. <BR><BR>
+ * Implements the Conjugate Gradient method of parameter optimisation. <BR><BR>
  * This is heavily based on the <a href=http://code.google.com/p/beast-mcmc/>
  * BEAST implementation</a> <BR><BR>
  * Progress information can optionally be printed to either the screen or a file.
@@ -124,10 +124,10 @@ public class ConjugateGradient implements Optimizer
     }
 
     /**
-     * Constructor that uses the gievn values for rigour, update method
+     * Constructor that uses the given values for rigour, update method
      * and output
      * @param tol The tolerance to use
-     * @param update The upate method to use
+     * @param update The update method to use
      * @param progressLevel The output level to use
      */
     public ConjugateGradient(double tol, Update update, ProgressLevel progressLevel)

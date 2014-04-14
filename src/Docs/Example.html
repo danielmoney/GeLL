@@ -10,9 +10,9 @@
         <div style="width: 800px; margin: 0px auto;">
             <H1>GeLL Example</H1>
             <p>Here we work through a example use of GeLL code explaining the various
-            compenents.  This is based on <code>example.java</code> included in the
+            components.  This is based on <code>example.java</code> included in the
             distributed packages.  Comments have been removed, file names shortened
-            and the taxa names in the newick tree shortened to allow for a smaller
+            and the taxa names in the Newick tree shortened to allow for a smaller
             code snippet.  In the descriptions the input to functions are not included
             again for the sake of brevity.  Please follow the links for a full description
             of each function.</p>
@@ -54,12 +54,12 @@
             </div>
             <div class="explain" id="standard" style="display:block">
                 <h2>Code Explanation</h2>
-                Mouse over any of the highlighted code to see an explantion of it here.
+                Mouse over any of the highlighted code to see an explanation of it here.
             </div>
             <div class="explain" id="tree">
                 <h2>Tree</h2>
                 All of the computation classes of GeLL make use of a tree object.  The easiest way to input a tree
-                is in Newick format.  The Newick string can either be passed directy to <code>
+                is in Newick format.  The Newick string can either be passed directly to <code>
                 <a href="javadoc/Trees/Tree.html#fromFile(java.io.File)">Tree.fromNewickString()</a></code>
                 or be read from a file using <code><a href="javadoc/Trees/Tree.html#fromFile(java.io.File)">
                 Tree.fromFile()</a></code>.<br><br>
@@ -79,7 +79,7 @@
                 <h2>Parameters</h2>
                 A Parameters object contains information on the parameters to be used in the calculation - namely
                 the model parameters and the branch lengths.<br><br>
-                Rather than defining each branch length parsameter individually the set of branch length parameters
+                Rather than defining each branch length parameter individually the set of branch length parameters
                 for a tree can be returned with a call to <code>getParameters()</code> or 
                 <code>getParametersForEstimation()</code> - the first sets the parameter value for any branch lengths
                 given in the tree where as the second returns parameters that will be estimated even if a branch length
@@ -101,7 +101,7 @@
                 <h2>Calculator</h2>
                 The calculator class is the class that is used to do the actual likelihood calculation.  This standard
                 calculator should suffice for the vast majority of cases and it will work on any model that can be defined.
-                It should only be neccessary to create bespoke calculators for instances where the calculation does not
+                It should only be necessary to create bespoke calculators for instances where the calculation does not
                 follow the standard Felsenstein method (e.g. the Rivas-Eddy method).<br><br>
                 The calculator is passed a model (<code>m</code>), alignment (<code>a</code>) and tree (<code>t</code>) at 
                 <a href="">creation</a>
@@ -109,27 +109,27 @@
             </div>
             <div class="explain" id="optimizer">
                 <h2>Optimizer</h2>
-                GeLL has three built-in optimization methods - <code><a href="">GoldenSection</a></code>,
+                GeLL has three built-in optimisation methods - <code><a href="">GoldenSection</a></code>,
                 <code><a href="">NelderMead</a></code> and <code><a href="">ConjugateGradient</a></code>.
                 Golden Section is the most mature of these and so most likely to produce the expected result but it may not
-                be the fastest.  All methods can sometimes not optimize properly for specific datasets so it sometimes
-                neccessary to use different methods.<br><br>
-                It is possible to create custon optimization methods.  Please either contact the author or read the javadoc
-                and look at the exsisting optimizers.
+                be the fastest.  All methods can sometimes not optimise properly for specific datasets so it sometimes
+                necessary to use different methods.<br><br>
+                It is possible to create custom optimisation methods.  Please either contact the author or read the javadoc
+                and look at the existing optimisers.
             </div>
             <div class="explain" id="likelihood">
                 <h2>Likelihood</h2>
-                By passing a calculator and a set of parameters to an optimizers <code><a href="">maximize</a></code>
-                function the optimizer will attempt to optimize the parameters to find the maximum likelihood.  It then
+                By passing a calculator and a set of parameters to an optimisers <code><a href="">maximize</a></code>
+                function the optimiser will attempt to optimise the parameters to find the maximum likelihood.  It then
                 returns a likelihood object which contains information on the likelihood obtained and the parameters
-                values used to calculate that likelihood (which is this case will be optimized parameters.  Here
-                we replace the unoptimized parameters with the optimized parameters for use in the following calcualtions
-                by using <code><a href="">getParameters()</a></code> to get the optimized parameters from the likelihood
+                values used to calculate that likelihood (which is this case will be optimised parameters.  Here
+                we replace the unoptimised parameters with the optimised parameters for use in the following calculations
+                by using <code><a href="">getParameters()</a></code> to get the optimised parameters from the likelihood
                 object.
             </div>
             <div class="explain" id="output">
                 <h2>Output</h2>
-                In this section we output the optimized likelihood and the parameters that produced that likelihood.
+                In this section we output the optimised likelihood and the parameters that produced that likelihood.
                 The <code><a href="">getLikelihood()</a></code> function of the likelihood returns the likelihood as a double
                 which is then printed.  <code><a href="">Parameters</a></code> has a <code><a href="">toString()</a></code>
                 function that prints each parameter value, one per line, so the line here outputs all the parameters to the

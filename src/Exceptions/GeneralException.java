@@ -93,7 +93,7 @@ public class GeneralException extends Exception
     {
 
         /**
-         * Just output the message assocaited with the error
+         * Just output the message associated with the error
          */
         MESSAGE,
         /**

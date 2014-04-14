@@ -18,7 +18,7 @@
 package Utils;
 
 /**
- * Represents the value of settings (including retutning default settings).  The
+ * Represents the value of settings (including returning default settings).  The
  * constructor checks the validity of the settings past to it.<br><br>
  * 
  * Settings can either be root level settings or within a group.  Only a single
@@ -27,7 +27,7 @@ package Utils;
  * {@link PossibleSettings} represents the list of settings that are possible.
  * Each setting can be optional or compulsory.  Groups can like wise be optional
  * or compulsory.  If a group is optional then any settings within it which are
- * comulsory are only compulsory when the group is present.<br><br>
+ * compulsory are only compulsory when the group is present.<br><br>
  * 
  * {@link SetSettings} represents the current value of settings, e.g. from a
  * settings file or from a GUI.  SetSettings represents values set by a user
@@ -102,7 +102,7 @@ public class Settings
      * @param setting The setting's name
      * @return The value of the setting
      * @throws SettingException Thrown if there is no default value (this
-     * shouldn't occur due to the chacks at construction).
+     * shouldn't occur due to the checks at construction).
      */
     public String getSetting(String setting) throws SettingException
     {
@@ -113,7 +113,6 @@ public class Settings
 	else
 	{
             return need.getDefault(setting);
-
 	}
     }
 
@@ -123,7 +122,7 @@ public class Settings
      * @param setting The settings name
      * @return The value of the setting
      * @throws SettingException Thrown if there is no default value (this
-     * shouldn't occur due to the chacks at construction). 
+     * shouldn't occur due to the checks at construction). 
      */
     public String getSetting(String group, String setting) throws SettingException
     {
@@ -134,7 +133,6 @@ public class Settings
 	else
 	{
             return need.getDefault(group,setting);
-
 	}
     }
 

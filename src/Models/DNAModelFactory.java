@@ -44,7 +44,7 @@ public class DNAModelFactory
     
     /**
      * Constructor so that calls to {@link #getModel()} and {@link #getParameters()}
-     * return the appropiate model or the appropiate parameters.
+     * return the appropriate model or the appropriate parameters.
      * @param model The model
      * @param numCats The number of categories for the model
      * @throws Models.Model.ModelException
@@ -90,10 +90,9 @@ public class DNAModelFactory
         map.put("A",2);
         map.put("G",3);
 
-        Model m = null;
         try
         {
-            m = new Model(new RateCategory(ma,freq,map));
+            return new Model(new RateCategory(ma,freq,map));
         }
         catch (RateException ex)
         {
@@ -101,7 +100,6 @@ public class DNAModelFactory
             //case...
             throw new UnexpectedError(ex);
         }
-        return m;
     }
     
     /**
@@ -484,7 +482,7 @@ public class DNAModelFactory
     }
 
     /**
-     * Creates an instance of a General Time Reversable model
+     * Creates an instance of a General Time Reversible model
      * @param p Parameters structure to add the model parameters to 
      * @return The model
      */
@@ -495,7 +493,7 @@ public class DNAModelFactory
     }
     
     /**
-     * Creates an instance of a General Time Reversable model
+     * Creates an instance of a General Time Reversible model
      * @return The model
      */
     public static Model GTR()
@@ -527,7 +525,7 @@ public class DNAModelFactory
     }    
     
     /**
-     * Creates an instance of a General Time Reversable model with gamma-distributed rate
+     * Creates an instance of a General Time Reversible model with gamma-distributed rate
      * across sites
      * @param p Parameters structure to add the model parameters to 
      * @param numCats The number of gamma categories to use
@@ -540,7 +538,7 @@ public class DNAModelFactory
     }
     
     /**
-     * Creates an instance of a General Time Reversable model with gamma-distributed rate
+     * Creates an instance of a General Time Reversible model with gamma-distributed rate
      * across sites
      * @param numCats The number of gamma categories to use
      * @return The model
@@ -550,8 +548,8 @@ public class DNAModelFactory
         String[][] ma = new String[4][4];
         ma[0][0] = "-"; ma[0][1] = "a*pC"; ma[0][2] = "b*pA"; ma[0][3] = "c*pG";
         ma[1][0] = "a*pT"; ma[1][1] = "-"; ma[1][2] = "d*pA"; ma[1][3] = "e*pG";
-        ma[2][0] = "b*pT"; ma[2][1] = "d*pC"; ma[2][2] = "-"; ma[2][3] = "f*pG";
-        ma[3][0] = "c*pT"; ma[3][1] = "e*pC"; ma[3][2] = "f*pA"; ma[3][3] = "-";
+        ma[2][0] = "b*pT"; ma[2][1] = "d*pC"; ma[2][2] = "-"; ma[2][3] = "pG";
+        ma[3][0] = "c*pT"; ma[3][1] = "e*pC"; ma[3][2] = "pA"; ma[3][3] = "-";
         
         String[] freq = {"pT", "pC", "pA", "pG"};
 
@@ -588,7 +586,6 @@ public class DNAModelFactory
         p.addParameter(Parameter.newEstimatedPositiveParameter("c"));
         p.addParameter(Parameter.newEstimatedPositiveParameter("d"));
         p.addParameter(Parameter.newEstimatedPositiveParameter("e"));
-        p.addParameter(Parameter.newFixedParameter("f",1.0));
         
         p.addParameter(Parameter.newFixedParameter("pT",1.0));
         p.addParameter(Parameter.newEstimatedPositiveParameter("pC"));

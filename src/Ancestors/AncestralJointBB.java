@@ -23,7 +23,6 @@ import Alignments.AlignmentException;
 import Ancestors.AncestralJointDP.MultipleRatesException;
 import Exceptions.UnexpectedError;
 import Likelihood.Probabilities;
-import Likelihood.Calculator.SiteCalculator;
 import Likelihood.Probabilities.RateProbabilities;
 import Likelihood.SiteLikelihood;
 import Likelihood.SiteLikelihood.LikelihoodException;
@@ -349,7 +348,7 @@ public class AncestralJointBB extends AncestralJoint
 	return true;
     }
     
-    public SiteLikelihood calculateSite(Tree t, Probabilities tp, Map<String,NodeLikelihood> nl)
+    SiteLikelihood calculateSite(Tree t, Probabilities tp, Map<String,NodeLikelihood> nl)
     {    
         List<Branch> branches = t.getBranches();
         Map<RateCategory,RateLikelihood> rateLikelihoods = new HashMap<>(tp.getRateCategory().size());
@@ -387,11 +386,8 @@ public class AncestralJointBB extends AncestralJoint
                 {
                     //l keeps track of the total likelihood from each possible
                     //state at the child
-                    //Real l = SiteLikelihood.getReal(0.0);//new Real(0.0);
                     //For each possible child state
-                    //for (String startState: tp.getAllStates())
                     Real[] n = nodeLikelihoods.get(b.getChild()).getLikelihoods();
-                    //for (int j = 0; j < tp.getAllStates().size(); j ++)
                     Real l = n[0].multiply(bp.getPosition(tp.getMap().get(endState), 0));
                     for (int j = 1; j < n.length; j++)
                     {
@@ -412,29 +408,6 @@ public class AncestralJointBB extends AncestralJoint
 
             ratetotal = tp.getRoot(rc).calculate(rootL);
 
-            //For each possible state
-            /*for (String state: this.tp.getAllStates())
-            {
-                try
-                {
-                    //Get the likelihood at the root, multiply by it's root frequency
-                    //and add to the ratde total.
-                    if (ratetotal == null)
-                    {
-                        ratetotal = rootL.getLikelihood(state).multiply(tp.getFreq(rc,state));
-                    }
-                    else
-                    {
-                        ratetotal = ratetotal.add(rootL.getLikelihood(state).multiply(tp.getFreq(rc,state)));
-                    }
-                }
-                catch (LikelihoodException ex)
-                {
-                    //Shouldn't reach here as we know what oinformation should
-                    // have been claculated and only ask for that
-                    throw new UnexpectedError(ex);
-                }
-            }*/
             //Store the results for that rate
             rateLikelihoods.put(rc, new RateLikelihood(ratetotal,nodeLikelihoods));
             //Update the total site likelihood with the likelihood for the rate

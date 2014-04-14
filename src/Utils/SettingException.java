@@ -25,7 +25,7 @@ package Utils;
 public class SettingException extends Exception
 {
     /**
-     * Deafult constructor
+     * Default constructor
      * @param msg Description of the problem
      */
     public SettingException(String msg)

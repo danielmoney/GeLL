@@ -28,10 +28,10 @@ import Trees.TreeException;
 import Utils.Range;
 
 /**
- * Used to calculate congfidence intervals for a parameter.  Due to computational
+ * Used to calculate confidence intervals for a parameter.  Due to computational
  * constraints this is not done properly.  When searching for the edges of the
  * confidence interval we only update the parameter of interest rather than
- * optomising every parameter at each step.
+ * optimising every parameter at each step.
  * @author Daniel Money
  * @version 2.0
  */
@@ -39,7 +39,7 @@ public class ConfidenceInterval
 {
     /**
      * Default constructor
-     * @param l The likelihod calculator to be used in constrcuting confidence
+     * @param l The likelihood calculator to be used in constructing confidence
      * intervals
      * @param p The parameters to construct confidence intervals for
      */

@@ -20,7 +20,7 @@
 package Exceptions;
 
 /**
- * General excpetion for an exeption in or about an input file
+ * General exception for an exception in or about an input file
  * @author Daniel Money
  * @version 2.0
  */

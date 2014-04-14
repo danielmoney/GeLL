@@ -21,7 +21,7 @@ package Maths;
  * Provides methods associated with the gamma distribution.
  * Provides two static functions, one for calculating the inverse chi-squared
  * distribution and one for calculating the rate for different rate categories
- * under a gmma distribution.
+ * under a gamma distribution.
  * @author Daniel Money
  * @version 2.0
  */
@@ -30,7 +30,7 @@ public class Gamma
     /**
      * Returns the rates that should be used for a set number of rate categories
      * and a set value of alpha as per the methodology of Yang 1993
-     * @param alpha The alpha vallue
+     * @param alpha The alpha value
      * @param categories The number of rate categories
      * @return The rate for each category
      */

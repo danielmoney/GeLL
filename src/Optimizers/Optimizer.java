@@ -18,37 +18,32 @@
 package Optimizers;
 
 import Exceptions.GeneralException;
-import Exceptions.InputException;
-import Exceptions.OutputException;
 import Likelihood.Likelihood;
-import Models.Model.ModelException;
-import Models.RateCategory.RateException;
 import Parameters.Parameters;
-import Trees.TreeException;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Interface for different likelihood optimizers
+ * Interface for different likelihood optimisers
  * @author Daniel Money
  * @version 2.0
  */
 public interface Optimizer
 {
     /**
-     * Maximises the likelihood, logging to screen.  Logging level sould be
+     * Maximises the likelihood, logging to screen.  Logging level should be
      * set in the constructor of implementing classes.
      * @param <R> The type returned by the calculator
      * @param l The likelihood calculator
      * @param p The parameters to maximise.  Parameters are modified.
      * @return The maximised likelihood (in a structure that includes most
      * intermediate likelihoods).
-     * @throws GeneralException When there is a problem in finding an optimaable solution.
+     * @throws GeneralException When there is a problem in finding an optimisable solution.
      */
     public <R extends Likelihood> R maximise(Optimizable<R> l, Parameters p) throws GeneralException;
 
     /**
-     * Maximises the likelihood, logging to a file.  Logging level sould be
+     * Maximises the likelihood, logging to a file.  Logging level should be
      * set in the constructor of implementing classes.
      * @param <R> The type returned by the calculator
      * @param l The likelihood calculator
@@ -56,43 +51,43 @@ public interface Optimizer
      * @param log The log file
      * @return The maximised likelihood (in a structure that includes most
      * intermediate likelihoods).
-     * @throws GeneralException When there is a problem in finding an optimaable solution
+     * @throws GeneralException When there is a problem in finding an optimisable solution
      */
     public <R extends Likelihood> R maximise(Optimizable<R> l, Parameters params, File log) throws GeneralException;
 
     /**
      * Maximises the likelihood starting from a checkpoint file (see {@link #setCheckPointFile(java.io.File)}, 
-     * logging to the screen.  Logging level sould be set in the constructor of implementing classes.
+     * logging to the screen.  Logging level should be set in the constructor of implementing classes.
      * @param <R> The type returned by the calculator
      * @param l The likelihood calculator
      * @param checkPoint The checkpoint file
      * @return The maximised likelihood (in a structure that includes most
      * intermediate likelihoods).
-     * @throws GeneralException When there is a problem in finding an optimaable solution
+     * @throws GeneralException When there is a problem in finding an optimisable solution
      */
     public <R extends Likelihood> R restart(Optimizable<R> l, File checkPoint) throws GeneralException;
     
     /**
      * Maximises the likelihood starting from a checkpoint file (see {@link #setCheckPointFile(java.io.File)}, 
-     * logging to a file.  Logging level sould be set in the constructor of implementing classes.
+     * logging to a file.  Logging level should be set in the constructor of implementing classes.
      * @param <R> The type returned by the calculator
      * @param l The likelihood calculator
      * @param checkPoint The checkpoint file
      * @param log The log file
      * @return The maximised likelihood (in a structure that includes most
      * intermediate likelihoods).
-     * @throws GeneralException When there is a problem in finding an optimaable solution
+     * @throws GeneralException When there is a problem in finding an optimisable solution
      */
     public <R extends Likelihood> R restart(Optimizable<R> l, File checkPoint, File log) throws GeneralException;
     
     /**
      * Sets a checkpoint file.  If set will write a checkpoint file of the
-     * optimizers state at regular intervals (set by {@link #setCheckPointFrequency(int, java.util.concurrent.TimeUnit)}).
-     * This checkpoint file can then be used to restart the optimizer from this
-     * state.  Can be useful if optimization is likely to take a long and the
+     * optimisers state at regular intervals (set by {@link #setCheckPointFrequency(int, java.util.concurrent.TimeUnit)}).
+     * This checkpoint file can then be used to restart the optimiser from this
+     * state.  Can be useful if optimisation is likely to take a long and the
      * process could be stopped for some reason.
      * @param checkPoint The chekpoint file.
-     * @throws Optimizers.Optimizer.OptimizerException Thrown if the optomizer
+     * @throws Optimizers.Optimizer.OptimizerException Thrown if the optomiser
      * does not implement checkpoints.
      */
     public void setCheckPointFile(File checkPoint) throws OptimizerException;
@@ -102,17 +97,17 @@ public interface Optimizer
      * @param num The number of time units that should pass between checkpoint
      * writes.
      * @param unit The time unit
-     * @throws Optimizers.Optimizer.OptimizerException Thrown if the optomizer
+     * @throws Optimizers.Optimizer.OptimizerException Thrown if the optomiser
      * does not implement checkpoints.
      */
     public void setCheckPointFrequency(int num, TimeUnit unit) throws OptimizerException;
     
     /**
-     * Set a maximum time the optimizer should run for
+     * Set a maximum time the optimiser should run for
      * @param num The number of time units that should pass between checkpoint
      * writes.
      * @param unit The time unit
-     * @throws Optimizers.Optimizer.OptimizerException Thrown if the optomizer
+     * @throws Optimizers.Optimizer.OptimizerException Thrown if the optimiser
      * does not implement a maximum run time.
      */
     public void setMaximumRunTime(int num, TimeUnit unit) throws OptimizerException;
@@ -123,7 +118,7 @@ public interface Optimizer
     public class OptimizerException extends GeneralException
     {
         /**
-         * Default constrcutor
+         * Default constructor
          * @param reason Text describing the problem
          */
         public OptimizerException(String reason)
