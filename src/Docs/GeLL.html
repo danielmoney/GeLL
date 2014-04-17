@@ -158,6 +158,10 @@
                     is slower so, for the moment, it is always used.</li>
                     <li><b>Threaded Computation - Ancestral reconstruction</b><br/>
                     At the moment ancestral reconstruction is not threaded.</li>
+                    <li><b>Optimising No Parameters</b><br/>
+                    Trying to optimise a parameters object with no optimisable
+                    parameters (i.e. they are all fixed values) can result in an
+                    infinite loop.</li>
                 </ul>
             </div>
             
@@ -220,6 +224,42 @@
                 </ul>
                 <b>2.0</b> <span class="reldate">14 April 2014</span>
                 <ul class="changes">
+                    <li><i>Not (quite) backwards compatible although only minimal changes should be necessary</i></li>
+                    <li>Added the ability to work with very small likelihoods.  This
+                        is optional as it results in a significant slow down.  There
+                        is a slight performance decrease even when the small option
+                        is not being used. </li>
+                    <li>Added the ability to use the FitzJohn (2009) method as the
+                        root distribution.</li>
+                    <li>Major changes to how calculators etc are structured to
+                        allow more unusual ways of calculating likelihoods.</li>
+                    <li>Removed code to do with Constraints as it was implemented
+                        in a very odd way and was no longer needed. </li>
+                    <li>Added BDIE (Birth-Death-Innovation-Extinction) and
+                        Birth-Death (with no zero state) models to the duplication
+                        model factory.</li>
+                    <li>Minor Changes:
+                    <ul class="minor">
+                        <li>Removed ArrayMap as it was not providing any speed
+                            increase so was just complicating the code.</li>
+                        <li>Removed ToDoubleHashMap, again as it was complicating
+                            the code.</li>
+                        <li>Removed deprecated SequenceAlignment.  PhylipAlignment
+                            should be used instead.</li>
+                        <li>Removed unused MapUtils.</li>
+                        <li>Added an additional example executable that implements
+                            the model of chromosome evolution of Mayrose et al 
+                            (2009).  This example shows how to implement a new model.</li>
+                        <li>DNAModel factory now have two options to create models.
+                            One functions takes in and updates the parameters list
+                            with relevant parameters whereas the other just creates
+                            the model.</li>
+                        <li>Code now automatically checks whether a parameter is
+                            in the matrix so it no longer part of the Parameter.
+                            Relevant constructors removed.</li>
+                        <li>Added an ability to generate a random unrooted tree.</li>
+                    </ul>
+                    </li>
                 </ul>
             </div>
             
@@ -290,7 +330,7 @@
         </div>
         <script type="text/javascript">                
              hide('release'); hide('doc'); hide('tips'); hide('citation'); hide('issues');
-             hide('notes'); hide('license'); hide('contact'); hide('ref'); show('cap')
+             hide('notes'); hide('license'); hide('contact'); hide('ref'); show('cap');
         </script>
     </body>
 </html>

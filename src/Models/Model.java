@@ -199,17 +199,26 @@ public class Model implements Iterable<RateCategory>
 	}
 
         total = 0.0;
-        for (RateCategory r :  freq.keySet())
-        {
-            r.setParameters(p);
-            total += f.get(r) * r.getTotalRate();
-        }
+
         if (rescale)
         {
+            for (RateCategory r :  freq.keySet())
+            {
+                r.setParameters(p);
+                total += f.get(r) * r.getTotalRate();
+            }
+
             scale = 1.0/total;
             for (RateCategory r :  freq.keySet())
             {
                 r.setScale(scale);
+            }
+        }
+        else
+        {
+            for (RateCategory r :  freq.keySet())
+            {
+                r.setParameters(p);
             }
         }
     }

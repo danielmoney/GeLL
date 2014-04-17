@@ -577,7 +577,7 @@ public class RateCategory implements Serializable
      * Gets the P-matrix for a given length
      * @param length The length
      * @return The probability matrix.   Order is that given by the map returned
-     * by {@link #getMap()} and which was passed to the constuctor.
+     * by {@link #getMap()} and which was passed to the constructor.
      * @throws Models.RateCategory.RateException Thrown if the matrix cannot be
      * calculated.  
      */

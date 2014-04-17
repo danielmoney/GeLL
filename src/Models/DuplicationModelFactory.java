@@ -496,8 +496,8 @@ public class DuplicationModelFactory
     }
 
     
-        /**
-     * Creates a simple BDI model
+    /**
+     * Creates a simple BDIE model
      * @param p Parameters structure to add the model parameters to
      * @param num The maximum family size
      * @param fixed Whether fixed branch lengths are being used (and so whether
@@ -586,7 +586,7 @@ public class DuplicationModelFactory
     }
     
     /**
-     * Creates a simple BDI model with gamma-distributed rate
+     * Creates a simple BDIE model with gamma-distributed rate
      * across sites
      * @param p Parameters structure to add the model parameters to
      * @param num The maximum family size

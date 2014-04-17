@@ -112,8 +112,7 @@ public class Parameter implements Serializable
     private double ubound;
     
     /**
-     * Creates a new parameter that has to be positive and is estimated.  Defaults
-     * to being in a rate matrix.
+     * Creates a new parameter that has to be positive and is estimated.
      * @param name The name of the parameter
      * @return The parameter
      */
@@ -123,8 +122,7 @@ public class Parameter implements Serializable
     }
     
     /**
-     * Creates a new parameter that has to be positive and is estimated.  Defaults
-     * to being in a rate matrix.
+     * Creates a new parameter that has to be positive and is estimated.  
      * @param name The name of the parameter
      * @param start The initial value to use when optimising this parameter
      * @return The parameter
@@ -136,8 +134,7 @@ public class Parameter implements Serializable
 
 
     /**
-     * Creates a new (unbounded) parameter that is estimated.  Defaults to being
-     * in a rate matrix.
+     * Creates a new (unbounded) parameter that is estimated.
      * @param name The name of the parameter
      * @return The parameter
      */
@@ -147,8 +144,7 @@ public class Parameter implements Serializable
     }
     
     /**
-     * Creates a new (unbounded) parameter that is estimated.  Defaults to being
-     * in a rate matrix.
+     * Creates a new (unbounded) parameter that is estimated.
      * @param name The name of the parameter
      * @param start The initial value to use when optimising this parameter
      * @return The parameter
@@ -159,8 +155,7 @@ public class Parameter implements Serializable
     }
     
     /**
-     * Creates a new bounded parameter that is estimated.  Defaults to being in
-     * a rate matrix.
+     * Creates a new bounded parameter that is estimated.
      * @param name The name of the parameter
      * @param lbound The lower bound of the value the parameter can take
      * @param ubound The upper bound of the value the parameter can take
@@ -173,8 +168,7 @@ public class Parameter implements Serializable
     }
 
     /**
-     * Creates a new bounded parameter that is estimated.  Defaults to being in
-     * a rate matrix.
+     * Creates a new bounded parameter that is estimated.
      * @param name The name of the parameter
      * @param lbound The lower bound of the value the parameter can take
      * @param ubound The upper bound of the value the parameter can take

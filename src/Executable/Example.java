@@ -101,5 +101,5 @@ public class Example
         
         //Write out the simulated alignment
         PhylipAlignment.writeFile(sim, new File("src\\Executable\\example\\simulated.dat"));
-    }
+    }    
 }
