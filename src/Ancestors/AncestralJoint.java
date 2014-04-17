@@ -21,8 +21,8 @@ import Alignments.Alignment;
 import Alignments.AlignmentException;
 import Alignments.Site;
 import Ancestors.AncestralJointDP.MultipleRatesException;
-import Likelihood.Likelihood.LikelihoodException;
 import Likelihood.Probabilities;
+import Likelihood.SiteLikelihood.LikelihoodException;
 import Models.Model;
 import Parameters.Parameters;
 import Models.Model.ModelException;
@@ -37,7 +37,7 @@ import java.util.Map;
  * extend.  By using the static method in tis class users can avoid worrying
  * about whether their model has a single rate category.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public abstract class AncestralJoint
 {
@@ -51,22 +51,22 @@ public abstract class AncestralJoint
      * @throws Models.Model.ModelException Thrown if there is a problem with the
      * model (e.g. the rate categories differ in their states)
      * @throws AncestralException Thrown if there is ambiguous data as these methods
-     * can't currently deasl with it
+     * can't currently deal with it
      * @throws TreeException Thrown if there is a problem with the tree.
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present)
+     * with the parameters (e.g. a required parameter is not present)
      * @throws AlignmentException Thrown if there is a problem with the alignment
-     * @throws Likelihood.Likelihood.LikelihoodException Thrown if there is a problem initialise likelihoods 
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if there is a problem initialise likelihoods 
      */
     public abstract Alignment calculate(Parameters params) throws RateException, ModelException, AncestralException, TreeException, ParameterException, AlignmentException, LikelihoodException;
 
-    abstract Site calculateSite(Site s, Probabilities P) throws AncestralException, TreeException, LikelihoodException;
+    abstract Site calculateSite(Site s, Probabilities P) throws AncestralException, TreeException, LikelihoodException, RateException;
     
     /**
      * Returns an object of this class that can be used for joint reconstruction.
      * If the model has a single rate category it returns an object that will do
-     * reconstruction using the dynamic pogramming method of Pupko 2000, else
-     * an object that will use the branch and bound method of Pupoko 2002.      
+     * reconstruction using the dynamic programming method of Pupko 2000, else
+     * an object that will use the branch and bound method of Pupko 2002.      
      * @param a The alignment
      * @param m The model
      * @param t The tree
@@ -91,13 +91,13 @@ public abstract class AncestralJoint
      * Returns an object of this class that can be used for joint reconstruction.
      * Sites can belong to different classes and so use different models.
      * If all models have a single rate category it returns an object that will do
-     * reconstruction using the dynamic pogramming method of Pupko 2000, else
+     * reconstruction using the dynamic programming method of Pupko 2000, else
      * an object that will use the branch and bound method of Pupoko 2002. 
      * @param a The alignment
      * @param m Map from site class to model
      * @param t The tree
      * @return An object that can be used for reconstruction
-     * @throws AlignmentException Thrown if a model and constrainer isn't given
+     * @throws AlignmentException Thrown if a model isn't given
      * for each site class in the alignment  
      */
     public static AncestralJoint newInstance(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException

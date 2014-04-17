@@ -30,12 +30,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Represents a square matrix.  
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 
 /*
@@ -67,8 +66,6 @@ public class SquareMatrix implements Serializable
         }
         this.m = m;
 	this.dim = m.length;
-        //this.cached = 0;
-        //this.cache = this.m[0];
     }
 
     /**
@@ -80,7 +77,7 @@ public class SquareMatrix implements Serializable
 	return SquareMatrix.newWithoutCheck(aMultiply(m, m));
     }
 
-    private double[][] aMultiply(double[][] a, double[][] b) //throws SquareMatrixException
+    private double[][] aMultiply(double[][] a, double[][] b)
     {
         double[][] r = new double[dim][dim];
         
@@ -94,21 +91,6 @@ public class SquareMatrix implements Serializable
             //of processors as reported by Java
             try
             {
-                /*ExecutorService es = Executors.newFixedThreadPool(noThreads);
-
-                List<Future<double[]>> list = new ArrayList<>();
-
-                //Does the computation row-by-row.  Each row is treated as a seperate
-                //caluclation and passed to the ExecutorService.
-                for (int i=0; i < dim; i++)
-                {
-                    list.add(es.submit(
-                            new ThreadedMult(a, b, i)));
-                }
-
-                //Wait for the ExecutorService to finish
-                es.shutdown();*/
-                
                 List<ThreadedMult> tasks = new ArrayList<>();
                 for (int i=0; i < dim; i++)
                 {
@@ -168,15 +150,6 @@ public class SquareMatrix implements Serializable
 
     private double[][] aAdd(double[][] M, double[][] N)
     {
-	/*double[][] r = new double[dim][dim];
-	for (int i = 0; i < dim; i++)
-	{
-	    for (int j = 0; j < dim; j++)
-	    {
-		r[i][j] = M[i][j] + N[i][j];
-	    }
-	}
-	return r;*/
         double[][] r = new double[dim][];
         for (int i = 0; i < r.length; i ++)
         {
@@ -206,25 +179,12 @@ public class SquareMatrix implements Serializable
 
     private double[][] aSMultiply(double[][] M, double n)
     {
-        /*double[][] r = new double[dim][dim];
-	for (int i = 0; i < dim; i++)
-	{
-	    for (int j = 0; j < dim; j++)
-	    {
-		r[i][j] = M[i][j] * n;
-	    }
-	}
-	return r;*/
-	//double[][] r = new double[dim][dim];
         double[][] r = new double[dim][];
-	//for (int i = 0; i < dim; i++)
         for (int i = 0; i < r.length; i++)
 	{
             double[] ri = Arrays.copyOf(M[i], M[i].length);
-	    //for (int j = 0; j < dim; j++)
             for (int j = 0; j < ri.length; j++)
 	    {
-		//r[i][j] = M[i][j] * n;
                 ri[j] = ri[j] * n;
 	    }
             r[i] = ri;
@@ -355,17 +315,6 @@ public class SquareMatrix implements Serializable
 	double[][] R = new double[dim][dim];
 	for (int i = 0; i < dim; i++)
 	{
-	    /*for (int j = 0; j < dim; j++)
-	    {
-		if (i == j)
-		{
-		    R[i][j] = 1.0;
-		}
-		else
-		{
-		    R[i][j] = 0.0;
-		}
-	    } */
             R[i][i] = 1.0;
 	}
 
@@ -465,8 +414,6 @@ public class SquareMatrix implements Serializable
 	    }
 	}
         
-        //double[][] P = aSMultiply(m, Math.pow(2.0,-t));
-
 	powers[1] = P;
 
 	for (int i = 2; i <= numIt; i++)
@@ -488,9 +435,8 @@ public class SquareMatrix implements Serializable
 	{
 	    t++;
 	}
-	//System.out.println(t);
 
-	double[][] R = new double[dim][dim];
+        double[][] R = new double[dim][dim];
 	for (int i = 0; i < dim; i++)
 	{
 	    for (int j = 0; j < dim; j++)
@@ -847,7 +793,6 @@ public class SquareMatrix implements Serializable
 	{
 	    ed = new EigenvalueDecomposition(this);
 	}
-	//return ed.getV().getArray();
 	return ed.getV();
     }
 
@@ -966,11 +911,6 @@ public class SquareMatrix implements Serializable
 
     private int pdiv;
     
-    //private double[] cache;
-    //private int cached;
-    
-    //private static int noThreads = Runtime.getRuntime().availableProcessors();
-
     private static final int numIt = 12;
 
     private static Calculation expMethod = Calculation.TAYLOR;

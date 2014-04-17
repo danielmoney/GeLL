@@ -18,11 +18,11 @@
 package Exceptions;
 
 /**
- * Represnts an error that should never occur.  Used when someone else's code
+ * Represents an error that should never occur.  Used when someone else's code
  * (normally Java) throws an error but you know the condition that caused the
  * error should never occur.
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class UnexpectedError extends Error
 {
@@ -33,5 +33,13 @@ public class UnexpectedError extends Error
     public UnexpectedError(Throwable cause)
     {
 	super("Private Error\nThis condition wasn't expected to be reached.", cause);
+    }
+    
+    /**
+     * Constructor to use when no other throwable caused the problem
+     */
+    public UnexpectedError()
+    {
+        super("Private Error\nThis condition wasn't expected to be reached.");
     }
 }

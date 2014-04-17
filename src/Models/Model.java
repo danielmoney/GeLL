@@ -30,7 +30,6 @@ import Maths.WrongNumberOfVariables;
 import Models.RateCategory.RateException;
 import Parameters.Parameters;
 import Parameters.Parameters.ParameterException;
-import Utils.ArrayMap;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -39,7 +38,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -50,12 +48,12 @@ import java.util.regex.Pattern;
  * Represents an evolutionary model.  May contain many different {@link RateCategory}.<br><br>
  * Rates and frequencies within a model (including the frequency of the different
  * rate classes) are represent by strings.  These strings may contain "parameters"
- * represented by a letter followed by a alphanumeric character which may later
+ * represented by a letter followed by alphanumeric characters which may later
  * (see {@link Parameters.Parameter}) be assigned a fixed value or optimised.  
  * They may also contain numbers and mathematical operations.  See 
  * {@link FunctionParser} for more on how these rates are evaluated.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class Model implements Iterable<RateCategory>
 {
@@ -67,7 +65,6 @@ public class Model implements Iterable<RateCategory>
     {
 	f = new HashMap<>();
 	freq = new HashMap<>();
-	//freq.put(r,"1.0");
         freq.put(r, new Constant(1.0));
 	nStates = r.getNumberStates();
 	map = r.getArrayMap();
@@ -78,13 +75,12 @@ public class Model implements Iterable<RateCategory>
      * Creates a new model with multiple rate classes
      * @param freq A map from the rate classes in the model to the frequency of
      * the rate class (as a String - see the introduction to this class).
-     * Frequencies need not sum to one as they ae rescaled to do so.
+     * Frequencies need not sum to one as they are rescaled to do so.
      * @throws ModelException If the states in each of the rate classes are not
      * identical.
      */
     public Model(Map<RateCategory,String> freq) throws ModelException
     {
-	//this.freq = freq;
         this.freq = new HashMap<>();
         for (Entry<RateCategory,String> e: freq.entrySet())
         {
@@ -140,36 +136,20 @@ public class Model implements Iterable<RateCategory>
 
     /**
      * Gets a map from the rate name to its index in the rate matrix
-     * Called this as {@link #getMap()} is kept for comptability
-     * @return ArrayMap from rate name to index
-     */
-    public ArrayMap<String,Integer> getArrayMap()
-    {
-	return map;
-    }
- 
-    /**
-     * Gets a map from the rate name to its index in the rate matrix
-     * @return ArrayMap from rate name to index
+     * @return Map from rate name to index
      */
     public Map<String,Integer> getMap()
     {
-        HashMap<String,Integer> ret = new HashMap<>();
-        for (int i = 0; i < map.size(); i++)
-        {
-            Entry<String,Integer> e = map.getEntry(i);
-            ret.put(e.getKey(),e.getValue());
-        }
-        return ret;
+        return map;
     }
     
     /**
      * Gets the set of all states in the model
      * @return The set of all states
      */
-    public List<String> getStates()
+    public Set<String> getStates()
     {
-        return map.keyList();
+        return map.keySet();
     }
     
     /**
@@ -206,20 +186,6 @@ public class Model implements Iterable<RateCategory>
             {
                 throw new ModelException("Unable to calculate RateCategory frequencies - variable value not passed");
             }
-	    /*try
-	    {
-		f.put(r,mp.parseEquation(freq.get(r), values));
-	    }
-	    catch (NoSuchFunction ex)
-	    {
-		throw new ModelException("Frequency" +
-			freq.get(r) + ": No Such Function", ex);
-	    }
-	    catch (WrongNumberOfVariables ex)
-	    {
-		throw new ModelException("Frequency" +
-			freq.get(r) + ": Wromg Number of Variables for Function", ex);
-	    }*/
 	}
 	// Scale to total of 1.0
 	double total = 0.0;
@@ -232,25 +198,29 @@ public class Model implements Iterable<RateCategory>
 	    f.put(r, f.get(r) / total);
 	}
 
-        //THIS NEEDS A MAJOR RETHINK!!!!!!
-	//if (p.recalculateMatrix())
-	//{
         total = 0.0;
-        for (RateCategory r :  freq.keySet())
-        {
-            r.setParameters(p);
-            total += f.get(r) * r.getTotalRate();
-        }
+
         if (rescale)
         {
+            for (RateCategory r :  freq.keySet())
+            {
+                r.setParameters(p);
+                total += f.get(r) * r.getTotalRate();
+            }
+
             scale = 1.0/total;
             for (RateCategory r :  freq.keySet())
             {
                 r.setScale(scale);
             }
-            //p.calculated();
         }
-	//}
+        else
+        {
+            for (RateCategory r :  freq.keySet())
+            {
+                r.setParameters(p);
+            }
+        }
     }
 
     /**
@@ -342,7 +312,7 @@ public class Model implements Iterable<RateCategory>
 
     /**
      * Creates a new model from a file.  The first line controls the type of model.
-     * Possible types and the subsquent format of the rest of the file are:
+     * Possible types and the subsequent format of the rest of the file are:
      * <ul>
      * <li><i>Gamma distributed rate categories</i>
      * <ul>
@@ -355,12 +325,12 @@ public class Model implements Iterable<RateCategory>
      * <li><i>Equally likely rate categories
      * <ul>
      * <li>First line should contain "**E" (without the quotes)</li>
-     * <li>Subsquent lines should each contain a file path to a RateCategory file
+     * <li>Subsequent lines should each contain a file path to a RateCategory file
      * </ul></li>
      * <li><i>Given frequency rate categories
      * <ul>
      * <li>First line should contain "**F" (without the quotes)</li>
-     * <li>Subsquent lines should each contain an equation describing the frequency
+     * <li>Subsequent lines should each contain an equation describing the frequency
      * of that ratecategory (see {@link Maths.MathsParse} for the format of this
      * equation) followed by a tab followed by a file path to a RateCategoy file.
      * </ul></li>
@@ -433,9 +403,8 @@ public class Model implements Iterable<RateCategory>
     private double scale;
     private int nStates;
     private Map<RateCategory,Double> f;
-    //private Map<RateCategory,String> freq;
     private Map<RateCategory,CompiledFunction> freq;
-    private ArrayMap<String,Integer> map;
+    private Map<String,Integer> map;
     private boolean rescale = true;
 
     private static final Pattern gammaRE = Pattern.compile("^\\*\\*G\\s+(\\d+)\\s+(\\w+)");
@@ -444,11 +413,11 @@ public class Model implements Iterable<RateCategory>
     /**
      * Exception thrown when there is a problem with the model
      */
-    public class ModelException extends GeneralException
+    public static class ModelException extends GeneralException
     {
         /**
          * Constructor when there is no underlying Throwable that caused the problem.
-         * Currnetly used when there is a problem constructing the model,
+         * Currently used when there is a problem constructing the model,
          * e.g. different number of states in the RateClasses.
          * @param reason The reason for the exception
          */

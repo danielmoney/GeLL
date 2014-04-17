@@ -20,6 +20,9 @@ package Models;
 import Exceptions.GeneralException;
 import Exceptions.InputException;
 import Exceptions.UnexpectedError;
+import Likelihood.FitzJohnRoot;
+import Likelihood.Root;
+import Likelihood.StandardRoot;
 import Maths.CompiledFunction;
 import Maths.CompiledFunction.Multiply;
 import Parameters.Parameters;
@@ -32,7 +35,6 @@ import Maths.SquareMatrix.SquareMatrixException;
 import Models.Distributions.DistributionsException;
 import Parameters.Parameter;
 import Parameters.Parameters.ParameterException;
-import Utils.ArrayMap;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,13 +51,13 @@ import java.util.TreeSet;
 /**
  * Represents a rate category of a phylogenetic model.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class RateCategory implements Serializable
 {
     /**
-     * Constrcutor for when the root distribution is defined as the stationary
-     * or quasi-staionary distribution.
+     * Constructor for when the root distribution is defined as the stationary
+     * or quasi-stationary distribution.
      * @param rates Array representing the rate matrix
      * @param freqType How the root frequency is calculated
      * @param map Map from State to position in matrix (0-index).  For example
@@ -81,15 +83,15 @@ public class RateCategory implements Serializable
      * (column and row) of the matrix and in the first position of the root frequency
      * array.
      * @throws Models.RateCategory.RateException  If the rate matrix is not square
-     * or the frequncy array is not the same length as the rate matrix.
+     * or the frequency array is not the same length as the rate matrix.
      */
-    public RateCategory(String[][] rates, String[] freq, HashMap<String, Integer> map) throws RateException
+    public RateCategory(String[][] rates, String[] freq, Map<String, Integer> map) throws RateException
     {
         this(rates,FrequencyType.MODEL,freq,map);
     }
     
 
-    private RateCategory(String[][] rates, FrequencyType freqType, String[] freq, HashMap<String, Integer> map) throws RateException
+    private RateCategory(String[][] rates, FrequencyType freqType, String[] freq, Map<String, Integer> map) throws RateException
     {
         //The two non-private constructors should ensure these are never reached
         //but just in case...
@@ -180,16 +182,11 @@ public class RateCategory implements Serializable
         }
         
 	this.freqType = freqType;
-        this.map = new ArrayMap<>(String.class, Integer.class, map.size());
-        for (Entry<String,Integer> e: map.entrySet())
-        {
-            //this.map.put(e.getKey(), e.getValue());
-            this.map.put(e.getValue(), e.getKey(), e.getValue());
-        }
+        this.map = map;
 	setNeeded();
     }
     
-    private RateCategory(CompiledFunction[][] rates, FrequencyType freqType, CompiledFunction[] freq, ArrayMap<String, Integer> map)
+    private RateCategory(CompiledFunction[][] rates, FrequencyType freqType, CompiledFunction[] freq, Map<String, Integer> map)
     {
         this.rates = rates;
         this.freqType = freqType;
@@ -214,7 +211,6 @@ public class RateCategory implements Serializable
 	    {
                 if (i != j)
                 {
-                    //paramValues.addAll(rates[i][j].neededParams());
                     for (String p: rates[i][j].neededParams())
                     {
                         paramValues.put(p, Double.NaN);
@@ -226,7 +222,6 @@ public class RateCategory implements Serializable
 	{
 	    for (int i = 0; i < freq.length; i++)
 	    {
-		//paramValues.addAll(freq[i].neededParams());
                 for (String p: freq[i].neededParams())
                 {
                     paramValues.put(p, Double.NaN);
@@ -252,7 +247,7 @@ public class RateCategory implements Serializable
 
     /**
      * Updates the parameters in the RateCategory and recalculates matrices /
-     * frequencies if neccessary.
+     * frequencies if necessary.
      * @param p The new parameters
      * @throws Models.RateCategory.RateException If the parameters passed does not
      * include all the parameters in the model.
@@ -306,18 +301,24 @@ public class RateCategory implements Serializable
         {
             //Calculate and store the rate matrix and frequency
             //If freq type is MODEL then we want to update the frequencies first so
-            //they can be used in the matrix.  Else we need to update the matrix first
+            //they can be used in the matrix.  If the freq type is FITZJOHN we don't
+            //need frequencies so just update matrix.  Else we need to update the matrix first
             //so that the (quasi-)stationary distribution is calculated on the right
             //matrix
-            if (freqType == FrequencyType.MODEL)
+            //if (freqType == FrequencyType.MODEL)
+            //{
+            switch (freqType)
             {
-                f = calculateFreq(p);
-                m = calculateMatrix(p);
-            }
-            else
-            {
-                m = calculateMatrix(p);
-                f = calculateFreq(p);
+                case MODEL:
+                    f = calculateFreq(p);
+                    m = calculateMatrix(p);
+                    break;
+                case FITZJOHN:
+                    m = calculateMatrix(p);
+                    break;
+                default:
+                    m = calculateMatrix(p);
+                    f = calculateFreq(p);
             }
 
             //Since we have a new rate matrix we need a new cache.  This effectively
@@ -376,10 +377,8 @@ public class RateCategory implements Serializable
         //(with the name _state) so that threy can be used in the matrix
         if (freqType == FrequencyType.MODEL)
         {
-            //for (Entry<String,Integer> e: map.entrySet())
-            for (int i = 0; i < map.size(); i++)
+            for (Entry<String,Integer> e: map.entrySet())
             {
-                Entry<String,Integer> e = map.getEntry(i);
                 values.put("_" + e.getKey(), f[e.getValue()]);
             }
         }
@@ -431,6 +430,24 @@ public class RateCategory implements Serializable
     public double[] getFreq()
     {
 	return f;
+    }
+    
+    /**
+     * Get a root object that can be used to calculate the total likelihood
+     * from the root node likelihoods or provide the frequencies of the various
+     * states at the root
+     * @return A root object
+     */
+    public Root getRoot()
+    {
+        if (freqType == FrequencyType.FITZJOHN)
+        {
+            return new FitzJohnRoot(map.keySet());
+        }
+        else
+        {
+            return new StandardRoot(f,map);
+        }
     }
 
     private double[] calculateFreq(Parameters params) throws RateException
@@ -506,7 +523,7 @@ public class RateCategory implements Serializable
      * Called this as {@link #getMap()} is kept for comptability
      * @return Map from state to position in matrix
      */
-    public ArrayMap<String, Integer> getArrayMap()
+    public Map<String, Integer> getArrayMap()
     {
 	return map;
     }
@@ -517,23 +534,17 @@ public class RateCategory implements Serializable
      */
     public Map<String,Integer> getMap()
     {
-        HashMap<String,Integer> ret = new HashMap<>();
-        for (int i = 0; i < map.size(); i++)
-        {
-            Entry<String,Integer> e = map.getEntry(i);
-            ret.put(e.getKey(),e.getValue());
-        }
-        return ret;
+        return map;
     }
 
     /**
-     * Returns a new RateClass where every position in the rate matrix is multiplied
+     * Returns a new RateCategory where every position in the rate matrix is multiplied
      * by a given value
      * @param mult Value to be multiplied (as a string as it will be evaluated as
      * a equation)
      * @return The new RateClass
      */
-    RateCategory multiplyBy(String mult) throws RateException
+    public RateCategory multiplyBy(String mult) throws RateException
     {
         CompiledFunction cm;
         try
@@ -566,7 +577,7 @@ public class RateCategory implements Serializable
      * Gets the P-matrix for a given length
      * @param length The length
      * @return The probability matrix.   Order is that given by the map returned
-     * by {@link #getMap()} and which was passed to the constuctor.
+     * by {@link #getMap()} and which was passed to the constructor.
      * @throws Models.RateCategory.RateException Thrown if the matrix cannot be
      * calculated.  
      */
@@ -589,6 +600,15 @@ public class RateCategory implements Serializable
                 throw new RateException("Problem calculating P matrix",e);
             }
         }
+    }
+    
+    /**
+     * Gets the scaled rate matrix
+     * @return The scaled rate matrix
+     */
+    public SquareMatrix getScaledMatrix()
+    {
+        return sm;
     }
     
     /**
@@ -630,7 +650,7 @@ public class RateCategory implements Serializable
     private double[] f;
     private CompiledFunction[] freq;
     private CompiledFunction[][] rates;
-    private ArrayMap<String, Integer> map;
+    private Map<String, Integer> map;
     private FrequencyType freqType;
     private static MathsParse mp = new MathsParse();    
     private String name = null;
@@ -651,7 +671,11 @@ public class RateCategory implements Serializable
         /**
          * Use the quasi-stationary distribution of the rate matrix
          */
-        QSTAT
+        QSTAT,
+        /**
+         * Use the method of FitzJohn et al 2009
+         */
+        FITZJOHN
     }
 
     /**
@@ -663,16 +687,16 @@ public class RateCategory implements Serializable
      * <li>First line contains the number of states the RateCategory has</li>
      * <li>Second line is blank</li>
      * <li>Third line is a list of states in the order they appear in the rate matrix,
-     * tab-seprated</li>
+     * tab-separated</li>
      * <li>Forth line is blank</li>
-     * <li>Fifth and subsquent lines contain the rate matrix, one row per line.  Columns
-     * in a row are serated by tabs.  Each entry can be an equation.</li>
+     * <li>Fifth and subsequent lines contain the rate matrix, one row per line.  Columns
+     * in a row are separated by tabs.  Each entry can be an equation.</li>
      * <li>The rate matrix is followed by a blank line</li>
-     * <li>Finally thee is a line giivng the base frequencies.  Three different
+     * <li>Finally thee is a line giving the base frequencies.  Three different
      * values are allowed:
      * <ol>
      * <li><i>Model frequencies</i> - This line contains an equation for the frequency
-     * of each state, in the same order as the rate matrix and tab-seperated
+     * of each state, in the same order as the rate matrix and tab-separated
      * <li><i>Stationary distribution</i> - Line contains just "**S" (without the quotes)
      * <li><i>Quasi-stationary distribution</i> - Line contains just "**Q" 
      * (without the quotes)
@@ -765,7 +789,7 @@ public class RateCategory implements Serializable
     /**
      * Exception thrown if there is a problem within a RateClass
      */
-    public class RateException extends GeneralException
+    public static class RateException extends GeneralException
     {
         
         /**

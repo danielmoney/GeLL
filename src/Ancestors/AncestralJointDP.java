@@ -21,6 +21,11 @@ import Alignments.Site;
 import Alignments.Alignment;
 import Alignments.AlignmentException;
 import Likelihood.Probabilities;
+import Maths.Real;
+import Maths.RealFactory;
+import Maths.RealFactory.RealType;
+import Maths.SmallDouble;
+import Maths.StandardDouble;
 import Parameters.Parameters;
 import Models.Model;
 import Models.Model.ModelException;
@@ -42,9 +47,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Class to perform joint ancestral reconstrion using the method of Pupko 2000
+ * Class to perform joint ancestral reconstruction using the method of Pupko 2000
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public class AncestralJointDP extends AncestralJoint
 {
@@ -128,9 +133,9 @@ public class AncestralJointDP extends AncestralJoint
 	return new Alignment(alignment);
     }
 	
-    Site calculateSite(Site s, Probabilities P) throws AncestralException, TreeException
+    Site calculateSite(Site s, Probabilities P) throws AncestralException, TreeException, RateException
     {
-	HashMap<String,Map<String,Double>> L = new HashMap<>();
+        HashMap<String,Map<String,Real>> L = new HashMap<>();
 	HashMap<String,Map<String,String>> C = new HashMap<>();
 	
         //Ordering of branches returned ensures we start at leaves and visit
@@ -139,10 +144,10 @@ public class AncestralJointDP extends AncestralJoint
 	for (Branch b: t)
 	{
 	    Map<String,String> c = new HashMap<>();
-	    Map<String,Double> l = new HashMap<>();
+	    Map<String,Real> l = new HashMap<>();
 	    if (t.isExternal(b))
 	    {
-		for (String state: P.getAllStatesAsList())
+                for (String state: P.getAllStates())
 		{                    
                     Set<String> chs = s.getCharacter(b.getChild());
                     try
@@ -152,10 +157,8 @@ public class AncestralJointDP extends AncestralJoint
                         //else throw an Exception.
                         String ch = SetUtils.getSingleElement(chs);
                         c.put(state,ch);
-                        //l.put(state,P.getP(r.get(s.getSiteClass()), b, ch, state));
                         //THIS WILL BE SLOW
-                        //l.put(state,P.getP(r.get(s.getSiteClass())).getP(b).getP(ch,state));
-                        l.put(state,P.getP(r.get(s.getSiteClass())).getP(b,ch,state));
+                        l.put(state,RealFactory.getReal(type,P.getP(r.get(s.getSiteClass())).getP(b,ch,state)));
                     }
                     catch (SetHasMultipleElementsException e)
                     {
@@ -165,25 +168,20 @@ public class AncestralJointDP extends AncestralJoint
 	    }
 	    else
 	    {
-		for (String i: P.getAllStatesAsList())
+                for (String i: P.getAllStates())    
 		{
-		    double maxL = -Double.MAX_VALUE;
+		    Real maxL = RealFactory.getSmallestReal(type);//-Double.MAX_VALUE;
 		    String maxC = null;
 
-		    for (String j : P.getAllStatesAsList())
+                    for (String j : P.getAllStates())
 		    {
-			//double cl = matrices[b].getPosition(j, i);
-			//double cl = P.getP(r, b, i, j);//matrices[b].getPosition(i, j);
-                        //double cl = P.getP(r.get(s.getSiteClass()), b, j, i);
                         //THIS WILL BE SLOW
-                        //double cl = P.getP(r.get(s.getSiteClass())).getP(b).getP(j, i);
-                        double cl = P.getP(r.get(s.getSiteClass())).getP(b, j, i);
-			//for (String ch: MapUtils.reverseLookupMulti(t.getBranches(), b+1))
+                        Real cl = RealFactory.getReal(type, P.getP(r.get(s.getSiteClass())).getP(b, j, i));
                         for (Branch ch: t.getBranchesByParent(b.getChild()))
 			{
-			    cl = cl * L.get(ch.getChild()).get(j);
+			    cl = cl.multiply(L.get(ch.getChild()).get(j));
 			}
-			if (cl > maxL)
+                        if (cl.greaterThan(maxL))
 			{
 			    maxL = cl;
 			    maxC = j;
@@ -197,16 +195,16 @@ public class AncestralJointDP extends AncestralJoint
 	    L.put(b.getChild(),l);
 	}
 
-	double maxL = -Double.MAX_VALUE;
+	Real maxL = RealFactory.getSmallestReal(type);
 	String maxC = null;
-	for (String j: P.getAllStatesAsList())
+        for (String j: P.getAllStates())
 	{
-	    double cl = P.getFreq(r.get(s.getSiteClass()), j);
+            Real cl = RealFactory.getReal(type, P.getRoot(r.get(s.getSiteClass())).getFreq(j));
 	    for (Branch ch: t.getBranchesByParent(t.getRoot()))
 	    {
-		cl = cl * L.get(ch.getChild()).get(j);
+		cl = cl.multiply(L.get(ch.getChild()).get(j));
 	    }
-	    if (cl > maxL)
+	    if (cl.greaterThan(maxL))
 	    {
 		maxL = cl;
 		maxC = j;
@@ -239,6 +237,19 @@ public class AncestralJointDP extends AncestralJoint
     private Map<String,Model> m;
     private Tree t;
     private Map<String,RateCategory> r;
+    
+    /**
+     * Sets the real type to be used during calculations, either {@link SmallDouble}
+     * or {@link StandardDouble}
+     * @param type The double type to use
+     * @see Likelihood.SiteLikelihood#realType(Maths.RealFactory.RealType) 
+     */
+    public static void realType(RealType type)
+    {
+        AncestralJointDP.type = type;
+    }
+    
+    private static RealType type = RealType.STANDARD_DOUBLE;
     
     /**
      * Thrown if the model has multiple rate categories as this methodology

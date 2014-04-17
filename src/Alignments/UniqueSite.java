@@ -15,34 +15,40 @@
  * along with GeLL.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package Constraints;
-
-import Alignments.Site;
-import Trees.Tree;
-import java.util.List;
+package Alignments;
 
 /**
- * Simple implementation of {@link Constrainer} that imposes no constraints
+ * Used to represent a unique site in an alignment.  Augments the normal site
+ * class with a count of how often the site occurs.
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
-public class NoConstraints implements Constrainer
+public class UniqueSite extends Site
 {
     /**
-     * Constructor
-     * @param allStates The set of all possible states.  Needed as the internal
-     * nodes will be constrained to these values.  As these are all the posisble
-     * values there are no constraints.
+     * Default constructor
+     * @param s The site
+     * @param c How often the site occurs
      */
-    public NoConstraints(List<String> allStates)
+    public UniqueSite(Site s, int c)
     {
-        def = new SiteConstraints(allStates);
+        super(s);
+        this.c = c;
     }
-    
-    public SiteConstraints getConstraints(Tree t, Site s)
+
+    /**
+     * Get the number of times the site occurs in the related alignment
+     * @return The number of times the site occurs
+     */
+    public int getCount()
     {
-        return def;
+        return c;
     }
-    
-    private SiteConstraints def;
+
+    public String toString()
+    {
+        return super.toString() + "\t" + c;
+    }
+
+    private int c;
 }

@@ -27,17 +27,25 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Represents a sequence alignment in Phylip format
+ * Static classes for reading/writing sequence alignment in Phylip format
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
-public class PhylipAlignment extends Alignment
+public class PhylipAlignment
 {
+    private PhylipAlignment()
+    {
+
+    }
+    
     /**
      * Creates a sequence alignment from a file.  File should be in a format similar
      * to Phylip.  The first non-blank line, which normally gives the number and length
@@ -45,32 +53,36 @@ public class PhylipAlignment extends Alignment
      * per line.  Anything from the start of the line to the first white space is
      * considered the taxa's name.  Anything after the first whitespace is the sequence.
      * Whitespace in the sequence is ignored.  A taxa name of <code>*class*</code> is
-     * assumed not to be a taxa but rather gfives the class of each site (which can be any
+     * assumed not to be a taxa but rather gives the class of each site (which can be any
      * single character).
      * @param f The input file
+     * @return The alignment created from the file
      * @throws InputException Thrown if there is a problem reading the file
-     * @throws Alignments.AlignmentException Thrown if there issomething wrong with the alignment, e.g.
+     * @throws Alignments.AlignmentException Thrown if there is something wrong with the alignment, e.g.
      * different length sequences
      */
-    public PhylipAlignment(File f) throws InputException, AlignmentException
+    public static Alignment fromFile(File f) throws InputException, AlignmentException
     {
-        this(f, new Ambiguous(new HashMap<String,Set<String>>()));
+        return fromFile(f, new Ambiguous(new HashMap<String,Set<String>>()));
     }
 
     /**
-     * Creates a sequence alignment from a file with ambiguouis data.  File should
-     * be in the format described at {@link #PhylipAlignment(java.io.File)}
+     * Creates a sequence alignment from a file with ambiguous data.  File should
+     * be in the format described at {@link #fromFile(java.io.File)}
      * @param f The input file
-     * @param ambig Desription o the ambiguous data
+     * @param ambig Description o the ambiguous data
+     * @return The alignment created from the file
      * @throws InputException Thrown if there is a problem with the input file
-     * @throws Alignments.AlignmentException Thrown if there issomething wrong with the alignment, e.g.
+     * @throws Alignments.AlignmentException Thrown if there is something wrong with the alignment, e.g.
      * different length sequences
      */
-    public PhylipAlignment(File f, Ambiguous ambig) throws InputException, AlignmentException
+    public static Alignment fromFile(File f, Ambiguous ambig) throws InputException, AlignmentException
     {
 	// Create the hashmap to store the sequences (seq name =>  sequence)
         LinkedHashMap<String,String> seq = new LinkedHashMap<>();
         String classLine = null;
+        Set<String> taxa = new HashSet<>();
+        List<Site> data = new ArrayList<>();
 
 	BufferedReader in;
         try
@@ -88,7 +100,8 @@ public class PhylipAlignment extends Alignment
             int seqLength = -1;
             while ((line = in.readLine()) != null)
             {
-                if (!line.equals("") && !paramLine)
+                //if (!line.equals("") && !paramLine)
+                if (!line.matches("\\s*") && !paramLine)
                 {
                     String[] parts = line.split("\\s+", 2);
                     
@@ -123,7 +136,6 @@ public class PhylipAlignment extends Alignment
                         if (classLine == null)
                         {
                             classLine = parts[1];
-                            hasClasses = true;
                         }
                         else
                         {
@@ -157,6 +169,7 @@ public class PhylipAlignment extends Alignment
                 }
                 data.add(new Site(col,ambig,c));
             }
+            return new Alignment(data);
         }
         catch (IOException e)
 	{
@@ -166,7 +179,7 @@ public class PhylipAlignment extends Alignment
 
     /**
      * Writes a alignment to a file in the format described in 
-     * {@link #PhylipAlignment(java.io.File)}.
+     * {@link #fromFile(java.io.File)}.
      * @param a The alignment to write to the file. Need not be a sequence alignment
      * @param f The file to write to
      * @throws OutputException Thrown if there is a problem creating the file
@@ -197,7 +210,7 @@ public class PhylipAlignment extends Alignment
                 out.println();
             }
             
-            if (a.hasClasses)
+            if (a.hasClasses())
             {
                 out.println();
                 out.print("*Class*     ");
@@ -218,7 +231,7 @@ public class PhylipAlignment extends Alignment
     
     /**
      * Writes a alignment to a file in the format described in 
-     * {@link #PhylipAlignment(java.io.File)}.
+     * {@link #fromFile(java.io.File)}.
      * @param a The alignment to write to the file. Need not be a sequence alignment
      * @param f The file to write to
      * @throws OutputException Thrown if there is a problem creating the file
@@ -249,7 +262,7 @@ public class PhylipAlignment extends Alignment
                 out.println();
             }
             
-            if (a.hasClasses)
+            if (a.hasClasses())
             {
                 out.println();
                 out.print("*Class*     ");

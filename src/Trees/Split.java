@@ -22,7 +22,7 @@ import java.util.TreeSet;
 /**
  * Represents a split
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class Split
 {
@@ -43,7 +43,7 @@ public class Split
     
     /**
      * Returns the members of one "half" of the split.  This will always return
-     * the half with the smaller valued (by string comparision) member
+     * the half with the smaller valued (by string comparison) member
      * @return The members of the split
      */
     public TreeSet<String> getMembers()
@@ -70,7 +70,7 @@ public class Split
     }
     
     /**
-     * Tests whether two splits are equal except for lentgth
+     * Tests whether two splits are equal except for length
      * @param s The other split
      * @return Whether the two splits are equal except for length
      */

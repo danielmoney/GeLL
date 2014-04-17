@@ -27,47 +27,60 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Set;
 
 /**
- * Represents a duplication "alignment" - a set of gene families with their
- * associated size in each species
+ * Static classes for reading/writing duplication "alignments" - 
+ * a set of gene families with their associated size in each species
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
-public class DuplicationAlignment extends Alignment
+public class DuplicationAlignment
 {
+    private DuplicationAlignment()
+    {
+        
+    }
+    
     /**
-     * Creates a duplication alignment from a file.  File is tab seperated.
+     * Creates a duplication alignment from a file.  File is tab separated.
      * First row is a header file.  First field is ignored while subsequent fields
      * are the name of the species.  Each additional row represents a family.
      * The first field is an ID for the family while subsequent fields are the
-     * size of the family in the appropiate species.  A family name of <code>*class*</code> is
-     * assumed not to be a taxa but rather gfives the class of each site (which can be any
+     * size of the family in the appropriate species.  A family name of <code>*class*</code> is
+     * assumed not to be a taxa but rather gives the class of each site (which can be any
      * string).
      * @param f The input file
+     * @return The alignment created from the file
      * @throws InputException Thrown if there is a problem with the input file
      * @throws Alignments.AlignmentException Thrown if any family contains the wrong number
      * of species
      */
-    public DuplicationAlignment(File f) throws InputException, AlignmentException
+    public static Alignment fromFile(File f) throws InputException, AlignmentException
     {
-        this(f,new Ambiguous(new HashMap<String,Set<String>>()));
+        return fromFile(f,new Ambiguous(new HashMap<String,Set<String>>()));
     }
 
     /**
      * Creates a duplication alignment which contains ambiguous data.  File format
-     * is described {@link #DuplicationAlignment(java.io.File)}.
+     * is described {@link #fromFile(java.io.File)}.
      * @param f The input file
-     * @param ambig Desription o the ambiguous data
+     * @param ambig Description o the ambiguous data
+     * @return The alignment created from the file
      * @throws InputException Thrown if there is a problem with the input file
      * @throws Alignments.AlignmentException Thrown if any family contains the wrong number
      * of species
      */
-    public DuplicationAlignment(File f, Ambiguous ambig) throws InputException, AlignmentException
+    public static Alignment fromFile(File f, Ambiguous ambig) throws InputException, AlignmentException
     {
+        Set<String> taxa = new HashSet<>();
+        List<Site> data = new ArrayList<>();
+        boolean hasClasses = false;
 	BufferedReader ain;
 	try
 	{
@@ -134,6 +147,7 @@ public class DuplicationAlignment extends Alignment
             {
                 taxa.remove("*Class*");
             }
+            return new Alignment(data);
 	}
 	catch (IOException e)
 	{
@@ -157,7 +171,7 @@ public class DuplicationAlignment extends Alignment
 	    for (String taxa: a.getTaxa())
 	    {
 		out.print("\t" + taxa);
-                if (a.hasClasses)
+                if (a.hasClasses())
                 {
                     out.print("\t*Class*");
                 }
@@ -178,7 +192,7 @@ public class DuplicationAlignment extends Alignment
                     try
                     {
                         out.print("\t" + a.getSite(i).getRawCharacter(taxa));
-                        if (a.hasClasses)
+                        if (a.hasClasses())
                         {
                             out.print("\t" + a.getSite(i).getSiteClass());
                         }

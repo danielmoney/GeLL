@@ -20,10 +20,10 @@ package Ancestors;
 import Alignments.Alignment;
 import Alignments.AlignmentException;
 import Alignments.Site;
-import Constraints.Constrainer;
-import Constraints.NoConstraints;
-import Constraints.SiteConstraints;
 import Likelihood.Probabilities;
+import Likelihood.SiteLikelihood.LikelihoodException;
+import Likelihood.SiteLikelihood.NodeLikelihood;
+import Maths.Real;
 import Models.Model;
 import Models.Model.ModelException;
 import Models.RateCategory;
@@ -34,7 +34,6 @@ import Parameters.Parameters.ParameterException;
 import Trees.Branch;
 import Trees.Tree;
 import Trees.TreeException;
-import Utils.ToDoubleHashMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,13 +41,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  * Class to perform marginal reconstruction of internal nodes.  Uses the principles of
  * Yang, Kurma and Nei 1995.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class AncestralMarginal
 {
@@ -61,25 +59,10 @@ public class AncestralMarginal
      */
     public AncestralMarginal(Model m, Alignment a, Tree t)
     {
-        this(m,a,t,new NoConstraints(m.getStates()));
-    }
- 
-    /**
-     * Creates an object to calculate an ancestral reconstruction for a given
-     * model, alignment, tree and a constrainter
-     * @param m The model
-     * @param a The alignment
-     * @param t The tree
-     * @param con The constraints on the internal nodes
-     */
-    public AncestralMarginal(Model m, Alignment a, Tree t, Constrainer con)
-    {
 	this.a = a;
         this.m = new HashMap<>();
 	this.m.put(null, m); 
 	this.t = t;
-        this.con = new HashMap<>();
-        this.con.put(null,con);
     }
 
     /**
@@ -97,44 +80,12 @@ public class AncestralMarginal
         this.a = a;
         this.m = m;
         this.t = t;
-        this.con = new HashMap<>();
-        for (Entry<String,Model> e: m.entrySet())
-        {
-            con.put(e.getKey(),new NoConstraints(e.getValue().getStates()));
-        }
         if (!a.check(m))
         {
             throw new AlignmentException("Alignment contains classes for which no model has been defined");
         }
     }
-    
-    /**
-     * Creates an object to calculate an ancestral reconstruction for a given
-     * set of models, an alignment, a tree and s et of constrainers.  There should
-     * be one model and one constrainer per site class in the alignment
-     * @param m Map from site class to model
-     * @param a The alignment
-     * @param t The tree
-     * @param con Map from site class to constrainer
-     * @throws AlignmentException Thrown if a model and constrainer isn't given
-     * for each site class in the alignment  
-     */
-    public AncestralMarginal(Map<String,Model> m, Alignment a, Tree t, Map<String,Constrainer> con) throws AlignmentException
-    {
-	this.a = a;
-        this.m = m;
-	this.t = t;
-        this.con = con;
-        if (!a.check(m))
-        {
-            throw new AlignmentException("Alignment contains classes for which no model has been defined");
-        }
-        if (!a.check(con))
-        {
-            throw new AlignmentException("Alignment contains classes for which no constrainer has been defined");
-        }
-    }
-    
+      
     /**
      * Calculates the reconstruction
      * @param params The parameters to be used in the reconstruction
@@ -147,9 +98,11 @@ public class AncestralMarginal
      * @throws TreeException Thrown if there is a problem with the tree.
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
      * with the parameters (e.g. a requied parameter is not present)
-     * @throws AlignmentException Thrown if there is a problem with the alignment 
+     * @throws AlignmentException Thrown if there is a problem with the alignment
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if there is a
+     * problem with calculating likelihoods
      */    
-    public Result calculate(Parameters params) throws RateException, ModelException, TreeException, ParameterException, AlignmentException
+    public Result calculate(Parameters params) throws RateException, ModelException, TreeException, ParameterException, AlignmentException, LikelihoodException
     {
         //If the parameters setting doesn't include branch lengths parameters then
         //add them from the tree.  The paramter / branch length interaction is a
@@ -195,22 +148,20 @@ public class AncestralMarginal
      * each state at each node
      * @throws TreeException Thrown if there is a problem with the tree. 
      */
-    SiteResult calculateSite(Site s, Probabilities P) throws TreeException, AlignmentException
+    SiteResult calculateSite(Site s, Probabilities P) throws TreeException, AlignmentException, LikelihoodException, RateException
     {
         //Calculalate the probability of each state for each node...
-        Map<String,ToDoubleHashMap<String>> nr = new HashMap<>();
+        Map<String,HashMap<String,Real>> nr = new HashMap<>();
         for (String node: t.getInternal())
         {
             nr.put(node,calculateNode(s,P,node));
         }
         
-        //System.out.println();
-        
         //And combine the node results (done in SiteResult constructor) and return
         return new SiteResult(nr,s);
     }
     
-    private ToDoubleHashMap<String> calculateNode(Site s, Probabilities P, String node) throws TreeException, AlignmentException
+    private HashMap<String,Real> calculateNode(Site s, Probabilities P, String node) throws TreeException, AlignmentException, LikelihoodException, RateException
     {
         //As we want to be able to use non-time reversible models we can't use
         //the normal re-root the tree at this node trick.  Instead we do a variation
@@ -234,8 +185,6 @@ public class AncestralMarginal
         }
         Collections.reverse(reverse);
         
-        SiteConstraints siteCon = con.get(s.getSiteClass()).getConstraints(t, s);
-        
         //For each rate categoy...
         Map<RateCategory, NodeLikelihood> rr = new HashMap<>();
         for (RateCategory r: m.get(s.getSiteClass()))
@@ -245,51 +194,67 @@ public class AncestralMarginal
             Map<String,NodeLikelihood> l = new HashMap<>();
             for (String n: t.getLeaves())
             {
-                l.put(n, new NodeLikelihood(P.getAllStatesAsList(), s.getCharacter(n)));
+                l.put(n, new NodeLikelihood(P.getMap(), s.getCharacter(n)));
             }
 
             for (String n: t.getInternal())
             {
-                l.put(n, new NodeLikelihood(P.getAllStatesAsList(), siteCon.getConstraint(n)));
+                l.put(n, new NodeLikelihood(P.getMap()));
             }
 
             //Traverse the normal branches in the same manner as for a normal
             //likelihood calculation
             for (Branch b: normal)
             {
-                for (String endState: P.getAllStatesAsList())
+                for (String endState: P.getAllStates())
                 {
-                    double li = 0.0;
-                    for (String startState: P.getAllStatesAsList())
+                    Real li = null;
+                    for (String startState: P.getAllStates())
                     {
                         //This will be a little slow but given that we don't optimise
                         //using this it will never get called that often so speeding
                         //it up is not a priority
-                        li += l.get(b.getChild()).getLikelihood(startState) * P.getP(r).getP(b, startState, endState);
+                        if (li == null)
+                        {
+                            li = l.get(b.getChild()).getLikelihood(startState).multiply(P.getP(r).getP(b, startState, endState));
+                        }
+                        else
+                        {
+                            li = li.add(l.get(b.getChild()).getLikelihood(startState).multiply(P.getP(r).getP(b, startState, endState)));
+                        }
                     }
                     l.get(b.getParent()).multiply(endState,li);
                 }
             }
 
             //Apply the root frequencies to the original root
-            for (String st: P.getAllStatesAsList())
+            for (String st: P.getAllStates())
             {
-                l.get(t.getRoot()).multiply(st, P.getFreq(r, st));
+                //l.get(t.getRoot()).multiply(st, P.getFreq(r, st));
+                l.get(t.getRoot()).multiply(st, P.getRoot(r).getFreq(st));
             }
             
             //Now traverse the "backwards" branches in a similar manner to normal
             //excpet the start and end states are swapper
             for (Branch b: reverse)
             {
-                for (String endState: P.getAllStatesAsList())
+                for (String endState: P.getAllStates())
                 {
-                    double li = 0.0;
-                    for (String startState: P.getAllStatesAsList())
+                    //Real li = 0.0;
+                    Real li = null;
+                    for (String startState: P.getAllStates())
                     {
                         //This will be a little slow but given that we don't optimise
                         //using this it will never get called that often so speeding
                         //it up is not a priority
-                        li += l.get(b.getParent()).getLikelihood(startState) * P.getP(r).getP(b, endState, startState);
+                        if (li == null)
+                        {
+                            li = l.get(b.getParent()).getLikelihood(startState).multiply(P.getP(r).getP(b, endState, startState));
+                        }
+                        else
+                        {
+                            li = li.add(l.get(b.getParent()).getLikelihood(startState).multiply(P.getP(r).getP(b, endState, startState)));
+                        }
                     }
                     l.get(b.getChild()).multiply(endState,li);
                 }
@@ -301,24 +266,37 @@ public class AncestralMarginal
         //Calculate the likelihood for each state by summing accross Rate
         //Categories (accoutning for different frequency of Rate Category).
         //Also calculate the total likelihood.
-        double total = 0.0;
-        ToDoubleHashMap<String> sl = new ToDoubleHashMap<>();
-        for (String st : P.getAllStatesAsList())
+        Real total = null;
+        HashMap<String,Real> sl = new HashMap<>();
+        for (String st : P.getAllStates())
         {
-            sl.put(st, 0.0);
             for (RateCategory r: m.get(s.getSiteClass()))
             {
-                sl.add(st, rr.get(r).getLikelihood(st) * m.get(s.getSiteClass()).getFreq(r));
+                if (sl.get(st) == null)
+                {
+                    sl.put(st, rr.get(r).getLikelihood(st).multiply(m.get(s.getSiteClass()).getFreq(r)));
+                }
+                else
+                {
+                    sl.put(st, sl.get(st).add(rr.get(r).getLikelihood(st).multiply(m.get(s.getSiteClass()).getFreq(r))));
+                }
             }
-            total += sl.get(st);
+            if (total == null)
+            {
+                total = sl.get(st);
+            }
+            else
+            {
+                total = total.add(sl.get(st));
+            }
         }
         
         //Divide each state probability by the total probability to get the
         //likelihood of a state
-        ToDoubleHashMap<String> sP = new ToDoubleHashMap<>();
-        for (String st: P.getAllStatesAsList())
+        HashMap<String,Real> sP = new HashMap<>();
+        for (String st: P.getAllStates())
         {
-            sP.put(st, sl.get(st)/total);
+            sP.put(st, sl.get(st).divide(total));
         }
         
         return sP;
@@ -327,55 +305,38 @@ public class AncestralMarginal
     private Alignment a;
     private Map<String,Model> m;
     private Tree t;
-    private Map<String,Constrainer> con;
-    
-    //This is a fudge as it's an exact copy (well at least to begin with) of 
-    //the class in Likelihood.Likelihood but there's no other easy way to control
-    //access to it's constructor.  The likelihood calculation here and in Likelihood
-    //is just different enough that we can't call Likelihood and use the result here,
-    //but they are similar enough that this structure is the same. The only 
-    //difference is here everything is made private as it's only used internally.
-    private static class NodeLikelihood
+
+    /**
+     * Returns an object of this class that can be used for marginal 
+     * reconstruction.  Included for consistency with {@link AncestralJoint}
+     * which requires a static method as there is two different classes that
+     * are used based on the situation.
+     * @param a The alignment
+     * @param m The model
+     * @param t The tree
+     * @return An object that can be used for reconstruction
+     */
+    public static AncestralMarginal newInstance(Model m, Alignment a, Tree t)
     {
-        //This constructor creates the initial sate of a node.
-        //Takes the set of all states and the set of setStates. For leaf nodes
-        //that is the possible values given by the alignment.  for internal nodes
-        //thats the set of states we allow at that node which, in the abscence of
-        //any constraints, will be all states.  As per the standard likelihood
-        //calculation set states are given a "likelihood" of 1, all other states
-        //zero.
-        private NodeLikelihood(List<String> states, Set<String> setStates)
-        {
-            likelihoods = new ToDoubleHashMap<>();
-            for (String s: states)
-            {
-                if (setStates.contains(s))
-                {
-                    likelihoods.put(s,1.0);
-                }
-                else
-                {
-                    likelihoods.put(s,0.0);
-                }
-            }
-        }
+        return new AncestralMarginal(m,a,t);
+    }
 
-        private void multiply(String state, double by)
-        {
-            likelihoods.multiply(state, by);
-        }
-
-        /**
-         * Returns the partial likelihood for a given state
-         * @param state The state to return the partial likelihood for
-         * @return The partial likelihood for the given state
-         */
-        private Double getLikelihood(String state)
-        {
-            return likelihoods.get(state);
-        }
-
-        private ToDoubleHashMap<String> likelihoods;
+    /**
+     * Returns an object of this class that can be used for marginal 
+     * reconstruction.  Sites can belong to different classes and so use 
+     * different models. Included for consistency with {@link AncestralJoint}
+     * which requires a static method as there is two different classes that
+     * are used based on the situation.
+     * @param a The alignment
+     * @param m Map from site class to model
+     * @param t The tree
+     * @return An object that can be used for reconstruction
+     * @throws AlignmentException Thrown if a model isn't given
+     * for each site class in the alignment  
+     */
+    public static AncestralMarginal newInstance(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException
+    {
+        return new AncestralMarginal(m,a,t);
     }
     
     /**
@@ -432,7 +393,7 @@ public class AncestralMarginal
      */
     public class SiteResult
     {
-        private SiteResult(Map<String, ToDoubleHashMap<String>> nr, Site os) throws AlignmentException
+        private SiteResult(Map<String, HashMap<String,Real>> nr, Site os) throws AlignmentException
         {
             this.nr = nr;
             
@@ -446,7 +407,7 @@ public class AncestralMarginal
             //And then adding the reconstrcuted results
             for (String i: t.getInternal())
             {
-                s.put(i, nr.get(i).getMaxKey());
+                s.put(i, getMaxKey(nr.get(i)));
             }
             site = new Site(s);
         }
@@ -468,7 +429,7 @@ public class AncestralMarginal
          * @throws AncestralException If there is no result for that node/state 
          * combination
          */
-        public double getProbability(String node, String state) throws AncestralException
+        public Real getProbability(String node, String state) throws AncestralException
         {
             if (nr.containsKey(node))
             {
@@ -481,7 +442,23 @@ public class AncestralMarginal
                     " and state " + state, null);
         }
         
+        private String getMaxKey(HashMap<String,Real> map)
+        {
+            Real mv = null;
+            String mk = null;
+            for (Entry<String,Real> e: map.entrySet())
+            {
+                if ((mv == null) || (e.getValue().greaterThan(mv)))
+                {
+                    mk = e.getKey();
+                    mv = e.getValue();
+                }
+            }
+
+            return mk;
+        }
+        
         private Site site;
-        private Map<String, ToDoubleHashMap<String>> nr;
+        private Map<String, HashMap<String, Real>> nr;
     }
 }

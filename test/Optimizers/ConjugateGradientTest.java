@@ -19,8 +19,8 @@ package Optimizers;
 
 import Alignments.Alignment;
 import Alignments.PhylipAlignment;
-import Likelihood.Calculator;
-import Likelihood.Likelihood;
+import Likelihood.StandardCalculator;
+import Likelihood.StandardLikelihood;
 import Models.Model;
 import Models.RateCategory;
 import Parameters.Parameter;
@@ -32,22 +32,22 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Tests the ConjugateGradient optimizer is working right
+ * Tests the ConjugateGradient optimiser is working right
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class ConjugateGradientTest
 {
 
     /**
-     * Tests by comaping the optimised likelihood to PAML
+     * Tests by comparing the optimised likelihood to PAML
      * @throws Exception Thrown if something went wrong!
      */
     @Test
     public void SimpleTest() throws Exception
     {
         Tree t = Tree.fromNewickString("(((Human, Chimpanzee)A, Gorilla)B, Orangutan, Gibbon)C;");
-        Alignment a = new PhylipAlignment(new File("test\\PAML\\Likelihood\\brown.nuc"));
+        Alignment a = PhylipAlignment.fromFile(new File("test\\PAML\\Likelihood\\brown.nuc"));
 
         String[][] ma = new String[4][4];
 
@@ -66,7 +66,7 @@ public class ConjugateGradientTest
 
         Model m = Model.gammaRates(new RateCategory(ma,freq,map),"g",4);
 
-        Calculator c = new Calculator(m,a,t);
+        StandardCalculator c = new StandardCalculator(m,a,t);
 
         Parameters p = t.getParametersForEstimation();
         
@@ -82,11 +82,10 @@ public class ConjugateGradientTest
         p.addParameter(Parameter.newEstimatedPositiveParameter("pA"));
         p.addParameter(Parameter.newEstimatedPositiveParameter("pG"));
         
-        //p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
         p.addParameter(Parameter.newEstimatedBoundedParameter("g",0.1,4.0));
         Optimizer o = new ConjugateGradient();
         
-        Likelihood l = o.maximise(c, p);
+        StandardLikelihood l = o.maximise(c, p);
         
         assertTrue(Math.log10(Math.abs(l.getLikelihood() - -2616.073763)) < -3);
     }

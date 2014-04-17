@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>GeLL Example</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <script type="text/javascript" src="exscript.js"></script>
+    </head>
+    <body>
+        <div style="width: 800px; margin: 0px auto;">
+            <H1>GeLL Example</H1>
+            <p>Here we work through a example use of GeLL code explaining the various
+            components.  This is based on <code>example.java</code> included in the
+            distributed packages.  Comments have been removed, file names shortened
+            and the taxa names in the Newick tree shortened to allow for a smaller
+            code snippet.  In the descriptions the input to functions are not included
+            again for the sake of brevity.  Please follow the links for a full description
+            of each function.</p>
+            
+            <div style="border-style:solid; border-color:lightskyblue;height:500px;width:800px">
+            <div style="height:500px;width:525px;float:left;font-family:monospace;white-space: pre;">public static void main(String[] args) throws Exception
+{
+    <mark class="high1" onmouseover="show('tree')" onmouseout="hide('tree')">Tree t = Tree.fromNewickString</mark>
+        <mark class="high1" onmouseover="show('tree')" onmouseout="hide('tree')">("(((Hum, Chi)A, Gor)B, Ora, Gib)C;")</mark>
+    
+    <mark class="high2" onmouseover="show('alignment')" onmouseout="hide('alignment')">Alignment a = PhylipAlignment.fromFile(new File("b.nuc"));</mark>
+    
+    <mark class="high1" onmouseover="show('parameters')" onmouseout="hide('parameters')">Parameters p = t.getParametersForEstimation();</mark>
+
+    <mark class="high2" onmouseover="show('model')" onmouseout="hide('model')">Model m = DNAModelFactory.GTR_Gamma(p, 4);</mark>
+
+    <mark class="high1" onmouseover="show('calculator')" onmouseout="hide('calculator')">StandardCalculator c = new StandardCalculator(m,a,t);</mark>
+
+    <mark class="high2" onmouseover="show('optimizer')" onmouseout="hide('optimizer')">Optimizer o = new GoldenSection();</mark>
+
+    <mark class="high1" onmouseover="show('likelihood')" onmouseout="hide('likelihood')">StandardLikelihood l = o.maximise(c, p);</mark>
+    <mark class="high1" onmouseover="show('likelihood')" onmouseout="hide('likelihood')">p = l.getParameters();</mark>
+
+    <mark class="high2" onmouseover="show('output')" onmouseout="hide('output')">System.out.println("Likelihood: " + l.getLikelihood());</mark>
+    <mark class="high2" onmouseover="show('output')" onmouseout="hide('output')">System.out.println();</mark>
+    <mark class="high2" onmouseover="show('output')" onmouseout="hide('output')">System.out.println("Parameters:");</mark>
+    <mark class="high2" onmouseover="show('output')" onmouseout="hide('output')">System.out.println(p);</mark>
+
+    <mark class="high1" onmouseover="show('ancestor')" onmouseout="hide('ancestor')">AncestralJoint aj = AncestralJoint.newInstance(m, a, t);</mark>
+    <mark class="high1" onmouseover="show('ancestor')" onmouseout="hide('ancestor')">Alignment anc = aj.calculate(p);</mark>
+
+    <mark class="high2" onmouseover="show('alignment')" onmouseout="hide('alignment')">PhylipAlignment.writeFile(anc, new File("ancestor.dat"));</mark>
+
+    <mark class="high1" onmouseover="show('simulate')" onmouseout="hide('simulate')">Simulate s = new Simulate(m,t,p);</mark>
+    <mark class="high1" onmouseover="show('simulate')" onmouseout="hide('simulate')">Alignment sim = s.getAlignment(500);</mark>
+
+    <mark class="high2" onmouseover="show('alignment')" onmouseout="hide('alignment')">PhylipAlignment.writeFile(sim, new File("simulated.dat"));</mark>
+}                
+            </div>
+            <div class="explain" id="standard" style="display:block">
+                <h2>Code Explanation</h2>
+                Mouse over any of the highlighted code to see an explanation of it here.
+            </div>
+            <div class="explain" id="tree">
+                <h2>Tree</h2>
+                All of the computation classes of GeLL make use of a tree object.  The easiest way to input a tree
+                is in Newick format.  The Newick string can either be passed directly to <code>
+                <a href="javadoc/Trees/Tree.html#fromFile(java.io.File)">Tree.fromNewickString()</a></code>
+                or be read from a file using <code><a href="javadoc/Trees/Tree.html#fromFile(java.io.File)">
+                Tree.fromFile()</a></code>.<br><br>
+                If the Newick string does not contain names for the internal nodes default names are assigned of the form
+                of an underscore followed by a number, e.g. <code>_1</code>.
+            </div>
+            <div class="explain" id="alignment">
+                <h2>Alignment</h2>
+                As well as a tree most GeLL computations need to be supplied with an alignment.  Alignments can
+                be read in three formats, each of which has their own class for reading and writing the alignment.
+                In this example we use <code><a href="javadoc/Alignments/PhylipAlignment.html">PhylipAlignment</a>
+                </code>, but <code><a href="javadoc/Alignments/FastaAlignment.html">FastaAlignment</a></code>
+                or <code><a href="javadoc/Alignments/DuplicationAlignment.html">DuplicationAlignment</a></code> could also
+                have been used in the same way.
+            </div>
+            <div class="explain" id="parameters">
+                <h2>Parameters</h2>
+                A Parameters object contains information on the parameters to be used in the calculation - namely
+                the model parameters and the branch lengths.<br><br>
+                Rather than defining each branch length parameter individually the set of branch length parameters
+                for a tree can be returned with a call to <code>getParameters()</code> or 
+                <code>getParametersForEstimation()</code> - the first sets the parameter value for any branch lengths
+                given in the tree where as the second returns parameters that will be estimated even if a branch length
+                was provided.<br><br>
+                More information on parameters can be found on the <a href="model.html">Models and Parameters</a> page.
+                
+            </div>
+            <div class="explain" id="model">
+                <h2>Model</h2>
+                If you wish to use one of the models pre-programmed models then it is simply a case of using one of
+                the packaged model factories - either <code><a href="javadoc/Models/DNAModelFactory.html">DNAModelFactory</a>
+                </code> or <code><a href="javadoc/Models/DuplicationModelFactory.html">DuplicationModelFactory</a></code>.
+                Passing a parameters object to the function, as here, will populate the parameters objects with the parameters
+                that model needs and is the easiest way to do simple calculations.<br><br>
+                Defining new models is one of the key capabilities of GeLL.  To find out more information on how to use other
+                than pre-programmed models please see the <a href="model.html">Models and Parameters</a> page.
+            </div>
+            <div class="explain" id="calculator">
+                <h2>Calculator</h2>
+                The calculator class is the class that is used to do the actual likelihood calculation.  This standard
+                calculator should suffice for the vast majority of cases and it will work on any model that can be defined.
+                It should only be necessary to create bespoke calculators for instances where the calculation does not
+                follow the standard Felsenstein method (e.g. the Rivas-Eddy method).<br><br>
+                The calculator is passed a model (<code>m</code>), alignment (<code>a</code>) and tree (<code>t</code>) at 
+                <a href="">creation</a>
+                and then it can be used to perform likelihood calculations used different parameters. 
+            </div>
+            <div class="explain" id="optimizer">
+                <h2>Optimizer</h2>
+                GeLL has three built-in optimisation methods - <code><a href="">GoldenSection</a></code>,
+                <code><a href="">NelderMead</a></code> and <code><a href="">ConjugateGradient</a></code>.
+                Golden Section is the most mature of these and so most likely to produce the expected result but it may not
+                be the fastest.  All methods can sometimes not optimise properly for specific datasets so it sometimes
+                necessary to use different methods.<br><br>
+                It is possible to create custom optimisation methods.  Please either contact the author or read the javadoc
+                and look at the existing optimisers.
+            </div>
+            <div class="explain" id="likelihood">
+                <h2>Likelihood</h2>
+                By passing a calculator and a set of parameters to an optimisers <code><a href="">maximize</a></code>
+                function the optimiser will attempt to optimise the parameters to find the maximum likelihood.  It then
+                returns a likelihood object which contains information on the likelihood obtained and the parameters
+                values used to calculate that likelihood (which is this case will be optimised parameters.  Here
+                we replace the unoptimised parameters with the optimised parameters for use in the following calculations
+                by using <code><a href="">getParameters()</a></code> to get the optimised parameters from the likelihood
+                object.
+            </div>
+            <div class="explain" id="output">
+                <h2>Output</h2>
+                In this section we output the optimised likelihood and the parameters that produced that likelihood.
+                The <code><a href="">getLikelihood()</a></code> function of the likelihood returns the likelihood as a double
+                which is then printed.  <code><a href="">Parameters</a></code> has a <code><a href="">toString()</a></code>
+                function that prints each parameter value, one per line, so the line here outputs all the parameters to the
+                screen.
+            </div>
+            <div class="explain" id="ancestor">
+                <h2>Ancestor</h2>
+                GeLL includes two methods for calculating ancestral sequences joint (<code><a href="">
+                AncestralJoint</a></code>) and marginal (<code><a href="">AncestralMarginal</a></code>).
+                Both can be created by calls to there <code><a href="">newInstance()</a></code> static method and
+                this takes as input a model, alignment and tree<br><br>
+                Calling the <code><a href="">calculate</a></code> method calculates the ancestral sequences.  It returns
+                an alignment that contains both the original sequences and sequences for each internal node of the tree.
+            </div>
+            <div class="explain" id="simulate">
+                <h2>Simulate</h2>
+                The <code><a href="">Simulate</a></code> class can be used to simulate alignments based on a model
+                (<code>m</code>), tree (<code>t</code>) and a set of parameters (<code>p</code>).  Once created the object
+                can be used to create alignments using its <code><a href="">getAlignment()</a></code> method.  This method
+                is passed the length of alignment to simulate.
+            </div>
+            </div>
+            
+            <div style="text-align:center; margin-top:10px"><a href="GeLL.html">Back to Top Level Documentation</a></div>
+        </div>
+    </body>
+</html>

@@ -18,7 +18,7 @@
 package Ancestral;
 
 import Likelihood.Probabilities;
-import Likelihood.Calculator;
+import Likelihood.StandardCalculator;
 import Alignments.Alignment;
 import Alignments.PhylipAlignment;
 import Alignments.Site;
@@ -41,7 +41,7 @@ import static org.junit.Assert.*;
 /**
  * Tests the dynamic programming joint reconstruction method
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public class JointDPTest
 {
@@ -55,7 +55,7 @@ public class JointDPTest
         SquareMatrix.setExpMethod(Calculation.EIGEN);
         
         Tree t = Tree.fromNewickString("(((Human: 0.041755, Chimpanzee: 0.053312)A: 0.016472, Gorilla: 0.058177)B: 0.052919, Orangutan: 0.100079, Gibbon: 0.139397)C;");
-        Alignment a = new PhylipAlignment(new File("test\\PAML\\JointReconstruction\\brown.nuc"));
+        Alignment a = PhylipAlignment.fromFile(new File("test\\PAML\\JointReconstruction\\brown.nuc"));
 
         String[][] ma = new String[4][4];
 
@@ -74,7 +74,7 @@ public class JointDPTest
 
         Model m = new Model(new RateCategory(ma,freq,map));
         
-        Calculator c = new Calculator(m,a,t);
+        StandardCalculator c = new StandardCalculator(m,a,t);
 
         AncestralJoint aj = AncestralJoint.newInstance(m,a,t);
 

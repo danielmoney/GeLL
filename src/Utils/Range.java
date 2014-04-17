@@ -18,9 +18,9 @@
 package Utils;
 
 /**
- * Used to represent a range (using doubkes)
+ * Used to represent a range (using doubles)
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class Range
 {

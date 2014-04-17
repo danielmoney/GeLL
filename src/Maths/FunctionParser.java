@@ -25,10 +25,10 @@ import java.util.List;
  * of it.  {@link MathsParse} implements some common functions used in phylogenetics
  * and is a useful example of how to implement this class.
  * 
- * The chnages to this injterface mean implementations of it for version 1.1 or less
+ * The changes to this interface mean implementations of it for version 1.1 or less
  * will need updating although this should be a simple addition.
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public interface FunctionParser
 {
@@ -38,7 +38,7 @@ public interface FunctionParser
      * @param variables An array of inputs in the order they appear in the function
      *      call
      * @return The numerical result of the function
-     * @throws WrongNumberOfVariables Thrown when the incorrect number of imputs
+     * @throws WrongNumberOfVariables Thrown when the incorrect number of inputs
      *      to that function is passed.
      * @throws NoSuchFunction Thrown when the class can't parse a function of
      *      that name
@@ -49,7 +49,7 @@ public interface FunctionParser
      * Returns the number of inputs a function expects to be passed
      * @param function The function name
      * @return The number of inputs expected
-     * @throws NoSuchFunction Thrown if the fucntion parser does not implement a
+     * @throws NoSuchFunction Thrown if the function parser does not implement a
      * function with that name
      */
     public int numberInputs(String function) throws NoSuchFunction;

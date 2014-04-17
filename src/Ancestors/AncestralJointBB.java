@@ -22,11 +22,14 @@ import Alignments.Alignment;
 import Alignments.AlignmentException;
 import Ancestors.AncestralJointDP.MultipleRatesException;
 import Exceptions.UnexpectedError;
-import Likelihood.Calculator.SiteCalculator;
-import Likelihood.Likelihood.LikelihoodException;
-import Likelihood.Likelihood.SiteLikelihood;
 import Likelihood.Probabilities;
-import Constraints.SiteConstraints;
+import Likelihood.Probabilities.RateProbabilities;
+import Likelihood.SiteLikelihood;
+import Likelihood.SiteLikelihood.LikelihoodException;
+import Likelihood.SiteLikelihood.NodeLikelihood;
+import Likelihood.SiteLikelihood.RateLikelihood;
+import Maths.Real;
+import Maths.SquareMatrix;
 import Parameters.Parameters;
 import Models.RateCategory;
 import Models.Model;
@@ -37,8 +40,6 @@ import Parameters.Parameters.ParameterException;
 import Trees.Branch;
 import Trees.Tree;
 import Trees.TreeException;
-import Utils.SetUtils;
-import Utils.SetUtils.SetHasMultipleElementsException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -50,7 +51,7 @@ import java.util.Map.Entry;
  * Class to perform joint ancestral reconstrion using the method of Pupko 2002
  * slightly modified
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class AncestralJointBB extends AncestralJoint
 {   
@@ -157,38 +158,40 @@ public class AncestralJointBB extends AncestralJoint
 	return new Alignment(alignment);
     }
 
-    //private String[] calculateSite(int ch, String[][] ca, HashMap<RateClass,SquareMatrix[]> matrices, HashMap<RateClass,double[]> freq,
-    Site calculateSite(Site ca, Probabilities P) throws TreeException, AncestralException, LikelihoodException
+    Site calculateSite(Site ca, Probabilities P) throws TreeException, AncestralException, LikelihoodException, RateException
     {
         //Based on Pupko 2002 but without the second bound metioned.
         //Seems to be efficient without it.  The second bound could be
         //implememted if it's found to be needed although the dynamic programming
         //classes would need changes as well.  There's also no attempt to be clever
         //in the order we visit the internal nodes.  Again this seems to be reasonably
-        //effecient without it.                
-        SiteConstraints con = new SiteConstraints(P.getAllStatesAsList());
+        //effecient without it.
         
-        //Calculate the site likelihood without any constraints
-        SiteLikelihood sl = (new SiteCalculator(ca,t,con,P)).calculate();
+        //Create a new, empty, assignemnt
+        Assignment assignment = new Assignment();
+        
+        //Calculate the site likelihood
+        //SiteLikelihood sl = (new SiteCalculator(t,P,assignment.getInitialNodeLikelihoods(t, ca, P.getMap()))).calculate();
+        SiteLikelihood sl = calculateSite(t,P,assignment.getInitialNodeLikelihoods(t, ca, P.getMap()));
 	RateCategory br = null;
         //And then use this to find the rate category that contributes the most likelihood
-	double brs = -Double.MAX_VALUE;
+	Real brs = null;
 	for (RateCategory r: m.get(ca.getSiteClass()))
 	{
-            double rs = 0.0;
             try
             {
-                rs = sl.getRateLikelihood(r).getLikelihood();
+                Real rs = sl.getRateLikelihood(r).getLikelihood();
+                if ((br == null) || rs.greaterThan(brs))
+                {
+                    br = r;
+                    brs = rs;
+                }
             }
             catch (LikelihoodException ex)
             {
                 //Shouldn't reach here as we know what information should
                 // have been claculated and only ask for that
                 throw new UnexpectedError(ex);
-            }
-            if (rs > brs)
-            {
-                br = r;
             }
 	}
 
@@ -198,20 +201,16 @@ public class AncestralJointBB extends AncestralJoint
         //the state calculated here first before any others.
         Site ba = dps.get(br).calculateSite(ca, P);
 
-        //If we want to do calculation with some nodes already fixed that's
-        //the same as constraining the node to the fixedstate so we can use
-        //the constraints mechanism to keep track of what internal nodes we've
-        //fixed.  To begin with nbo nodes are fixed.
-        SiteConstraints assign = new SiteConstraints(P.getAllStatesAsList());
+        //Create a new empty assignemnt
+        Assignment assign = new Assignment();
         
         //Initialise the structure that keeps track of the best reconstruction
         //found so far.  We don't have a best reconstruction yet, so pass
         //a dummy assignment with an infinitely small likelihood
-	Best best = new Best(assign, -Double.MAX_VALUE);
+	Best best = new Best(assign, null);
         //Do death first search (DFS) recursively to find the best reconstruction
         best = DFS(ca, assign, best, P, ba);
 
-        //String[] ret = new String[order.size()];
         //Create the result
         LinkedHashMap<String,String> ret = new LinkedHashMap<>();
         //By copying the original site
@@ -230,23 +229,13 @@ public class AncestralJointBB extends AncestralJoint
         //And then adding the reconstruction
         for (String in: t.getInternal())
         {
-            try
-            {
-                //ret[i] = SetUtils.getSingleElement(assign.getConstraint(in));
-                ret.put(in, SetUtils.getSingleElement(best.assign.getConstraint(in)));
-            }
-            catch (SetHasMultipleElementsException e)
-            {
-                //Shouldn't reach here as we only ever constrain each node to
-                //a single site during the reconstruction
-                throw new UnexpectedError(e);
-            }
+            ret.put(in, best.assign.getAssignment(in));
         }
         
         return new Site(ret);
     }
 
-    private Best DFS(Site site, SiteConstraints assign, Best best, Probabilities P, Site ba) throws LikelihoodException
+    private Best DFS(Site site, Assignment assign, Best best, Probabilities P, Site ba) throws LikelihoodException
     {
         //Recursive depth first search of possible reconstructions
      
@@ -254,18 +243,17 @@ public class AncestralJointBB extends AncestralJoint
 	if (isFull(assign))
 	{
             //Calculate the likelihood of that reconstruction
-            double s = (new SiteCalculator(site,t,assign,P)).calculate().getLikelihood();
+            //Real s = (new SiteCalculator(t,P,assign.getInitialNodeLikelihoods(t, site, P.getMap()))).calculate().getLikelihood();
+            Real s = calculateSite(t,P,assign.getInitialNodeLikelihoods(t, site, P.getMap())).getLikelihood();
             //If it's better than the bext reconstruction we've encountered so far
             //update the best and return it
-	    if (s > best.score)
+	    if ((best.score == null) || s.greaterThan(best.score))
 	    {
-		//System.out.println("Best:\t" + s + "\t" + Arrays.toString(assign));
 		return new Best(assign, s);
 	    }
             //Else return the previous best
 	    else
 	    {
-		//System.out.println("Discard:\t" + s + "\t" + Arrays.toString(assign));
 		return best;
 	    }
 	}
@@ -276,16 +264,15 @@ public class AncestralJointBB extends AncestralJoint
         //assignment we do already have.  This bound is calculated by summing accross
         //all possible states at unassigned nodes using the normal (quick) likelihood
         //calculation method.
-        double bound = (new SiteCalculator(site,t,assign,P)).calculate().getLikelihood();
+        //Real bound = (new SiteCalculator(t,P,assign.getInitialNodeLikelihoods(t, site, P.getMap()))).calculate().getLikelihood();
+        Real bound = calculateSite(t,P,assign.getInitialNodeLikelihoods(t, site, P.getMap())).getLikelihood();
 
-	//System.out.println(best.score + "\t" + bound + "\t" + Arrays.toString(assign));
 
         //If the bounded value is less the best econstruction we've aleady found
         //there's no point considering assigning more nodes so just return
         //the best reconstruction we've found.
-	if (bound <= best.score)
+        if ((best.score != null) && best.score.greaterThan(bound))
 	{
-	    //System.out.println("Pruned\t" + bound + "\t" + Arrays.toString(assign));
 	    return best;
 	}
         
@@ -293,12 +280,12 @@ public class AncestralJointBB extends AncestralJoint
 	String b = getFirst(assign);
         
         //Clone the current assignment
-	SiteConstraints na = assign.clone();
+	Assignment na = assign.clone();
         
         //First try the best single-rate assignment we calculated above
         try
         {
-            na.addConstraint(b, ba.getRawCharacter(b));
+            na.addAssignment(b, ba.getRawCharacter(b));
         }
         catch (AlignmentException e)
         {
@@ -309,7 +296,7 @@ public class AncestralJointBB extends AncestralJoint
 	best = DFS(site,na,best,P,ba);
 
         //Next try all other assignments
-	for (String state: P.getAllStatesAsList())
+        for (String state: P.getAllStates())
 	{
             //Excpet the one we've already tried
             try
@@ -318,7 +305,7 @@ public class AncestralJointBB extends AncestralJoint
                 {
                     //Clone the assignment and add the current assignment
                     na = assign.clone();
-                    na.addConstraint(b, state);
+                    na.addAssignment(b, state);
                     //and recurse...
                     best = DFS(site,na,best,P,ba);
                 }
@@ -335,13 +322,13 @@ public class AncestralJointBB extends AncestralJoint
     
 
 
-    private String getFirst(SiteConstraints assign)
+    private String getFirst(Assignment assign)
     {
         //Gets the first unassigned node.  No attempt to be clever on choosing
         //an effecient node to do next.
 	for (String i: t.getInternal())
 	{
-	    if (!assign.nodeIsConstrained(i))
+	    if (!assign.nodeIsAssigned(i))
 	    {
 		return i;
 	    }
@@ -349,30 +336,99 @@ public class AncestralJointBB extends AncestralJoint
 	return null;
     }
 
-    private boolean isFull(SiteConstraints assign)
+    private boolean isFull(Assignment assign)
     {
 	for (String i : t.getInternal())
 	{
-	    if (!assign.nodeIsConstrained(i))
+	    if (!assign.nodeIsAssigned(i))
 	    {
 		return false;
 	    }
 	}
 	return true;
     }
+    
+    SiteLikelihood calculateSite(Tree t, Probabilities tp, Map<String,NodeLikelihood> nl)
+    {    
+        List<Branch> branches = t.getBranches();
+        Map<RateCategory,RateLikelihood> rateLikelihoods = new HashMap<>(tp.getRateCategory().size());
+
+        //Calculate the likelihood for each RateCategory
+        for (RateCategory rc: tp.getRateCategory())
+        {
+            RateProbabilities rp = tp.getP(rc);
+            //Initalise the lieklihood values at each node.  first internal
+            //using the alignemnt.
+            Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(branches.size() + 1);
+            for (String l: t.getLeaves())
+            {
+                nodeLikelihoods.put(l, nl.get(l).clone());
+            }
+
+            //And now internal nodes
+            for (String i: t.getInternal())
+            {
+                nodeLikelihoods.put(i, nl.get(i).clone());
+            }
+
+            //for each branch.  The order these are returned in from tree means
+            //we visit any branch with a node as it's parent before we visit
+            //the branch with the node as the child.  Hence we treverse the
+            //tree in the standard manner.  For each branch we will update
+            //the likelihood at the parent node...
+            for (Branch b: branches)
+            {
+                //BranchProbabilities bp = rp.getP(b);
+                SquareMatrix bp = rp.getP(b);
+                //So for each state at the parent node...
+                //for (String endState: tp.getAllStates())
+                for (String endState: tp.getAllStates())
+                {
+                    //l keeps track of the total likelihood from each possible
+                    //state at the child
+                    //For each possible child state
+                    Real[] n = nodeLikelihoods.get(b.getChild()).getLikelihoods();
+                    Real l = n[0].multiply(bp.getPosition(tp.getMap().get(endState), 0));
+                    for (int j = 1; j < n.length; j++)
+                    {
+                        //Add the likelihood of going from start state to
+                        //end state along that branch in that ratecategory
+                        l = l.add(n[j].multiply(bp.getPosition(tp.getMap().get(endState), j)));
+                    }
+                    //Now multiply the likelihood of the parent by this total value.
+                    //This will happen for each possible child as per standard techniques
+                    nodeLikelihoods.get(b.getParent()).multiply(endState,l);
+                }
+            }
+
+            //Rate total traxcks the total likelihood for this site and rate category
+            Real ratetotal = null;//SiteLikelihood.getReal(0.0);//new Real(0.0);
+            //Get the root likelihoods
+            NodeLikelihood rootL = nodeLikelihoods.get(t.getRoot());
+
+            ratetotal = tp.getRoot(rc).calculate(rootL);
+
+            //Store the results for that rate
+            rateLikelihoods.put(rc, new RateLikelihood(ratetotal,nodeLikelihoods));
+            //Update the total site likelihood with the likelihood for the rate
+            //category multiplied by the probility of being in that category
+        }
+        //return an object containg the results for that site
+        return new SiteLikelihood(rateLikelihoods, tp);
+    }
 
     private class Best
     {
 
-	private Best(SiteConstraints assign, double score)
+	private Best(Assignment assign, Real score)
 	{
 	    this.assign = assign;
 	    this.score = score;
 	}
 
-	private SiteConstraints assign;
+	private Assignment assign;
 
-	private double score;
+	private Real score;
     }
 
     private Alignment a;

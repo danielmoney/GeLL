@@ -20,8 +20,9 @@ package Executable;
 import Alignments.Alignment;
 import Alignments.PhylipAlignment;
 import Ancestors.AncestralJoint;
-import Likelihood.Calculator;
-import Likelihood.Likelihood;
+import Exceptions.GeneralException;
+import Likelihood.StandardCalculator;
+import Likelihood.StandardLikelihood;
 import Models.DNAModelFactory;
 import Models.Model;
 import Optimizers.GoldenSection;
@@ -35,7 +36,7 @@ import java.io.File;
  * An example executable.  Does not try to be a general driver so a better
  * learning example than {@link GeLL}.
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public class Example
 {    
@@ -47,16 +48,16 @@ public class Example
     /**
      * Main function
      * @param args Command line arguments
-     * @throws Exception This is example code so to keep it simple we just
+     * @throws GeneralException This is example code so to keep it simple we just
      * throw any exception we encounter.
      */
-    public static void main(String[] args) throws Exception
+    public static void main(String[] args) throws GeneralException
     {
         //Create a tree object.  Here we are going to estimate branch lengths so
         //no point including them in the tree
         Tree t = Tree.fromNewickString("(((Human, Chimpanzee)A, Gorilla)B, Orangutan, Gibbon)C;");
         //Load an alignment
-        Alignment a = new PhylipAlignment(new File("src\\Executable\\example\\brown.nuc"));
+        Alignment a = PhylipAlignment.fromFile(new File("src\\Executable\\example\\brown.nuc"));
         //Get the parameters from the tree.  This step is recommended although due
         //to it's wierdness will be done automatically if missed out.
         Parameters p = t.getParametersForEstimation();
@@ -65,14 +66,14 @@ public class Example
         //your own models
         Model m = DNAModelFactory.GTR_Gamma(p, 4);
         //Create a calculator which is used to calculate likelihoods
-        Calculator c = new Calculator(m,a,t);
+        StandardCalculator c = new StandardCalculator(m,a,t);
         //Create an optimizer to do the the optimization
         Optimizer o = new GoldenSection();
         
         //Actually do the optimization and get the result.  The parameters passed
         //will be updated to their estimated values.  The result will contain the
         //lieklihood and intermediate results in calculating it.
-        Likelihood l = o.maximise(c, p);
+        StandardLikelihood l = o.maximise(c, p);
         
         //Update paameters to the optimized values
         p = l.getParameters();
@@ -100,5 +101,5 @@ public class Example
         
         //Write out the simulated alignment
         PhylipAlignment.writeFile(sim, new File("src\\Executable\\example\\simulated.dat"));
-    }
+    }    
 }

@@ -19,8 +19,8 @@ package Optimizers;
 
 import Alignments.Alignment;
 import Alignments.PhylipAlignment;
-import Likelihood.Calculator;
-import Likelihood.Likelihood;
+import Likelihood.StandardCalculator;
+import Likelihood.StandardLikelihood;
 import Models.Model;
 import Models.RateCategory;
 import Parameters.Parameter;
@@ -32,22 +32,22 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Tests the GoldenSection optimizer is working right
+ * Tests the GoldenSection optimiser is working right
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public class GoldenSectionTest
 {
 
     /**
-     * Tests by comaping the optimised likelihood to PAML
+     * Tests by comparing the optimised likelihood to PAML
      * @throws Exception Thrown if something went wrong!
      */
     @Test
     public void SimpleTest() throws Exception
     {
         Tree t = Tree.fromNewickString("(((Human, Chimpanzee)A, Gorilla)B, Orangutan, Gibbon)C;");
-        Alignment a = new PhylipAlignment(new File("test\\PAML\\Likelihood\\brown.nuc"));
+        Alignment a = PhylipAlignment.fromFile(new File("test\\PAML\\Likelihood\\brown.nuc"));
 
         String[][] ma = new String[4][4];
 
@@ -66,7 +66,7 @@ public class GoldenSectionTest
 
         Model m = Model.gammaRates(new RateCategory(ma,freq,map),"g",4);
 
-        Calculator c = new Calculator(m,a,t);
+        StandardCalculator c = new StandardCalculator(m,a,t);
 
         Parameters p = t.getParametersForEstimation();
         
@@ -85,7 +85,7 @@ public class GoldenSectionTest
         p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
         Optimizer o = new GoldenSection();
         
-        Likelihood l = o.maximise(c, p);
+        StandardLikelihood l = o.maximise(c, p);
         
         assertTrue(Math.log10(Math.abs(l.getLikelihood() - -2616.073763)) < -3);
     }

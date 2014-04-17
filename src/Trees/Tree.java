@@ -41,14 +41,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
 /**
  * Represents a phylogenetic tree.  Trees are defined as a list of {@link Branch}.
- * Nodes are defined by a String
+ * Nodes are defined by a String.  This entire class deals with rooted and unrooted
+ * trees the same.  Traditionally a rooted tree is detected by a node of degree two
+ * but if we allow multifurcations at the root then a rooted tree need not have any
+ * degree two nodes.  Users should be aware of the type of tree they're using and
+ * any consequences.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class Tree implements Iterable<Branch>
 {
@@ -112,7 +117,7 @@ public class Tree implements Iterable<Branch>
 
     /**
      * Duplicates a tree topology while replacing branch lengths using
-     * the appropiate parameter
+     * the appropriate parameter
      * @param old The old tree
      * @param p The parameters used for the new branch lengths
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
@@ -150,6 +155,7 @@ public class Tree implements Iterable<Branch>
      * all child nodes are returned before their parent is.
      * @return A list of internal nodes
      */
+    
     public List<String> getInternal()
     {
         return internal;
@@ -192,7 +198,7 @@ public class Tree implements Iterable<Branch>
     /**
      * Returns a Parameters object containing a parameter for each branch length.
      * Parameters are fixed at the relevance branch length
-     * @return Parameters object containiing branch lengths
+     * @return Parameters object containing branch lengths
      * @throws Trees.TreeException Thrown if the tree does not have branch lengths
      */
     public Parameters getParameters() throws TreeException
@@ -209,14 +215,14 @@ public class Tree implements Iterable<Branch>
     /**
      * Returns a Parameters object containing a parameter for each branch length.
      * Parameters are estimation parameters.
-     * @return Parameters object containiing branch lengths
+     * @return Parameters object containing branch lengths
      */
     public Parameters getParametersForEstimation()
     {
 	Parameters p = new Parameters();
 	for (Branch b: branches)
 	{
-	    p.addParameter(Parameter.newEstimatedPositiveParameter(b.getChild(),false));
+	    p.addParameter(Parameter.newEstimatedPositiveParameter(b.getChild()));
 	}
 	return p;
     }
@@ -265,7 +271,7 @@ public class Tree implements Iterable<Branch>
     /**
      * Gets the set of branches which have the passed node as a parent
      * @param parent The parent node
-     * @return The set of banches with the given parent
+     * @return The set of branches with the given parent
      * @throws Trees.TreeException If the node does not exist in the tree or is a leaf
      */
     public Set<Branch> getBranchesByParent(String parent) throws TreeException
@@ -499,9 +505,10 @@ public class Tree implements Iterable<Branch>
 	return total;
     }
 
-    //THIS SHOULD ONLY REALLY WORK FOR ROOTED TREES BUT WILL CURRENTLY WORK FOR ANYTHING
     /**
-     * Returns the most recent common ancestor of a set of leaves 
+     * Returns the most recent common ancestor of a set of leaves.
+     * Although this only makes sense for rooted trees it will produce a result
+     * for all trees per the explanation in the class description.
      * @param leaves Set of leaves to calculate the MRCA for
      * @return The MRCA
      * @throws Trees.TreeException Thrown if a leave does not exist
@@ -589,7 +596,7 @@ public class Tree implements Iterable<Branch>
     
     /**
      * Gets the splits that represent the tree
-     * @return A set of splites
+     * @return A set of splits
      * @throws TreeException If the tree is invalid
      */
     public Set<Split> getSplits() throws TreeException
@@ -641,7 +648,7 @@ public class Tree implements Iterable<Branch>
      * Calculates the RF distance between this tree and another tree
      * @param t The other tree
      * @return The RF distance
-     * @throws TreeException If one tree or the other is not valud
+     * @throws TreeException If one tree or the other is not valid
      */
     public int RF(Tree t) throws TreeException
     {
@@ -663,7 +670,7 @@ public class Tree implements Iterable<Branch>
      * Calculates the weighted (by branch length) RF distance between this tree and another tree
      * @param t The other tree
      * @return The weighted RF distance
-     * @throws TreeException If one tree or the other is not valud
+     * @throws TreeException If one tree or the other is not valid
      */
     public double weightedRF(Tree t) throws TreeException
     {
@@ -685,7 +692,7 @@ public class Tree implements Iterable<Branch>
      * Calculates the branch score distance between this tree and another tree
      * @param t The other tree
      * @return The branch score distance
-     * @throws TreeException If one tree or the other is not valud
+     * @throws TreeException If one tree or the other is not valid
      */
     public double branchScore(Tree t) throws TreeException
     {
@@ -811,12 +818,12 @@ public class Tree implements Iterable<Branch>
 	{
 	    throw new OutputException("File can not be created", f.getAbsolutePath(),e);
 	}
-	out.print(toString(nameInternal));
+	out.println(toString(nameInternal));
 	out.close();
     }
     
     /**
-     * Wrtites the tree to a file with taxa names limited to 25 characters
+     * Writes the tree to a file with taxa names limited to 25 characters
      * for use in PAML.  At the moment no checking is done for any duplicated
      * taxa names that may be created.
      * @param f The file to write the tree to
@@ -835,6 +842,40 @@ public class Tree implements Iterable<Branch>
 	}
 	out.print(toString(false,25));
 	out.close();        
+    }
+    
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof Tree))
+        {
+            return false;
+        }
+        
+        Tree t = (Tree) o;
+        if (branches.size() != t.branches.size())
+        {
+            return false;
+        }
+        
+        for (Branch b: branches)
+        {
+            if (!t.branches.contains(b))
+            {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    public int hashCode()
+    {
+        int hashCode = 0;
+        for (Branch b: branches)
+        {
+            hashCode = hashCode * 31 + b.hashCode();
+        }
+        return hashCode;
     }
     
     private List<Branch> branches;
@@ -974,5 +1015,46 @@ public class Tree implements Iterable<Branch>
 	{
 	    throw new InputException(f.getAbsolutePath(),line,"Not a valid tree",e);
 	}
+    }
+    
+    /**
+     * Creates a random rooted or unrooted tree from a list of taxa
+     * @param taxa A list of taxa to include in the tree
+     * @param rooted Whether the tree should be rooted
+     * @return A random tree
+     * @throws TreeException Thrown if there are too through taxa passed and so
+     * there are no trees to select a random tree from.
+     */
+    public static Tree randomTree(List<String> taxa, boolean rooted) throws TreeException
+    {
+        if ( (rooted && (taxa.size() <= 1)) ||
+                (!rooted && (taxa.size() <= 2)))
+        {
+            throw new TreeException("Not enough taxa to create a tree");
+        }
+        
+        Random random = new Random();
+        
+        int i = 1;
+        List<Branch> b = new ArrayList<>();
+        LinkedList<String> t = new LinkedList<>(taxa);
+        
+        b.add(new Branch("_" + Integer.toString(i), t.pollFirst()));
+        b.add(new Branch("_" + Integer.toString(i), t.pollFirst()));
+        if (!rooted)
+        {
+            b.add(new Branch("_" + Integer.toString(i), t.pollFirst()));
+        }
+        
+        while (!t.isEmpty())
+        {
+            i++;
+            Branch rb = b.remove(random.nextInt(b.size()));
+            b.add(new Branch(rb.getParent(), "_" + Integer.toString(i)));
+            b.add(new Branch("_" + Integer.toString(i), rb.getChild()));
+            b.add(new Branch("_" + Integer.toString(i), t.pollFirst()));
+        }
+        
+        return new Tree(b);
     }
 }

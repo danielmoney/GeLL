@@ -20,7 +20,7 @@ package Maths;
 /**
  * Exception that is thrown when a function has not been defined
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class NoSuchFunction extends Exception
 {

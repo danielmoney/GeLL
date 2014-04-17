@@ -18,118 +18,76 @@
 package Optimizers;
 
 import Exceptions.GeneralException;
-import Exceptions.InputException;
-import Exceptions.OutputException;
-import Likelihood.Calculator;
-import Likelihood.Calculator.CalculatorException;
 import Likelihood.Likelihood;
-import Models.Model.ModelException;
-import Models.RateCategory.RateException;
 import Parameters.Parameters;
-import Parameters.Parameters.ParameterException;
-import Trees.TreeException;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Interface for different likelihood optimizers
+ * Interface for different likelihood optimisers
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public interface Optimizer
 {
     /**
-     * Maximises the likelihood, logging to screen.  Logging level sould be
+     * Maximises the likelihood, logging to screen.  Logging level should be
      * set in the constructor of implementing classes.
+     * @param <R> The type returned by the calculator
      * @param l The likelihood calculator
      * @param p The parameters to maximise.  Parameters are modified.
      * @return The maximised likelihood (in a structure that includes most
      * intermediate likelihoods).
-     * @throws Models.RateCategory.RateException Thrown if there is an issue with
-     * a rate category in the model (e.g. a badly formatted rate).
-     * @throws Models.Model.ModelException Thrown if there is a problem with the
-     * model (e.g. the rate categories differ in their states)
-     * @throws TreeException Thrown if there is a problem with the tree.
-     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present)
-     * @throws OutputException Thrown if unable to write a checkpoint file
-     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
+     * @throws GeneralException When there is a problem in finding an optimisable solution.
      */
-    public Likelihood maximise(Calculator l, Parameters p) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException;
+    public <R extends Likelihood> R maximise(Optimizable<R> l, Parameters p) throws GeneralException;
 
     /**
-     * Maximises the likelihood, logging to a file.  Logging level sould be
+     * Maximises the likelihood, logging to a file.  Logging level should be
      * set in the constructor of implementing classes.
+     * @param <R> The type returned by the calculator
      * @param l The likelihood calculator
      * @param params The parameters to maximise.  Parameters are modified.
      * @param log The log file
      * @return The maximised likelihood (in a structure that includes most
      * intermediate likelihoods).
-     * @throws Models.RateCategory.RateException Thrown if there is an issue with
-     * a rate category in the model (e.g. a badly formatted rate).
-     * @throws Models.Model.ModelException Thrown if there is a problem with the
-     * model (e.g. the rate categories differ in their states)
-     * @throws TreeException Thrown if there is a problem with the tree.
-     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present)
-     * @throws OutputException Thrown if unable to write a checkpoint file
-     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
+     * @throws GeneralException When there is a problem in finding an optimisable solution
      */
-    public Likelihood maximise(Calculator l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException;
+    public <R extends Likelihood> R maximise(Optimizable<R> l, Parameters params, File log) throws GeneralException;
 
     /**
      * Maximises the likelihood starting from a checkpoint file (see {@link #setCheckPointFile(java.io.File)}, 
-     * logging to the screen.  Logging level sould be set in the constructor of implementing classes.
+     * logging to the screen.  Logging level should be set in the constructor of implementing classes.
+     * @param <R> The type returned by the calculator
      * @param l The likelihood calculator
      * @param checkPoint The checkpoint file
      * @return The maximised likelihood (in a structure that includes most
      * intermediate likelihoods).
-     * @throws Models.RateCategory.RateException Thrown if there is an issue with
-     * a rate category in the model (e.g. a badly formatted rate).
-     * @throws Models.Model.ModelException Thrown if there is a problem with the
-     * model (e.g. the rate categories differ in their states)
-     * @throws TreeException Thrown if there is a problem with the tree.
-     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present)
-     * @throws OutputException Thrown if unable to write a checkpoint file 
-     * @throws InputException Thrown if there is a problem with the checkpoint file
-     * @throws Optimizers.Optimizer.OptimizerException Thrown if optomizer is unable
-     * to restart from a checkpoint file
-     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
+     * @throws GeneralException When there is a problem in finding an optimisable solution
      */
-    public Likelihood restart(Calculator l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException;
+    public <R extends Likelihood> R restart(Optimizable<R> l, File checkPoint) throws GeneralException;
     
     /**
      * Maximises the likelihood starting from a checkpoint file (see {@link #setCheckPointFile(java.io.File)}, 
-     * logging to a file.  Logging level sould be set in the constructor of implementing classes.
+     * logging to a file.  Logging level should be set in the constructor of implementing classes.
+     * @param <R> The type returned by the calculator
      * @param l The likelihood calculator
      * @param checkPoint The checkpoint file
      * @param log The log file
      * @return The maximised likelihood (in a structure that includes most
      * intermediate likelihoods).
-     * @throws Models.RateCategory.RateException Thrown if there is an issue with
-     * a rate category in the model (e.g. a badly formatted rate).
-     * @throws Models.Model.ModelException Thrown if there is a problem with the
-     * model (e.g. the rate categories differ in their states)
-     * @throws TreeException Thrown if there is a problem with the tree.
-     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present)
-     * @throws OutputException Thrown if unable to write a checkpoint file 
-     * @throws InputException Thrown if there is a problem with the checkpoint file
-     * @throws Optimizers.Optimizer.OptimizerException Thrown if optomizer is unable
-     * to restart from a checkpoint file
-     * @throws Likelihood.Calculator.CalculatorException If an unexpected (i.e. positive or NaN) log likelihood is calculated  
+     * @throws GeneralException When there is a problem in finding an optimisable solution
      */
-    public Likelihood restart(Calculator l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException;
+    public <R extends Likelihood> R restart(Optimizable<R> l, File checkPoint, File log) throws GeneralException;
     
     /**
      * Sets a checkpoint file.  If set will write a checkpoint file of the
-     * optimizers state at regular intervals (set by {@link #setCheckPointFrequency(int, java.util.concurrent.TimeUnit)}).
-     * This checkpoint file can then be used to restart the optimizer from this
-     * state.  Can be useful if optimization is likely to take a long and the
+     * optimisers state at regular intervals (set by {@link #setCheckPointFrequency(int, java.util.concurrent.TimeUnit)}).
+     * This checkpoint file can then be used to restart the optimiser from this
+     * state.  Can be useful if optimisation is likely to take a long and the
      * process could be stopped for some reason.
      * @param checkPoint The chekpoint file.
-     * @throws Optimizers.Optimizer.OptimizerException Thrown if the optomizer
+     * @throws Optimizers.Optimizer.OptimizerException Thrown if the optomiser
      * does not implement checkpoints.
      */
     public void setCheckPointFile(File checkPoint) throws OptimizerException;
@@ -139,10 +97,20 @@ public interface Optimizer
      * @param num The number of time units that should pass between checkpoint
      * writes.
      * @param unit The time unit
-     * @throws Optimizers.Optimizer.OptimizerException Thrown if the optomizer
+     * @throws Optimizers.Optimizer.OptimizerException Thrown if the optomiser
      * does not implement checkpoints.
      */
     public void setCheckPointFrequency(int num, TimeUnit unit) throws OptimizerException;
+    
+    /**
+     * Set a maximum time the optimiser should run for
+     * @param num The number of time units that should pass between checkpoint
+     * writes.
+     * @param unit The time unit
+     * @throws Optimizers.Optimizer.OptimizerException Thrown if the optimiser
+     * does not implement a maximum run time.
+     */
+    public void setMaximumRunTime(int num, TimeUnit unit) throws OptimizerException;
 
     /**
      * Exception for when there is a problem with an optimiser.
@@ -150,7 +118,7 @@ public interface Optimizer
     public class OptimizerException extends GeneralException
     {
         /**
-         * Default constrcutor
+         * Default constructor
          * @param reason Text describing the problem
          */
         public OptimizerException(String reason)

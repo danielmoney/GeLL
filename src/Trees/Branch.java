@@ -20,7 +20,7 @@ package Trees;
 /**
  * Represents a branch in a tree
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class Branch
 {

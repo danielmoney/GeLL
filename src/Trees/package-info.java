@@ -16,6 +16,6 @@
  */
 
 /**
- * Provides classes to define a tree and any constraints on that tree.
+ * Provides classes to define a tree.
  */
 package Trees;

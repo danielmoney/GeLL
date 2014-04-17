@@ -17,17 +17,13 @@
 
 package Optimizers;
 
+import Exceptions.GeneralException;
 import Exceptions.InputException;
 import Exceptions.OutputException;
-import Likelihood.Calculator;
-import Likelihood.Calculator.CalculatorException;
 import Likelihood.Likelihood;
-import Models.Model.ModelException;
-import Models.RateCategory.RateException;
+import Likelihood.SiteLikelihood;
 import Parameters.Parameter;
 import Parameters.Parameters;
-import Parameters.Parameters.ParameterException;
-import Trees.TreeException;
 import Utils.TimePassed;
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,16 +43,16 @@ import java.util.concurrent.TimeUnit;
  * Implements a golden section search for parameter optimisation.  Each parameter
  * is optimised in turn until the difference in likelihood falls below a set value.
  * This value starts high and slowly decreased so as to not waste time highly
- * optomizing one parameter while other parameters may be highly sub-optimal.<br><br>
- * The amount of logging can be controlled as can the rigor used (the difference
+ * optimising one parameter while other parameters may be highly sub-optimal.<br><br>
+ * The amount of logging can be controlled as can the rigour used (the difference
  * in likelihood when the search stops).
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class GoldenSection implements Optimizer
 {
     /**
-     * Constructor that uses default parameters for rigor and output level
+     * Constructor that uses default parameters for rigour and output level
      */
     public GoldenSection()
     {
@@ -64,7 +60,7 @@ public class GoldenSection implements Optimizer
     }
 
     /**
-     * Constrcutor which allows a user define output level
+     * Constructor which allows a user define output level
      * @param progresslevel The output level
      */
     public GoldenSection(ProgressLevel progresslevel)
@@ -73,8 +69,8 @@ public class GoldenSection implements Optimizer
     }
 
     /**
-     * Constructor which allows a user defined rigor
-     * @param rigor Rigor to be used
+     * Constructor which allows a user defined rigour
+     * @param rigor Rigour to be used
      */
     public GoldenSection(double rigor)
     {
@@ -82,8 +78,8 @@ public class GoldenSection implements Optimizer
     }
 
     /**
-     * Constructor which allows a user defined rigor and output level
-     * @param rigor Rigor to be used
+     * Constructor which allows a user defined rigour and output level
+     * @param rigor Rigour to be used
      * @param progresslevel The output level
      */
     public GoldenSection(double rigor, ProgressLevel progresslevel)
@@ -93,20 +89,21 @@ public class GoldenSection implements Optimizer
 	cal = Calendar.getInstance();
 	sdf = new SimpleDateFormat("ddHHmmss");
         timePassed = new TimePassed(365,TimeUnit.DAYS);
+        maxPassed = new TimePassed(365,TimeUnit.DAYS);
     }
     
 
-    public Likelihood maximise(Calculator l, Parameters params) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
+    public <R extends Likelihood> R maximise(Optimizable<R> l, Parameters params) throws GeneralException
     {
 	return maximise(l,System.out,new Data(params));
     }
 
-    public Likelihood maximise(Calculator l, Parameters params, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
+    public <R extends Likelihood> R maximise(Optimizable<R> l, Parameters params, File log) throws GeneralException
     {
         try
         {
             PrintStream ps = new PrintStream(new FileOutputStream(log));
-            Likelihood res = maximise(l,ps,new Data(params));
+            R res = maximise(l,ps,new Data(params));
             ps.close();
             return res;
         }
@@ -119,10 +116,10 @@ public class GoldenSection implements Optimizer
     //See the Data class for a fuller description but effectively this stores
     //the state of the optimizer.  When created the parameters within it are
     //initalised.
-    private Likelihood maximise(Calculator l, PrintStream out, Data data) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
+    private <R extends Likelihood> R maximise(Optimizable<R> l, PrintStream out, Data data) throws GeneralException
     {
         //Don't keep Node Likelihoods while we are otimizing
-        Likelihood.optKeepNL(false);
+        SiteLikelihood.optKeepNL(false);
         //In this function two levels of progress output are the same so create
         //a boolean as to whether we're using one of those progress levels.
 	boolean progress = (progresslevel == ProgressLevel.CALCULATION ||
@@ -130,6 +127,7 @@ public class GoldenSection implements Optimizer
 
         //Reset the timer
         timePassed.reset();
+        maxPassed.reset();
         //Repeat optimizing all parameters individually until required rigor is reached.
 	do
 	{
@@ -137,6 +135,10 @@ public class GoldenSection implements Optimizer
             if (timePassed.hasPassed())
             {
                 writeCheckPoint(data);
+            }
+            if (maxPassed.hasPassed())
+            {
+                throw new OptimizerException("Maximum time has passed");
             }
 	    if (progress)
 	    {
@@ -178,23 +180,23 @@ public class GoldenSection implements Optimizer
 	}
 	while ((data.oldML == null) || ((data.e_diff >= rigor) || (data.newML.getLikelihood() - data.oldML.getLikelihood() > rigor)));
         //Now keep NodeLikelihoods and calculate the resulting NodeLikelihoods
-        Likelihood.optKeepNL(true);
+        SiteLikelihood.optKeepNL(true);
         return l.calculate(data.newML.getParameters());
-	//return data.newML;
     }
 
-    private Likelihood maximiseSingle(Parameters pp, Parameter p, Calculator l, double diff, double e_diff, ProgressLevel progresslevel, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, CalculatorException
+    private <R extends Likelihood> R maximiseSingle(Parameters pp, Parameter p, Optimizable<R> l, double diff, double e_diff, ProgressLevel progresslevel, PrintStream out) throws GeneralException
     {
         //Maximises a single parameter by golden section search
 	boolean progress = (progresslevel == ProgressLevel.CALCULATION);
-	Likelihood bestML = l.calculate(pp);
-	Likelihood origML = bestML;
-	Likelihood aML = bestML;
-	Likelihood bML = bestML;
-	double a;
-	double b;
-	double origVal = p.getValue();
-        //Bound the area to search
+	R bestML = l.calculate(pp);
+	R origML = bestML;
+	R aML = bestML;
+	R bML = bestML;
+        double origVal = p.getValue();
+	double a = origVal;
+	double b = origVal;
+        diff = diff / 2.0;
+	//Bound the area to search
 	do
 	{
             //Update the best ML foudn to date
@@ -209,33 +211,40 @@ public class GoldenSection implements Optimizer
             //Make the bounds twice as wide
 	    diff = diff * 2;
             
-            //Take accounts of any bounds on the parameter value
-	    a = Math.max(origVal - diff, p.getLowerBound());
-            //Set the parameter to the new value and calculate the likelihood
-	    pp.setValue(p,a);
-	    if (progress)
-	    {
-		out.println("\t\t1 " + p.getName() + "\t" + p.getValue());
-	    }
-	    aML = l.calculate(pp);
-	    if (progress)
-	    {
-		cal.setTimeInMillis(System.currentTimeMillis());
-		out.println("\t\t" + sdf.format(cal.getTime()) + "\t" + p.getName() + "\t" + p.getValue() + "\t" + aML.getLikelihood());
-	    }
-            //Do similarly for the other bound
-	    b = Math.min(origVal + diff, p.getUpperBound());
-	    pp.setValue(p,b);
-	    if (progress)
-	    {
-		out.println("\t\t2 " + p.getName() + "\t" + p.getValue());
-	    }
-	    bML = l.calculate(pp);
-	    if (progress)
-	    {
-		cal.setTimeInMillis(System.currentTimeMillis());
-		out.println("\t\t" + sdf.format(cal.getTime()) + "\t" + p.getName() + "\t" + p.getValue() + "\t" + bML.getLikelihood());
-	    }
+            if ((aML.getLikelihood() >= bestML.getLikelihood()) && (a > p.getLowerBound()))
+            {
+                //Take accounts of any bounds on the parameter value
+                a = Math.max(origVal - diff, p.getLowerBound());
+                //Set the parameter to the new value and calculate the likelihood
+                pp.setValue(p,a);
+                if (progress)
+                {
+                    out.println("\t\t1 " + p.getName() + "\t" + p.getValue());
+                }
+                aML = l.calculate(pp);
+                if (progress)
+                {
+                    cal.setTimeInMillis(System.currentTimeMillis());
+                    out.println("\t\t" + sdf.format(cal.getTime()) + "\t" + p.getName() + "\t" + p.getValue() + "\t" + aML.getLikelihood());
+                }
+            }
+            
+            if ((bML.getLikelihood() >= bestML.getLikelihood()) && (b < p.getUpperBound()))
+            {
+                //Do similarly for the other bound
+                b = Math.min(origVal + diff, p.getUpperBound());
+                pp.setValue(p,b);
+                if (progress)
+                {
+                    out.println("\t\t2 " + p.getName() + "\t" + p.getValue());
+                }
+                bML = l.calculate(pp);
+                if (progress)
+                {
+                    cal.setTimeInMillis(System.currentTimeMillis());
+                    out.println("\t\t" + sdf.format(cal.getTime()) + "\t" + p.getName() + "\t" + p.getValue() + "\t" + bML.getLikelihood());
+                }
+            }
 	}
         //Repeat until we've bounded the optimal value
 	while (((aML.getLikelihood() >= bestML.getLikelihood()) && (a > p.getLowerBound()))
@@ -247,9 +256,12 @@ public class GoldenSection implements Optimizer
 	double x2 = b - R * (b - a);
 
 	pp.setValue(p,x1);
-	Likelihood x1val = l.calculate(pp);
+	R x1val = l.calculate(pp);
 	pp.setValue(p,x2);
-	Likelihood x2val = l.calculate(pp);
+	R x2val = l.calculate(pp);
+        
+        boolean awayL = false;
+        boolean awayU = false;
 
 	while (Math.abs(x1val.getLikelihood() - x2val.getLikelihood()) > e_diff)
 	{
@@ -270,6 +282,7 @@ public class GoldenSection implements Optimizer
 		    cal.setTimeInMillis(System.currentTimeMillis());
 		    out.println("\t\t" + sdf.format(cal.getTime()) + "\t" + p.getName() + "\t" + p.getValue() + "\t" + x1val.getLikelihood());
 		}
+                awayL = true;
 	    }
 	    else
 	    {
@@ -293,14 +306,14 @@ public class GoldenSection implements Optimizer
 
         //If golden section search has got us close to the lower bound on the
         //parameter check whether the lower bound is the optimal value
-	if ((x1 - p.getLowerBound() <= diff))
+	if ((x1 - p.getLowerBound() <= diff) && !awayL)
 	{
 	    pp.setValue(p,p.getLowerBound());
 	    if (progress)
 	    {
 		out.println("\t\t5 " + p.getName() + "\t" + p.getValue());
 	    }
-	    Likelihood bval = l.calculate(pp);
+	    R bval = l.calculate(pp);
 	    if (progress)
 	    {
 		cal.setTimeInMillis(System.currentTimeMillis());
@@ -314,14 +327,14 @@ public class GoldenSection implements Optimizer
 	}
 
         //And similarly for the upper bound
-	if ((p.getUpperBound() - x2 <= diff))
+	if ((p.getUpperBound() - x2 <= diff) && !awayU)
 	{
 	    if (progress)
 	    {
 		out.println("\t\t6 " + p.getName() + "\t" + p.getValue());
 	    }
 	    pp.setValue(p,p.getUpperBound());
-	    Likelihood bval = l.calculate(pp);
+	    R bval = l.calculate(pp);
 	    if (progress)
 	    {
 		cal.setTimeInMillis(System.currentTimeMillis());
@@ -355,17 +368,17 @@ public class GoldenSection implements Optimizer
 	}
     }
     
-    public Likelihood restart(Calculator l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
+    public <R extends Likelihood> R restart(Optimizable<R> l, File checkPoint) throws GeneralException
     {
         return restart(l, checkPoint, System.out);
     }
     
-    public Likelihood restart(Calculator l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
+    public <R extends Likelihood> R  restart(Optimizable<R> l, File checkPoint, File log) throws GeneralException
     {
         try
         {
             PrintStream ps = new PrintStream(new FileOutputStream(log));
-            Likelihood res = restart(l,checkPoint,ps);
+            R res = restart(l,checkPoint,ps);
             ps.close();
             return res;
         }
@@ -375,7 +388,7 @@ public class GoldenSection implements Optimizer
         }
     }   
     
-    private Likelihood restart(Calculator l, File f, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, CalculatorException
+    private <R extends Likelihood> R  restart(Optimizable<R> l, File f, PrintStream out) throws GeneralException
     {
         Object o;
         try
@@ -417,6 +430,11 @@ public class GoldenSection implements Optimizer
         timePassed = new TimePassed(num, unit);
     }
     
+    public void setMaximumRunTime(int num, TimeUnit unit) throws OptimizerException
+    {
+        maxPassed = new TimePassed(num, unit);
+    }
+    
     private void writeCheckPoint(Data data) throws OutputException
     {
         if (checkPoint != null)
@@ -451,6 +469,7 @@ public class GoldenSection implements Optimizer
     private SimpleDateFormat sdf;
     private File checkPoint;
     private TimePassed timePassed;
+    private TimePassed maxPassed;
     
     /**
      * Enumeration of the different levels of output
@@ -475,7 +494,7 @@ public class GoldenSection implements Optimizer
     //This class stores various parameters that describe the stae of optimization.
     //It is written out as a checkpoint and can be read back in to restart the
     //optimization.
-    private static class Data implements Serializable
+    private static class Data/*<R extends HasLikelihood>*/ implements Serializable
     {
         //Constructer initalises various parameters.
         private Data(Parameters p)

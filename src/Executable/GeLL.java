@@ -26,8 +26,8 @@ import Ancestors.AncestralMarginal;
 import Exceptions.GeneralException;
 import Exceptions.InputException;
 import Exceptions.UnexpectedError;
-import Likelihood.Calculator;
-import Likelihood.Likelihood;
+import Likelihood.StandardCalculator;
+import Likelihood.StandardLikelihood;
 import Maths.SquareMatrix;
 import Models.Distributions;
 import Models.Model;
@@ -59,7 +59,7 @@ import java.util.concurrent.TimeUnit;
  * the distribution for information on how to run this driver.
  * 
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public class GeLL
 {
@@ -116,14 +116,14 @@ public class GeLL
 
                 p = getParameters(settings.getSetting("Likelihood","ParameterInput"), t);
 
-		Calculator c = new Calculator(m,a,t,missing);
+		StandardCalculator c = new StandardCalculator(m,a,t,missing);
 
 		Optimizer o = getOptimizer(settings.getSetting("Likelihood", "Optimizer"));
                 o.setCheckPointFile(new File(settings.getSetting("Likelihood", "Checkpoint")));
                 o.setCheckPointFrequency(getCheckpointFreq(settings.getSetting("Likelihood", "Checkpoint")),
                         TimeUnit.MINUTES);
 
-		Likelihood like = getLikelihoodResult(settings.getSetting("Likelihood","Restart"),o,c,p);
+		StandardLikelihood like = getLikelihoodResult(settings.getSetting("Likelihood","Restart"),o,c,p);
                 
                 //Update p to be the optimized value
                 p = like.getParameters();
@@ -174,12 +174,6 @@ public class GeLL
 		Simulate sim = new Simulate(sm,st,sp,smissing);
 		Alignment simAlign = sim.getAlignment(getLength(settings.getSetting("Simulation","Parameters")));
 
-		String sat = settings.getSetting("Simulation", "AlignmentType");
-		if (sat == null)
-		{
-		    sat = settings.getSetting("Likelihood", "AlignmentType");
-		}
-
                 String alignmentType = getAlignmentType(settings.getSetting("Simulation", "AlignmentType"),
                         settings.getSetting("Likelihood", "AlignmentType"));
                 outputAlignment(settings.getSetting("Simulation", "Output"),
@@ -212,7 +206,7 @@ public class GeLL
 	    out.println(e.toString());
 	    out.close();
 	}
-	catch (Exception ee)
+	catch (FileNotFoundException ee)
 	{
 	    System.err.println("Unable to write to debug file");
 	    System.err.println("\t" + ee.getMessage());
@@ -381,11 +375,11 @@ public class GeLL
         Alignment a = null;
         if (type.equals("Duplication"))
         {
-            a = new DuplicationAlignment(new File(file));
+            a = DuplicationAlignment.fromFile(new File(file));
         }
         if (type.equals("Sequence"))
         {
-            a = new PhylipAlignment(new File(file));
+            a = PhylipAlignment.fromFile(new File(file));
         }
         if (a == null)
         {
@@ -399,12 +393,12 @@ public class GeLL
         Alignment missing = null;
         if (type.equals("Duplication"))
         {
-            missing = new DuplicationAlignment(new File(file),
+            missing = DuplicationAlignment.fromFile(new File(file),
                     Ambiguous.fromFile(new File(ambig)));
         }
         if (type.equals("Sequence"))
         {
-            missing = new PhylipAlignment(new File(file));
+            missing = PhylipAlignment.fromFile(new File(file));
         }
         if (missing == null)
         {
@@ -431,10 +425,10 @@ public class GeLL
         return o;
     }
     
-    private static Likelihood getLikelihoodResult(String restart, Optimizer o,
-            Calculator c, Parameters p) throws GeneralException, SettingException
+    private static StandardLikelihood getLikelihoodResult(String restart, Optimizer o,
+            StandardCalculator c, Parameters p) throws GeneralException, SettingException
     {
-        Likelihood like = null;
+        StandardLikelihood like = null;
         if (restart == null)
         {
             if (p != null)

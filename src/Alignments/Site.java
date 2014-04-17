@@ -1,12 +1,28 @@
+/*
+ * This file is part of GeLL.
+ * 
+ * GeLL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GeLL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GeLL.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package Alignments;
 
-import Constraints.SiteConstraints;
-import Likelihood.Likelihood.LikelihoodException;
-import Likelihood.Likelihood.NodeLikelihood;
+import Likelihood.SiteLikelihood.LikelihoodException;
+import Likelihood.SiteLikelihood.NodeLikelihood;
 import Trees.Tree;
-import Utils.ArrayMap;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,7 +33,7 @@ import java.util.Set;
  * When comparing sites the site ID is ignored so as to allowed counting
  * of unique sites for caclulation purposes.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class Site implements Serializable
 {
@@ -116,7 +132,11 @@ public class Site implements Serializable
         this.id = id;
     }
     
-    Site(Site s)
+    /**
+     * Creates a copy of a site
+     * @param s The site to copy
+     */
+    public Site(Site s)
     {
         this.sites = s.sites;
         this.ambig = s.ambig;
@@ -142,11 +162,10 @@ public class Site implements Serializable
      * data and will just return the raw character
      * @param taxa Taxa to return the character for
      * @return The character for the given taxa
-     * @throws AlignmentException If the passed taxa name is not valid     
+     * @throws Alignments.AlignmentException If the passed taxa name is not valid     
      */
     public String getRawCharacter(String taxa) throws AlignmentException
     {
-        //return sites.get(taxa);
         String rc = sites.get(taxa);
         if (rc == null)
         {
@@ -232,34 +251,32 @@ public class Site implements Serializable
         return ret.toString();
     }
     
+   
     /**
-     * Gdets initial node likelihoods based on the site, tree and any constraints.
+     * Gets initial node likelihoods based on the site and tree.
      * 
      * Done like this as creating the node likelihoods is time consuming whereas
-     * copying them once initialised is not.  As they only need to be initalised
+     * copying them once initialised is not.  As they only need to be initialised
      * once for each site this saves time as they then need only be copied for
      * each likelihood calculation.
      * @param t The tree
      * @param map A map from state to position in array
-     * @param scon Any constraints on the site
-     * @return An ArrayMap of NodeLikelihoods which can be used to initialise
+     * @return An Map of NodeLikelihoods which can be used to initialise
      * likelihood calculations
-     * @throws Likelihood.Likelihood.LikelihoodException Thrown if all states are initialised to a zero likelihood 
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if all states are initialised to a zero likelihood 
      */
-    public ArrayMap<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t,  ArrayMap<String,Integer> map, SiteConstraints scon) throws LikelihoodException
+    public Map<String, NodeLikelihood> getInitialNodeLikelihoods(Tree t, Map<String,Integer> map) throws LikelihoodException
     {        
-        ArrayMap<String, NodeLikelihood> nodeLikelihoods = new ArrayMap<>(String.class,NodeLikelihood.class,t.getNumberBranches() + 1);
+        Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(t.getNumberBranches() + 1);        
         for (String l: t.getLeaves())
         {
-            //nodeLikelihoods.put(l, new NodeLikelihood(tp.getAllStates(), s.getCharacter(l)));
             nodeLikelihoods.put(l, new NodeLikelihood(map, this.getCharacter(l)));
         }
 
-        //And now internal nodes using any constraints
+        //And now internal nodes
         for (String i: t.getInternal())
         {
-            //nodeLikelihoods.put(i, new NodeLikelihood(tp.getAllStates(), con.getConstraint(i)));
-            nodeLikelihoods.put(i, new NodeLikelihood(map, scon.getConstraint(i)));
+            nodeLikelihoods.put(i, new NodeLikelihood(map));
         }
         return nodeLikelihoods;
     }
@@ -284,7 +301,8 @@ public class Site implements Serializable
                 ns.put(s.getKey(),s.getValue());
             }
         }
-        return new Site(ns,ambig,siteClass);
+        //return new Site(ns,ambig,siteClass);
+        return new Site(ns,siteClass);
     }
 
     /**
@@ -292,7 +310,7 @@ public class Site implements Serializable
      * new ambiguous states
      * @param recode A map from original state to new state, e.g. to recode
      * DNA to RY it would contains A -> R, G -> R, C -> Y, T -> Y
-     * @param ambig The new ambiiguous states
+     * @param ambig The new ambiguous states
      * @return A recoded site
      */    
     public Site recode(Map<String,String> recode, Ambiguous ambig)

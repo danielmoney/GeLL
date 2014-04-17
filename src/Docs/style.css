@@ -1,4 +1,5 @@
 H1 { text-align:center}
+H2 { text-align:center; margin-top: 0px}
 body { text-align:justify}
 sup { font-size:x-small}
 a { color: blue; text-decoration:none}
@@ -21,4 +22,8 @@ a { color: blue; text-decoration:none}
 .needed { background-color:lavender}
 .minor { font-size:small; color:grey}
 .changes {padding-right:40px}
-
+.high1 {background-color:lightgoldenrodyellow;}
+.high2 {background-color:mistyrose;}
+.explain {height:490px;width:255px;float:left;border-color:aliceblue; background-color:aliceblue;
+         display:none; padding: 5px 10px; text-align: left}
+.codesnip {font-family:monospace; padding-left: 25px}

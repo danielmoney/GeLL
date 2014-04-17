@@ -20,14 +20,14 @@ package Utils;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A class to check wether a set amount of time has passed.
+ * A class to check whether a set amount of time has passed.
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class TimePassed
 {
     /**
-     * Defcault constructor.  Sets how much time should pass.
+     * Default constructor.  Sets how much time should pass.
      * @param num The number of time units that should pass between checkpoint
      * writes.
      * @param unit The time unit

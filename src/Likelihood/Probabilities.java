@@ -27,18 +27,14 @@ import Parameters.Parameters.ParameterException;
 import Trees.Branch;
 import Trees.Tree;
 import Trees.TreeException;
-import Utils.ArrayMap;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Stores the values of each transition, frequency etc for one set of parameters.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class Probabilities
 {
@@ -53,7 +49,7 @@ public class Probabilities
      * @throws Models.Model.ModelException Thrown if there is a problem with the
      * model (e.g. the rate categories differ in their states)
      * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
-     * with the parameters (e.g. a requied parameter is not present) 
+     * with the parameters (e.g. a required parameter is not present) 
      */
     public Probabilities(Model m, Tree t, Parameters p) throws TreeException,
             RateException, ModelException, ParameterException
@@ -64,15 +60,16 @@ public class Probabilities
         //Set the parameters in the model
         m.setParameters(p);
         rateClasses = m.getRates();
-        map = m.getArrayMap();
-        P = new ArrayMap<>(RateCategory.class,RateProbabilities.class,rateClasses.size());
+        map = m.getMap();
+        P = new HashMap<>(rateClasses.size());
         freq = new HashMap<>();
+        roots = new HashMap<>();
         rateP = new HashMap<>();
-        states = map.keyList();
+        states = map.keySet();
         //Calculate and store the various probabilities
         for (RateCategory rc: m)
         {
-            ArrayMap<Branch,SquareMatrix> bP = new ArrayMap<>(Branch.class,SquareMatrix.class,nt.getNumberBranches());
+            Map<Branch,SquareMatrix> bP = new HashMap<>(nt.getNumberBranches());
             for (Branch b: nt)
             {
                 if (b.getLength() < 0)
@@ -83,12 +80,13 @@ public class Probabilities
             }
             P.put(rc, new RateProbabilities(bP));
             freq.put(rc,rc.getFreq());
+            roots.put(rc,rc.getRoot());
             rateP.put(rc,m.getFreq(rc));
         }
     }
     
     /**
-     * Gets the set of RateClasses that we have calculated probailities for
+     * Gets the set of RateClasses that we have calculated probabilities for
      * @return Set of RateClasses
      */
     public Set<RateCategory> getRateCategory()
@@ -101,18 +99,6 @@ public class Probabilities
      * @return A list of all possible states
      */
     public Set<String> getAllStates()
-    {
-        HashSet<String> ret = new HashSet<>();
-        ret.addAll(states);
-        return ret;
-    }
-    
-    /**
-     * Gets the list of all possible states.  Called this as {@link #getAllStates()} 
-     * is kept for backward compitability
-     * @return A list of all possible states
-     */
-    public List<String> getAllStatesAsList()
     {
         return states;
     }
@@ -130,14 +116,15 @@ public class Probabilities
     }
     
     /**
-     * Gets the root frequency for a specified state under a specified RateClass
-     * @param r The rate class
-     * @param state The state
-     * @return The frequency of the state under the rate class
+     * Get a root object, for the given rate category, that can be used to 
+     * the total likelihood from the root node likelihoods or provide the
+     * frequencies of the various states at the root
+     * @param r The rate category to get the root object for
+     * @return A root object
      */
-    public double getFreq(RateCategory r, String state)
+    public Root getRoot(RateCategory r)
     {
-        return freq.get(r)[map.get(state)];
+        return roots.get(r);
     }
     
     /**
@@ -151,20 +138,21 @@ public class Probabilities
     }
     
     /**
-     * Gets an ArrayMap linking states to position in an array
+     * Gets an Map linking states to position in an array
      * @return Map linking state to positions
      */
-    public ArrayMap<String,Integer> getArrayMap()
+    public Map<String,Integer> getMap()
     {
         return map;
     }
     
     private Set<RateCategory> rateClasses;
-    private ArrayMap<String,Integer> map;
-    private ArrayMap<RateCategory,RateProbabilities> P;
+    private Map<String,Integer> map;
+    private Map<RateCategory,RateProbabilities> P;
     private Map<RateCategory,double[]> freq;
+    private Map<RateCategory,Root> roots;
     private Map<RateCategory,Double> rateP;
-    private ArrayList<String> states;
+    private Set<String> states;
     
     /**
      * Stores the values of each transition, frequency etc for one set of parameters
@@ -174,7 +162,7 @@ public class Probabilities
      */
     public class RateProbabilities
     {
-        RateProbabilities(ArrayMap<Branch,SquareMatrix> P)
+        RateProbabilities(Map<Branch,SquareMatrix> P)
         {
             this.P = P;
         }
@@ -190,11 +178,11 @@ public class Probabilities
         }
         
         /**
-         * Gets the probability fo a single transition on a single branch
+         * Gets the probability of a single transition on a single branch
          * @param b The branch
          * @param startState The start state
          * @param endState The end state
-         * @return The probabiluty of a transition from start state to end state
+         * @return The probability of a transition from start state to end state
          * along the given branch
          */
         public double getP(Branch b, String startState, String endState)
@@ -202,6 +190,6 @@ public class Probabilities
             return P.get(b).getPosition(map.get(endState),map.get(startState));
         }
         
-        private ArrayMap<Branch,SquareMatrix> P;
+        private Map<Branch,SquareMatrix> P;
     }
 }

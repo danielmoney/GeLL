@@ -30,21 +30,21 @@ import java.util.Set;
 
 
 /**
- * Represents an "alignment", used very losely.  Classes should extend this to
+ * Represents an "alignment", used very loosely.  Classes should extend this to
  * represent the different types of alignment, e.g. {@link DuplicationAlignment},
- * {@link SequenceAlignment}.
+ * {@link FastaAlignment}.
  * 
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class Alignment implements Iterable<Site>
 {
     /**
      * Default constructor.  Called by classed that extend this one.
      * Classes that do extend this class should ensure that they populate data
-     * and taxa appropiately.
+     * and taxa appropriately.
      */
-    protected Alignment()
+    private Alignment()
     {
         this.classSizes = null;
     }
@@ -80,6 +80,35 @@ public class Alignment implements Iterable<Site>
     public int getLength()
     {
 	return data.size();
+    }
+    
+    /**
+     * Returns the average length of the sequences
+     * @param gaps The set of gap characters (i.e. characters to be ignored when
+     * coutning length)
+     * @return The average sequence length
+     */
+    public double averageLength(Set<String> gaps)
+    {        
+        int i = 0;
+        try
+        {
+            for (Site s: data)
+            {
+                for (String t: s.getTaxa())
+                {
+                    if (!gaps.contains(s.getRawCharacter(t)))
+                    {
+                        i++;
+                    }
+                }
+            }
+        }
+        catch (AlignmentException ex)
+        {
+            throw new UnexpectedError(ex);
+        }
+        return (double) i / (double) taxa.size();
     }
 
     /**
@@ -255,24 +284,6 @@ public class Alignment implements Iterable<Site>
     }
     
     /**
-     * Gets a count of hoften a site occurs in the alignment
-     * @param s The site 
-     * @return How often it occurs
-     */
-    //This will be slow but is now only included for backwards compitability
-    public int getCount(Site s)
-    {
-        for (UniqueSite u: us)
-        {
-            if (u.equals(s))
-            {
-                return u.getCount();
-            }
-        }
-        return 0;
-    }
-    
-    /**
      * Gets the size of a class, that is how many sites belong to the given class
      * @param cl The class
      * @return How many sites are in that class
@@ -306,55 +317,64 @@ public class Alignment implements Iterable<Site>
     }
     
     /**
+     * Checks whether the sites in this alignment have classes
+     * @return Whether the sites have clases
+     */
+    public boolean hasClasses()
+    {
+        return hasClasses;
+    }
+    
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof Alignment))
+        {
+            return false;
+        }
+        Alignment a = (Alignment) o;
+        if (a.getLength() != getLength())
+        {
+            return false;
+        }
+        for (int i = 0; i <  getLength(); i++)
+        {
+            if (!getSite(i).equals(a.getSite(i)))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public int hashCode()
+    {
+        if (getLength() > 0)
+        {
+            return getSite(0).hashCode();
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    
+    /**
      * The list of sites in the alignment
      */
-    protected List<Site> data = new ArrayList<>();
+    private List<Site> data = new ArrayList<>();
     
     /**
      * The list of taxa in the alignment
      */
-    protected Set<String> taxa = new HashSet<>();
+    private Set<String> taxa = new HashSet<>();
     
     /**
-     * Whether the sites in this alignment contain site information
+     * Whether the sites in this alignment contain class information
      */
-    protected boolean hasClasses = false;
+    private boolean hasClasses = false;
     
     private List<UniqueSite> us;
     
     private Map<String,Integer> classSizes;
     
-    /**
-     * Used to represent a unique site in an alignment.  Augments the normal site
-     * class with a count of how often the site occurs
-     */
-    public class UniqueSite extends Site
-    {
-        /**
-         * Default constructor
-         * @param s The site
-         * @param c How often the site occurs
-         */
-        public UniqueSite(Site s, int c)
-        {
-            super(s);
-            this.c = c;
-        }
-        
-        /**
-         * Get the number of times the site occurs in the related alignment
-         * @return The number of times the site occurs
-         */
-        public int getCount()
-        {
-            return c;
-        }
-        
-        public String toString()
-        {
-            return super.toString() + "\t" + c;
-        }
-        
-        private int c;
-    }
 }

@@ -21,7 +21,7 @@ package Exceptions;
  * Custom exception class that provides different levels of information in a call
  * to <code>toString()</code> based on a debug level.
  * @author Daniel Money
- * @version 1.0
+ * @version 2.0
  */
 public class GeneralException extends Exception
 {
@@ -93,7 +93,7 @@ public class GeneralException extends Exception
     {
 
         /**
-         * Just output the message assocaited with the error
+         * Just output the message associated with the error
          */
         MESSAGE,
         /**

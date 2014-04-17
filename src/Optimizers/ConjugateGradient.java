@@ -17,17 +17,14 @@
 
 package Optimizers;
 
+import Exceptions.GeneralException;
 import Exceptions.InputException;
 import Exceptions.OutputException;
-import Likelihood.Calculator;
-import Likelihood.Calculator.CalculatorException;
 import Likelihood.Likelihood;
-import Models.Model.ModelException;
-import Models.RateCategory.RateException;
+import Likelihood.SiteLikelihood;
 import Parameters.Parameter;
 import Parameters.Parameters;
 import Parameters.Parameters.ParameterException;
-import Trees.TreeException;
 import Utils.TimePassed;
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,12 +41,12 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Implements the Conjugate Gradient method of parameter optimization. <BR><BR>
+ * Implements the Conjugate Gradient method of parameter optimisation. <BR><BR>
  * This is heavily based on the <a href=http://code.google.com/p/beast-mcmc/>
  * BEAST implementation</a> <BR><BR>
  * Progress information can optionally be printed to either the screen or a file.
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 public class ConjugateGradient implements Optimizer
 {
@@ -127,10 +124,10 @@ public class ConjugateGradient implements Optimizer
     }
 
     /**
-     * Constructor that uses the gievn values for rigour, update method
+     * Constructor that uses the given values for rigour, update method
      * and output
      * @param tol The tolerance to use
-     * @param update The upate method to use
+     * @param update The update method to use
      * @param progressLevel The output level to use
      */
     public ConjugateGradient(double tol, Update update, ProgressLevel progressLevel)
@@ -139,19 +136,20 @@ public class ConjugateGradient implements Optimizer
         this.tol = tol;
         this.progressLevel = progressLevel;
         timePassed = new TimePassed(365,TimeUnit.DAYS);
+        maxPassed = new TimePassed(365,TimeUnit.DAYS);
     }
     
-    public Likelihood maximise(Calculator c, Parameters p) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
+    public <R extends Likelihood> R  maximise(Optimizable<R> c, Parameters p) throws GeneralException
     {
         return maximise(c,System.out,new Data(c,p));
     }
 
-    public Likelihood maximise(Calculator c, Parameters p, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, OutputException, CalculatorException
+    public <R extends Likelihood> R maximise(Optimizable<R> c, Parameters p, File log) throws GeneralException
     {
         try
         {
             PrintStream ps = new PrintStream(new FileOutputStream(log));
-            Likelihood res = maximise(c,ps,new Data(c,p));
+            R res = maximise(c,ps,new Data(c,p));
             ps.close();
             return res;
         }
@@ -161,12 +159,13 @@ public class ConjugateGradient implements Optimizer
         }
     }
 
-    private Likelihood maximise(Calculator c, PrintStream out, Data d) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
+    private <R extends Likelihood> R maximise(Optimizable<R> c, PrintStream out, Data d) throws GeneralException
     {
         // Don't keep the node likelihoods while we are optimizing
-        Likelihood.optKeepNL(false);
+        SiteLikelihood.optKeepNL(false);
         // Reset the timer
         timePassed.reset();
+        maxPassed.reset();
         
         do
         {
@@ -174,6 +173,10 @@ public class ConjugateGradient implements Optimizer
             if (timePassed.hasPassed())
             {
                 writeCheckPoint(d);
+            }
+            if (maxPassed.hasPassed())
+            {
+                throw new OptimizerException("Maximum time has passed");
             }
             
             // Output appropiate status
@@ -234,23 +237,23 @@ public class ConjugateGradient implements Optimizer
         while (Math.abs(d.newML - d.oldML) > tol);
 
         // Now store the node likelihoods
-        Likelihood.optKeepNL(true);
+        SiteLikelihood.optKeepNL(true);
         // And relcaulate the likelihood (storing the node likelihoods) for the
         // optimized parameters
         return c.calculate(d.params);
     }
     
-    public Likelihood restart(Calculator l, File checkPoint) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
+    public <R extends Likelihood> R  restart(Optimizable<R> l, File checkPoint) throws GeneralException
     {
         return restart(l, checkPoint, System.out);
     }
     
-    public Likelihood restart(Calculator l, File checkPoint, File log) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, OptimizerException, CalculatorException
+    public <R extends Likelihood> R  restart(Optimizable<R> l, File checkPoint, File log) throws GeneralException
     {
         try
         {
             PrintStream ps = new PrintStream(new FileOutputStream(log));
-            Likelihood res = restart(l,checkPoint,ps);
+            R res = restart(l,checkPoint,ps);
             ps.close();
             return res;
         }
@@ -260,7 +263,7 @@ public class ConjugateGradient implements Optimizer
         }
     }
     
-    private Likelihood restart(Calculator l, File f, PrintStream out) throws RateException, ModelException, TreeException, ParameterException, ParameterException, InputException, OutputException, CalculatorException
+    private <R extends Likelihood> R  restart(Optimizable<R> l, File f, PrintStream out) throws GeneralException
     {
         Object o;
         try
@@ -302,6 +305,11 @@ public class ConjugateGradient implements Optimizer
         timePassed = new TimePassed(num, unit);
     }
     
+    public void setMaximumRunTime(int num, TimeUnit unit) throws OptimizerException
+    {
+        maxPassed = new TimePassed(num, unit);
+    }
+    
     private void writeCheckPoint(Data data) throws OutputException
     {
         if (checkPoint != null)
@@ -327,8 +335,7 @@ public class ConjugateGradient implements Optimizer
         }        
     }
     
-    private static double findStep(Calculator c, Parameters params, Map<String, Double> direction, double grad1, double lastStep) throws TreeException, RateException, ModelException, ParameterException,
-            CalculatorException
+    private static double findStep(Optimizable c, Parameters params, Map<String, Double> direction, double grad1, double lastStep) throws GeneralException
     {
         // Calculate the maximum step size without hititng a boundry
         double maxStep = getMaxStep(params, direction);
@@ -470,8 +477,7 @@ public class ConjugateGradient implements Optimizer
         return s;
     }
 
-    private static Map<String, Double> gradient(Calculator c, Parameters params, double l) throws TreeException, RateException, ModelException, ParameterException,
-            CalculatorException
+    private static Map<String, Double> gradient(Optimizable c, Parameters params, double l) throws GeneralException
     {
         // Calculates the gradient for a given point.  l is the likelihood at
         // that point (which saves us calculating it again).
@@ -531,8 +537,7 @@ public class ConjugateGradient implements Optimizer
         return newParams;
     }
 
-    private static double gradient(Calculator c, Parameters params, Map<String, Double> direction, double distance) throws TreeException, RateException, ModelException, ParameterException,
-            CalculatorException
+    private static double gradient(Optimizable c, Parameters params, Map<String, Double> direction, double distance) throws GeneralException
     {
         // Calculates the gradient in the given direction for a point at the given 
         // distance from the current point (params) in the same direction
@@ -621,6 +626,7 @@ public class ConjugateGradient implements Optimizer
     private double tol;
     private File checkPoint;
     private TimePassed timePassed;
+    private TimePassed maxPassed;
     
     private static double SMALL_DIFF = 1e-10;
     private static final double E_DIFF = 1e-6;
@@ -670,7 +676,7 @@ public class ConjugateGradient implements Optimizer
     private static class Data implements Serializable
     {
         //Constructer initalises various parameters.
-        private Data(Calculator c, Parameters p) throws RateException, ModelException, TreeException, ParameterException, OutputException, CalculatorException
+        private Data(Optimizable c, Parameters p) throws GeneralException
         {
             // Clone the parameters just to be sure we don't destroy the input
             // params

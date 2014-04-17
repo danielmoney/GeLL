@@ -26,7 +26,7 @@ import Utils.Array2D;
 /**
  * Class to calculate stationary and quasi-stationary distributions
  * @author Daniel Money
- * @version 1.3
+ * @version 2.0
  */
 
 public class Distributions
@@ -34,10 +34,10 @@ public class Distributions
     /**
      * Calculates a quasi-stationary distribution from a given rate matrix.
      * Uses the method set by the last call to {@link #setMethod(Models.Distributions.Calculation)}.
-     * The state in posiiton zero is assumed to be the sink state
+     * The state in position zero is assumed to be the sink state
      * @param m The rate matrix
-     * @return The quasi-statonary distribution
-     * @throws DistributionsException If the distibution can't be calculated
+     * @return The quasi-stationary distribution
+     * @throws DistributionsException If the distribution can't be calculated
      */
     public static double[] quasiStationary(SquareMatrix m) throws DistributionsException
     {

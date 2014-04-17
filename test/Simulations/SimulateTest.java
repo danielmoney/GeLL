@@ -17,14 +17,11 @@
 
 package Simulations;
 
-import Likelihood.Likelihood.NodeLikelihood;
-import Utils.ArrayMap;
+import Likelihood.StandardLikelihood;
+import Likelihood.StandardCalculator;
 import java.util.ArrayList;
 import java.util.List;
 import Parameters.Parameter;
-import Likelihood.Probabilities;
-import Likelihood.Calculator.SiteCalculator;
-import Constraints.SiteConstraints;
 import java.util.LinkedHashMap;
 import Alignments.Site;
 import java.util.Map;
@@ -41,18 +38,16 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Tests the simulation method.  Note that this test will occassionally fail due
- * the random nature of the simulation which means we would expect the simulated
- * data to have a significant different distribution in 5% of tests (as this is
- * the significance level we use).
+ * Tests the simulation method.  Uses a set random number seed so that it should
+ * always pass.
  * @author Daniel Money
- * @version 1.2
+ * @version 2.0
  */
 public class SimulateTest
 {
     /**
      * Tests by comparing the frequency of each state computed by counting simulator
-     * output with the theoritical distribution (which is easily calculable for a small
+     * output with the theoretical distribution (which is easily calculable for a small
      * tree like this).
      * @throws Exception Thrown if something went wrong!
      */
@@ -98,6 +93,8 @@ public class SimulateTest
         
         Simulate sim = new Simulate(m,t,p);
         
+        sim.setSeed(125745);
+        
         Alignment gepul = sim.getAlignment(1000000);
         
         Map<Site,Integer> gepulCounts = new HashMap<>();
@@ -120,7 +117,7 @@ public class SimulateTest
         bases.add("C");
         bases.add("A");
         bases.add("G");
-        Probabilities P = new Probabilities(m,t,p);
+        List<Site> sites = new ArrayList<>();
         for (String h: bases)
         {
             for (String c: bases)
@@ -136,17 +133,20 @@ public class SimulateTest
                         sm.put("orangutan", o);
                         Site s = new Site(sm);
                         
-                        SiteConstraints scon = new SiteConstraints(bases);
-                        
-                        ArrayMap<String, NodeLikelihood> nl = s.getInitialNodeLikelihoods(t, P.getArrayMap(), scon);
-                        
-                        SiteCalculator sc = new SiteCalculator(t,P,nl);
-                        double l = sc.calculate().getLikelihood();
-                        theory.put(s, l * 1000000);
+                        sites.add(s);
                     }
                 }
             }
-        }   
+        }
+        
+        Alignment a = new Alignment(sites);
+        StandardCalculator sc = new StandardCalculator(m,a,t);
+        StandardLikelihood l = sc.calculate(p);
+        for (Site s: sites)
+        {
+            double sl = l.getSiteLikelihood(s).getLikelihood().toDouble();
+            theory.put(s, sl * 1000000);
+        }
         
         double chi2 = 0.0;
         for (Site s: theory.keySet())

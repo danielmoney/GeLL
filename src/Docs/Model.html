@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Models and Parameters</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <script type="text/javascript" src="script.js"></script>
+    </head>
+    <body>
+        <div style="width: 800px; margin: 0px auto">
+            <H1>Models and Parameters</H1>
+            <p>The core capability of GeLL is the ability to define and use new models.
+            There are two main classes involved in defining a model, <a href=""><code>Model</code></a>
+            and <a href=""><code>RateCategory</code></a>.  A model consists of one or more
+            rate categories where a rate category represents a rate matrix and some method of
+            determining root frequencies.</p>
+            
+            <p>Here we show how to define models, starting with the simplest
+            model, the Jukes-Cantor model which has no parameters and consists of a single rate category.
+            We then extend this example to the GTR model, which introduces parameters, before introducing
+            multiple rate categories and showing how the GTR+&Gamma; model is defined.  Next we define the
+            GTR+&Gamma;+I model which highlights most of the capabilities of GeLL.</p>
+            
+            <p>We also show how to use the more unusual root distributions supported by GeLL.  Finally we
+            look at how we define the parameters used in the models.</p>
+            
+            <div class="collapsetop">Jukes-Cantor: A very simple model
+                <span class="show" onclick="show('jc')" id="jcS">Show</span>
+                <span class="hide" onclick="hide('jc')" id="jcH">Hide</span>
+            </div>
+            <div class="collapseinner" id="jc" style="display:block">
+                <p>To define the Jukes-Cantor model we start by defining the rate
+                matrix as a two-dimensional array of strings.  In this simple
+                case every off-diagonal value is set to the text string "1.0"
+                which is simply a numerical rate as a string.  Values on the
+                diagonal are ignored by GeLL so here are set to "-" for
+                readability.</p>
+                <div class="codesnip">
+                    String[][] ma = new String[4][4];<br/>
+                    ma[0][0] = "-"; ma[0][1] = "1.0"; ma[0][2] = "1.0"; ma[0][3] = "1.0";<br/>
+                    ma[1][0] = "1.0"; ma[1][1] = "-"; ma[1][2] = "1.0"; ma[1][3] = "1.0";<br/>
+                    ma[2][0] = "1.0"; ma[2][1] = "1.0"; ma[2][2] = "-"; ma[2][3] = "1.0";<br/>
+                    ma[3][0] = "1.0"; ma[3][1] = "1.0"; ma[3][2] = "1.0"; ma[3][3] = "-";<br/>
+                </div>
+                <p>Having defined the rate matrix we must now define the root
+                distribution.  In this example we are going to define it as part
+                of the model although see "Root distributions" below for other
+                options.  When defining it as part of the model we simply need
+                to define a one-dimensional array of strings in a similar way
+                to the rate matrix.</p>
+                <div class="codesnip">
+                    String[] freq = {"0.25", "0.25", "0.25", "0.25"};<br />
+                </div>
+                <p>Finally we need to define a map from state (i.e. values in the
+                    alignment file) to position in the array.</p>
+                <div class="codesnip">
+                    HashMap&lt;String,Integer&gt; map = new HashMap&lt;&gt;();<br/>
+                    map.put("T",0);<br/>
+                    map.put("C",1);<br/>
+                    map.put("A",2);<br/>
+                    map.put("G",3);<br/>
+                </div>
+                <p>We now have all the elements necessary to create our model.  We
+                first create a rate category and then pass this as the only
+                input to the model constructor.</p>
+                <div class="codesnip">
+                    return new Model(new RateCategory(ma,freq,map));<br/>
+                    <br />
+                </div>
+            </div>
+            
+            <div class="collapsetop">GTR: Introducing parameters
+                <span class="show" onclick="show('gtr')" id="gtrS">Show</span>
+                <span class="hide" onclick="hide('gtr')" id="gtrH">Hide</span>
+            </div>
+            <div class="collapseinner" id="gtr" style="display:block">
+                <p>Defining the rate matrix for models with parameters is only 
+                slightly more complex.  To use parameters in the strings used to
+                define the rate simply use a parameter name, such as a.
+                Parameters can be combined using standard mathematical 
+                operations.  See the <a href=""><code>MathsParse</code></a>
+                java documentation for more on including parameters and the
+                avaliable operations.  The GTR rate matrix is defined as 
+                follows.</p>
+                <div class="codesnip">
+                    String[][] ma = new String[4][4];<br />
+                    ma[0][0] = "-"; ma[0][1] = "a*pC"; ma[0][2] = "b*pA"; ma[0][3] = "c*pG";<br />
+                    ma[1][0] = "a*pT"; ma[1][1] = "-"; ma[1][2] = "d*pA"; ma[1][3] = "e*pG";<br />
+                    ma[2][0] = "b*pT"; ma[2][1] = "d*pC"; ma[2][2] = "-"; ma[2][3] = "pG";<br />
+                    ma[3][0] = "c*pT"; ma[3][1] = "e*pC"; ma[3][2] = "pA"; ma[3][3] = "-";<br />
+                </div>
+                <p>The root distribution is also defined similarly:</p>
+                <div class="codesnip">
+                    String[] freq = {"pT", "pC", "pA", "pG"};<br />
+                </div>
+                <p>The map is defined identically to the Jukes-Cantor example 
+                above so is not included here.</p>
+                <p>As the model contains parameters is it also necessary to
+                create a <a href=""><code>Parameters</code></a> object for use
+                in calculating likelihoods and optimising the values of the
+                parameters.  For each parameter we create a <a href=""><code>
+                Parameter</code></a> object and then add it to the list of
+                parameters.  There are a few static methods to create the
+                Parameter object that put different bounds on the parameters
+                value.  The two we see here limit it to a positive value or
+                fix it's value.  See "Parameters: Defining and constraining" 
+                for more information.</p>
+                <div class="codesnip">
+                    Parameters p = new Parameters();<br>
+                    p.addParameter(Parameter.newEstimatedPositiveParameter("a"));<br />
+                    p.addParameter(Parameter.newEstimatedPositiveParameter("b"));<br />
+                    p.addParameter(Parameter.newEstimatedPositiveParameter("c"));<br />
+                    p.addParameter(Parameter.newEstimatedPositiveParameter("d"));<br />
+                    p.addParameter(Parameter.newEstimatedPositiveParameter("e"));<br />
+                    <br />
+                    p.addParameter(Parameter.newFixedParameter("pT",1.0));<br />
+                    p.addParameter(Parameter.newEstimatedPositiveParameter("pC"));<br />
+                    p.addParameter(Parameter.newEstimatedPositiveParameter("pA"));<br />
+                    p.addParameter(Parameter.newEstimatedPositiveParameter("pG"));<br />
+                </div>
+                
+                <p>The model is then created in the same way as before.</p>
+                
+                <p>It should be noted the values in the root distribution do
+                not have to add to one.  GeLL will automatically scale the
+                values to make it a valid distribution.  This is why the
+                parameters included in the root distribution are only 
+                constrained to be positive.</p>
+            </div>
+            
+            <div class="collapsetop">GTR+&Gamma;: Using multiple rate categories
+                <span class="show" onclick="show('gamma')" id="gammaS">Show</span>
+                <span class="hide" onclick="hide('gamma')" id="gammaH">Hide</span>
+            </div>
+            <div class="collapseinner" id="gamma" style="display:block">
+                <p>The simplest way to use multiple rate categories is to
+                convert a model, like those, defined above, to one that has
+                rate-across-sites variation using the gamma distribution.  GeLL
+                has a built in static function to create a model using multiple
+                gamma-distributed rate categories from a single rate category.
+                To do this you pass the rate category, the name you wish to use
+                for the gamma parameter and the number of categories to create.
+                </p>
+                <div class="codesnip">
+                    return Model.gammaRates(new RateCategory(ma,freq,map),"g",4);<br />
+                </div>
+                <p>We must also add our gamma parameter to our list of 
+                parameters.</p>
+                <div class="codesnip">
+                    p.addParameter(Parameter.newEstimatedPositiveParameter("g"));<br />
+                    <br />
+                </div>
+            </div>
+            
+            <div class="collapsetop">GTR+&Gamma;+I: More complex rate categories
+                <span class="show" onclick="show('i')" id="iS">Show</span>
+                <span class="hide" onclick="hide('i')" id="iH">Hide</span>
+            </div>
+            <div class="collapseinner" id="i" style="display:block">
+                <p>To use more complex multiple rate categories instead of
+                passing a single rate category to the Model constructor you pass
+                a map from RateCategory to String, where the String defines
+                the frequency of that category using the same format as used in
+                the rate matrix.</p>
+                <p>As an example we will define the GTR+&Gamma;+I model using 
+                four gamma categories.  In this example we assume we have
+                already defined the rate matrix, root distribution and map as
+                above and have used these to create a rate category, 
+                <code>r</code>.</p>
+                <p>First we create the four gamma categories.  We do this by
+                taking our original GTR category and multiplying it by a value,
+                in this case the gamma function.  For the syntax of the gamma
+                function see the <a href=""><code>MathParse</code></a> java doc.
+                We then name the category for nicer output.  Next we add the 
+                category to the map and set it's frequency to "(1 - i) / 4", 
+                where i is the proportion of invariant sites.</p>
+                
+                <div class="codesnip">
+                    HashMap&lt;RateCategory,String&gt; freq = new HashMap&lt;&gt;();<br />
+                    <br />
+                    for (int i = 1; i <= 4; i++)<br />
+                    {<br />
+                    <div style="padding-left: 25px">
+                        RateCategory nr = r.multiplyBy("g[g," + i + ",4]");<br />
+                        nr.setName("Gamma Category " + i);<br />
+                        freq.put(nr, "(1 - i) / 4");<br />
+                    </div>
+                    }
+                </div>
+                
+                <p>We then need to create the invariant sites category and add
+                it to the frequency map with the appropriate frequency.</p>
+                <div class="codesnip">
+                    String[][] ia = new String[4][4];<br />
+                    ia[0][0] = "-"; ia[0][1] = "0"; ia[0][2] = "0"; ia[0][3] = "0";<br />
+                    ia[1][0] = "0"; ia[1][1] = "-"; ia[1][2] = "0"; ia[1][3] = "0";<br />
+                    ia[2][0] = "0"; ia[2][1] = "0"; ia[2][2] = "-"; ia[2][3] = "0";<br />
+                    ia[3][0] = "0"; ia[3][1] = "0"; ia[3][2] = "0"; ia[3][3] = "-";<br />
+                    <br />
+                    String[] ifreq = {"pT", "pC", "pA", "pG"};<br />
+                    <br />
+                    RateCategory ir = new RateCategory(ia,ifreq,map);<br />
+                    freq.put(ia,"i");
+                </div>
+                
+                <p>Finally we can create the model.</p>
+                <div class="codesnip">
+                    return new Model(freq);
+                </div>
+                
+                <p>Our parameters would be the same as for GTR+&Gamma; except
+                we need to add the invariant proportion parameter, which again
+                will be a positive parameter. </p>
+                
+                <div class="codesnip">
+                    p.addParameter(Parameter.newEstimatedPositiveParameter("i"));<br />
+                    <br />
+                </div>
+            </div>
+            
+            <div class="collapsetop">Root distributions
+                <span class="show" onclick="show('root')" id="rootS">Show</span>
+                <span class="hide" onclick="hide('root')" id="rootH">Hide</span>
+            </div>
+            <div class="collapseinner" id="root" style="display:block">
+                <p>For each <code>RateCategory</code> you can use one of several
+                methods of defining the root distribution.  All of the above
+                examples use the constructor for <code>RateCategory</code> that
+                defines a probability for each state of the root.</p>
+                
+                <p>There is however a different constructor that allows three 
+                different methods of defining the root distribution.  This
+                constructor is:</p>
+                <div class="codesnip">
+                    public RateCategory(String[][] rates, FrequencyType 
+                    freqType, HashMap&lt;String, Integer&gt; map)<br />
+                </div>
+                
+                <p>The three possible values of <code>FrequencyType</code> allow
+                three different ways of calculating the root frequency, namely:</p>
+
+                <p style="padding-left: 25px"><code>FrequencyType.STATIONARY
+                </code> - This sets the root frequency to the stationary 
+                distribution of the rate matrix.</p>
+                
+                <p style="padding-left: 25px"><code>FrequencyType.QSTAT</code>
+                - This sets the root frequency to the quasi-stationary 
+                distribution of the rate matrix.  The first state is assumed 
+                to be the sink state in the quasi-stationary distribution and
+                the frequency of this state is set to zero.</p>
+                
+                <p style="padding-left: 25px"><code>FrequencyType.FITZJOHN
+                </code> - This uses the method of FitzJohn et al (2009) to 
+                calculate the root distribution.</p>
+            </div>
+            
+            <div class="collapsetop">Parameters: Defining and constraining
+                <span class="show" onclick="show('param')" id="paramS">Show</span>
+                <span class="hide" onclick="hide('param')" id="paramH">Hide</span>
+            </div>
+            <div class="collapseinner" id="param" style="display:block">
+                <p>So far we have seen two ways of creating, and constraining,
+                parameters, namely:</p>
+                <div class="codesnip">
+                    Parameter.newEstimatedPositiveParameter(String name)<br />
+                    Parameter.newFixedParameter(String name, Double value))
+                </div>
+                <p>There are two other ways to create a parameter.  One for an
+                completely unbounded parameter (i.e. it can take negative
+                values) and one for bounded parameters where you provide a lower
+                and an upper bound:</p>
+                <div class="codesnip">
+                    Parameter.newEstimatedParameter(String name)<br />
+                    Parameter.newEstimatedBoundedParameter(String name,
+                        double lowerBound, double upperBound)
+                </div>
+                <p>For each method that creates an estimated parameter there is
+                a similar method that created the parameter but with a different
+                starting value.  This can be useful if, for example, 
+                optimisation is taking a long time from the default start value.
+                </p>
+                <div class="codesnip">
+                    Parameter.newEstimatedPositiveParameter(String name, 
+                    double start)<br />
+                    Parameter.newEstimatedParameter(String name, 
+                    double start)<br />
+                    Parameter.newEstimatedBoundedParameter(..., double start)<br />
+                    <br />
+                </div>
+            </div>
+        </div>
+        <div style="text-align:center; margin-top:10px"><a href="GeLL.html">Back to Top Level Documentation</a></div>
+
+        <script type="text/javascript">                
+             hide('gtr'); hide('gamma'); hide('i'); hide('root'); hide('param'); show('jc')
+        </script>
+    </body>
+</html>
