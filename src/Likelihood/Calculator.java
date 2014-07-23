@@ -141,7 +141,7 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
      * @return An instance of {@link SiteLikelihood} given the likelihood and
      * any other information
      */
-    public abstract SiteLikelihood calculateSite(Site s, Tree t, Parameters p, Probabilities tp, Map<String,NodeLikelihood> nl);
+    public abstract SiteLikelihood calculateSite(Site s, Tree t, Parameters p, Probabilities tp, Map<String,NodeLikelihood> nl) throws ParameterException;
     
     /**
      * Calculates the likelihood for each site
