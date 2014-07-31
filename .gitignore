@@ -1,4 +1,7 @@
 /build/
 /dist/
-/nbproject/private/
+/nbproject/
 /zips/
+build.xml
+manifest.mf
+.gitignore
