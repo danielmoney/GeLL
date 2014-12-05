@@ -59,7 +59,7 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
      * for each state at each node for each site.  Will usually be 1.0 if that state at that
      * node of that site is possible, else 0.0.
      */
-    protected Calculator(Map<String,Model> m, Tree t, HashMap<Site,Map<String,NodeLikelihood>> snl)
+    protected Calculator(Map<String,Model> m, Map<String,Tree> t, HashMap<Site,Map<String,NodeLikelihood>> snl)
     {
         this.snl = snl;
         this.t = t;
@@ -89,21 +89,24 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
         //bit counter-inutative and probably needs changing but in the mean time
         //this is here to make errors less likely.  If the branch has a length add
         //it as a fixed parameter, else as an estimated parameter.
-        for (Branch b: t)
-	{
-            if (!p.hasParam(b.getChild()))
+        for (Tree tt: t.values())
+        {
+            for (Branch b: tt)
             {
-                if (b.hasLength())
+                if (!p.hasParam(b.getChild()))
                 {
-                    p.addParameter(Parameter.newFixedParameter(b.getChild(),
-                       b.getLength()));
-                }
-                else
-                {
-                    p.addParameter(Parameter.newEstimatedPositiveParameter(b.getChild()));
+                    if (b.hasLength())
+                    {
+                        p.addParameter(Parameter.newFixedParameter(b.getChild(),
+                           b.getLength()));
+                    }
+                    else
+                    {
+                        p.addParameter(Parameter.newEstimatedPositiveParameter(b.getChild()));
+                    }
                 }
             }
-	}
+        }
         
         Map<Site,SiteLikelihood> sites = siteCalculate(p);
         
@@ -171,7 +174,7 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
             Map<String,Probabilities> tp = new HashMap<>(m.size());
             for (Entry<String,Model> e: m.entrySet())
             {
-                tp.put(e.getKey(), new Probabilities(e.getValue(),t,p));
+                tp.put(e.getKey(), new Probabilities(e.getValue(),t.get(e.getKey()),p));
             }
             
             if (thread)
@@ -184,7 +187,7 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
                 List<SiteCalculator> scs = new ArrayList<>();
                 for (Entry<Site,Map<String,NodeLikelihood>> e: snl.entrySet())
                 {
-                    SiteCalculator temp = new SiteCalculator(e.getKey(),t,p,
+                    SiteCalculator temp = new SiteCalculator(e.getKey(),t.get(e.getKey().getSiteClass()),p,
                             tp.get(e.getKey().getSiteClass()),
                             e.getValue());
                     scs.add(temp);
@@ -206,7 +209,7 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
                 Map<Site, SiteLikelihood> ret = new HashMap<>(snl.size());
                 for (Entry<Site,Map<String,NodeLikelihood>> e: snl.entrySet())
                 {
-                    ret.put(e.getKey(), calculateSite(e.getKey(),t,p,tp.get(e.getKey().getSiteClass()),e.getValue()));
+                    ret.put(e.getKey(), calculateSite(e.getKey(),t.get(e.getKey().getSiteClass()),p,tp.get(e.getKey().getSiteClass()),e.getValue()));
                 }
                 return ret;
             }
@@ -251,7 +254,7 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
     /**
      * The tree to do the calculation on.  Should be used by implementing classes.
      */
-    protected Tree t;
+    protected Map<String,Tree> t;
     /**
      * The model to do the calculation on.  Should be used by implementing classes.
      */

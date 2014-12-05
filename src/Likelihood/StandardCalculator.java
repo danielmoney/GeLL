@@ -37,6 +37,7 @@ import Trees.TreeException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Calculates the likelihood for different parameter values.  Successive calls
@@ -61,7 +62,7 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
      */
     public StandardCalculator(Model m, Alignment a, Tree t) throws TreeException, LikelihoodException, AlignmentException
     {
-        this(m,a,t,null);
+        this(makeModelMap(m),a,makeTreeMap(t),null);
     }
 
     /**
@@ -78,7 +79,7 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
      */    
     public StandardCalculator(Model m, Alignment a, Tree t, Alignment unobserved) throws TreeException, LikelihoodException, AlignmentException
     {
-        this(makeModelMap(m),a,t,unobserved);
+        this(makeModelMap(m),a,makeTreeMap(t),unobserved);
     }
  
     /**
@@ -86,24 +87,44 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
      * and a tree.  There should be one model per site class in the alignment
      * @param m Map from site class to model
      * @param a The alignment
-     * @param t The tree
+     * @param t Map from site class to tree
      * @throws AlignmentException Thrown if a model isn't given for each site class
      * in the alignment
      * @throws TreeException If there is a problem with the tree
      * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initialised to every state having zero probability
      *      (most probably due to the state at the node not being in the model). 
      */
-    public StandardCalculator(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException, TreeException, LikelihoodException
+    public StandardCalculator(Map<String,Model> m, Alignment a, Map<String,Tree> t) throws AlignmentException, TreeException, LikelihoodException
     {
         this(m,a,t,null);
     }
-
+    
+    public StandardCalculator(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException, TreeException, LikelihoodException
+    {
+        this(m,a,makeTreeMap(t,m.keySet()),null);
+    }
+    
+    public StandardCalculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved) throws AlignmentException, TreeException, LikelihoodException
+    {
+        this(m,a,makeTreeMap(t,m.keySet()),unobserved);
+    }
+    
+    public StandardCalculator(Model m, Alignment a, Map<String,Tree> t) throws AlignmentException, TreeException, LikelihoodException
+    {
+        this(makeModelMap(m,t.keySet()),a,t,null);
+    }
+    
+    public StandardCalculator(Model m, Alignment a, Map<String,Tree> t, Alignment unobserved) throws AlignmentException, TreeException, LikelihoodException
+    {
+        this(makeModelMap(m,t.keySet()),a,t,unobserved);
+    }
+ 
     /**
      * Creates a class to calculate the likelihood for a given set of models, an alignment,
      * a tree and unobserved data.  There should be one model per site class in the alignment
      * @param m Map from site class to model
      * @param a The alignment
-     * @param t The tree
+     * @param t Map from site class to tree
      * @param unobserved Unobserved data given as another alignment
      * @throws AlignmentException Thrown if a model isn't given
      * for each site class in the alignment
@@ -111,7 +132,7 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
      * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initialised to every state having zero probability
      *      (most probably due to the state at the node not being in the model). 
      */
-    public StandardCalculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved) throws AlignmentException, TreeException, LikelihoodException
+    public StandardCalculator(Map<String,Model> m, Alignment a, Map<String,Tree> t, Alignment unobserved) throws AlignmentException, TreeException, LikelihoodException
     {
         super(m,t,getInitialNodeLikelihoods(m,a,t,unobserved));
         this.a = a;
@@ -264,20 +285,21 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
     private Alignment missing;
     
     
-    private static HashMap<Site,Map<String,NodeLikelihood>> getInitialNodeLikelihoods(Map<String,Model> m, Alignment a, Tree t, Alignment missing) 
+    private static HashMap<Site,Map<String,NodeLikelihood>> getInitialNodeLikelihoods(Map<String,Model> m, Alignment a, Map<String,Tree> t, Alignment missing) 
             throws TreeException, LikelihoodException, AlignmentException
     {
         HashMap<Site,Map<String,NodeLikelihood>> snl = new HashMap<>();
         for (UniqueSite s: a.getUniqueSites())
         {
-            Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(t.getNumberBranches() + 1);
-            for (String l: t.getLeaves())
+            Tree tt = t.get(s.getSiteClass());
+            Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(tt.getNumberBranches() + 1);
+            for (String l: tt.getLeaves())
             {
                 nodeLikelihoods.put(l, new NodeLikelihood(m.get(s.getSiteClass()).getMap(), s.getCharacter(l)));
             }
 
             //And now internal nodes using
-            for (String i: t.getInternal())
+            for (String i: tt.getInternal())
             {
                 nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getMap()));
             }
@@ -287,14 +309,15 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
         {
             for (UniqueSite s: missing.getUniqueSites())
             {
-                Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(t.getNumberBranches() + 1);
-                for (String l: t.getLeaves())
+                Tree tt = t.get(s.getSiteClass());
+                Map<String, NodeLikelihood> nodeLikelihoods = new HashMap<>(tt.getNumberBranches() + 1);
+                for (String l: tt.getLeaves())
                 {
                     nodeLikelihoods.put(l, new NodeLikelihood(m.get(s.getSiteClass()).getMap(), s.getCharacter(l)));
                 }
 
                 //And now internal nodes using
-                for (String i: t.getInternal())
+                for (String i: tt.getInternal())
                 {
                     nodeLikelihoods.put(i, new NodeLikelihood(m.get(s.getSiteClass()).getMap()));
                 }
@@ -309,5 +332,32 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
         HashMap<String, Model> mm = new HashMap<>();
         mm.put(null,m);
         return mm;
+    }
+    
+    private static Map<String,Model> makeModelMap(Model m, Set<String> classes)
+    {
+        HashMap<String, Model> mm = new HashMap<>();
+        for (String c: classes)
+        {
+            mm.put(c,m);
+        }
+        return mm;
+    }
+    
+    private static Map<String,Tree> makeTreeMap(Tree t)
+    {
+        HashMap<String, Tree> tm = new HashMap<>();
+        tm.put(null,t);
+        return tm;
+    }
+    
+    private static Map<String,Tree> makeTreeMap(Tree t, Set<String> classes)
+    {
+        HashMap<String, Tree> tm = new HashMap<>();
+        for (String c: classes)
+        {
+            tm.put(c,t);
+        }
+        return tm;
     }
 }
