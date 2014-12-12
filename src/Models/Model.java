@@ -208,7 +208,14 @@ public class Model implements Iterable<RateCategory>
                 total += f.get(r) * r.getTotalRate();
             }
 
-            scale = 1.0/total;
+            if (total == 0.0)
+            {
+                scale = 0.0;
+            }
+            else
+            {
+                scale = 1.0/total;
+            }
             for (RateCategory r :  freq.keySet())
             {
                 r.setScale(scale);

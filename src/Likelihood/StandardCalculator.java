@@ -281,6 +281,11 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
             return new SiteLikelihood(rateLikelihoods, tp);
     }
     
+    public int getAlignmentLength()
+    {
+        return a.getLength();
+    }
+    
     private Alignment a;
     private Alignment missing;
     

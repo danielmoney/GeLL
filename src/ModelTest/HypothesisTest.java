@@ -1,4 +1,4 @@
-package Simulations;
+package ModelTest;
 
 import Alignments.Alignment;
 import Exceptions.GeneralException;
@@ -7,6 +7,7 @@ import Likelihood.StandardLikelihood;
 import Models.Model;
 import Optimizers.Optimizer;
 import Parameters.Parameters;
+import Simulations.Simulate;
 import Trees.Tree;
 import java.util.Map;
 

@@ -230,6 +230,8 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
     {
         this.thread = thread;
     }
+    
+    public abstract int getAlignmentLength();
 
     /**
      * Set the number of threads to be used during the calculations
