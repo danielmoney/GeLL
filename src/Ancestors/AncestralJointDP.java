@@ -58,7 +58,8 @@ public class AncestralJointDP extends AncestralJoint
 	this.a = a;
         this.m = new HashMap<>();
 	this.m.put(null,m); 
-	this.t = t;
+	this.t = new HashMap<>();
+        this.t.put(null,t);
         if (!m.hasSingleRate())
         {
             throw new MultipleRatesException();
@@ -74,7 +75,11 @@ public class AncestralJointDP extends AncestralJoint
     {
         this.a = a;
         this.m = m;
-        this.t = t;
+        this.t = new HashMap<>();
+        for (String s: m.keySet())
+        {
+            this.t.put(s,t);
+        }    
         for (Entry<String,Model> e: m.entrySet())
         {
             if (!e.getValue().hasSingleRate())
@@ -92,6 +97,60 @@ public class AncestralJointDP extends AncestralJoint
             throw new AlignmentException("Alignment contains classes for which no model has been defined");
         }
     }
+
+    AncestralJointDP(Model m, Alignment a, Map<String,Tree> t) throws MultipleRatesException, AlignmentException
+    {
+        this.a = a;
+        this.m = new HashMap<>();
+        for (String s: t.keySet())
+        {
+            this.m.put(s,m);
+        }
+        this.t = new HashMap<>();
+        for (Entry<String,Model> e: this.m.entrySet())
+        {
+            if (!e.getValue().hasSingleRate())
+            {
+                throw new MultipleRatesException();
+            }
+            r = new HashMap<>();
+            for (RateCategory rc: e.getValue())
+            {
+                r.put(e.getKey(),rc);
+            }
+        }
+        if (!a.check(t))
+        {
+            throw new AlignmentException("Alignment contains classes for which no tree has been defined");
+        }
+    }
+    
+    AncestralJointDP(Map<String,Model> m, Alignment a, Map<String,Tree> t) throws MultipleRatesException, AlignmentException
+    {
+        this.a = a;
+        this.m = m;
+        this.t = t;    
+        for (Entry<String,Model> e: m.entrySet())
+        {
+            if (!e.getValue().hasSingleRate())
+            {
+                throw new MultipleRatesException();
+            }
+            r = new HashMap<>();
+            for (RateCategory rc: e.getValue())
+            {
+                r.put(e.getKey(),rc);
+            }
+        }
+        if (!a.check(m))
+        {
+            throw new AlignmentException("Alignment contains classes for which no model has been defined");
+        }
+        if (!a.check(t))
+        {
+            throw new AlignmentException("Alignment contains classes for which no tree has been defined");
+        }
+    }
     
     public Alignment calculate(Parameters params) throws RateException, ModelException, AncestralException, TreeException, ParameterException, AlignmentException
     {
@@ -99,21 +158,23 @@ public class AncestralJointDP extends AncestralJoint
         //add them from the tree.  The paramter / branch length interaction is a
         //bit counter-inutative and probably needs changing but in the mean time
         //this is here to make errors less likely.
-        for (Branch b: t)
-	{
-            if (!params.hasParam(b.getChild()))
+        for (Tree tt: t.values())
+        {
+            for (Branch b: tt)
             {
-                params.addParameter(Parameter.newFixedParameter(b.getChild(),
-                   b.getLength()));
+                if (!params.hasParam(b.getChild()))
+                {
+                    params.addParameter(Parameter.newFixedParameter(b.getChild(),
+                       b.getLength()));
 
+                }
             }
-	}
-        
+        }
         //Calculate probabilities for this model, tree and set of parameters
         Map<String,Probabilities> P = new HashMap<>();
         for (Entry<String,Model> e: m.entrySet())
         {
-            P.put(e.getKey(),new Probabilities(e.getValue(),t,params));
+            P.put(e.getKey(),new Probabilities(e.getValue(),t.get(e.getKey()),params));
         }
  
         //Get unqiue sites in the alignment and calculator a reconstuction for each
@@ -141,11 +202,11 @@ public class AncestralJointDP extends AncestralJoint
         //Ordering of branches returned ensures we start at leaves and visit
         //all children before the parent.
         //This pretty much follows the algorithm of Pupko 2000 exactly 
-	for (Branch b: t)
+	for (Branch b: t.get(s.getSiteClass()))
 	{
 	    Map<String,String> c = new HashMap<>();
 	    Map<String,Real> l = new HashMap<>();
-	    if (t.isExternal(b))
+	    if (t.get(s.getSiteClass()).isExternal(b))
 	    {
                 for (String state: P.getAllStates())
 		{                    
@@ -177,7 +238,7 @@ public class AncestralJointDP extends AncestralJoint
 		    {
                         //THIS WILL BE SLOW
                         Real cl = RealFactory.getReal(type, P.getP(r.get(s.getSiteClass())).getP(b, j, i));
-                        for (Branch ch: t.getBranchesByParent(b.getChild()))
+                        for (Branch ch: t.get(s.getSiteClass()).getBranchesByParent(b.getChild()))
 			{
 			    cl = cl.multiply(L.get(ch.getChild()).get(j));
 			}
@@ -200,7 +261,7 @@ public class AncestralJointDP extends AncestralJoint
         for (String j: P.getAllStates())
 	{
             Real cl = RealFactory.getReal(type, P.getRoot(r.get(s.getSiteClass())).getFreq(j));
-	    for (Branch ch: t.getBranchesByParent(t.getRoot()))
+	    for (Branch ch: t.get(s.getSiteClass()).getBranchesByParent(t.get(s.getSiteClass()).getRoot()))
 	    {
 		cl = cl.multiply(L.get(ch.getChild()).get(j));
 	    }
@@ -212,20 +273,20 @@ public class AncestralJointDP extends AncestralJoint
 	}
 
         HashMap<String,String> site = new HashMap<>();        
-        site.put(t.getRoot(), maxC);
+        site.put(t.get(s.getSiteClass()).getRoot(), maxC);
 	
-	for (Branch b: t.getBranchesReversed())
+	for (Branch b: t.get(s.getSiteClass()).getBranchesReversed())
 	{
             site.put(b.getChild(), C.get(b.getChild()).get(site.get(b.getParent())));
 	}
         
         //Done like this so elements are in a sensible order for printing
         LinkedHashMap<String,String> ls = new LinkedHashMap<>();
-        for (String l: t.getLeaves())
+        for (String l: t.get(s.getSiteClass()).getLeaves())
         {
             ls.put(l,site.get(l));
         }
-        for (String i: t.getInternal())
+        for (String i: t.get(s.getSiteClass()).getInternal())
         {
             ls.put(i,site.get(i));
         }
@@ -235,7 +296,7 @@ public class AncestralJointDP extends AncestralJoint
 
     private Alignment a;
     private Map<String,Model> m;
-    private Tree t;
+    private Map<String,Tree> t;
     private Map<String,RateCategory> r;
     
     /**

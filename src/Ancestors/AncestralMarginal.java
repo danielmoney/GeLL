@@ -62,7 +62,23 @@ public class AncestralMarginal
 	this.a = a;
         this.m = new HashMap<>();
 	this.m.put(null, m); 
-	this.t = t;
+        this.t = new HashMap<>();
+        this.t.put(null,t);
+    }
+    
+    public AncestralMarginal(Model m, Alignment a, Map<String,Tree> t) throws AlignmentException
+    {
+	this.a = a;
+        this.m = new HashMap<>();
+        for (String s: t.keySet())
+        {
+            this.m.put(s, m); 
+        }
+        this.t = t;
+        if (!a.check(t))
+        {
+            throw new AlignmentException("Alignment contains classes for which no tree has been defined");
+        }
     }
 
     /**
@@ -79,10 +95,29 @@ public class AncestralMarginal
     {
         this.a = a;
         this.m = m;
+        this.t = new HashMap<>();
+        for (String s: m.keySet())
+        {
+            this.t.put(s,t);
+        }
+        if (!a.check(m))
+        {
+            throw new AlignmentException("Alignment contains classes for which no model has been defined");
+        }
+    }
+    
+    public AncestralMarginal(Map<String,Model> m, Alignment a, Map<String,Tree> t) throws AlignmentException
+    {
+        this.a = a;
+        this.m = m;
         this.t = t;
         if (!a.check(m))
         {
             throw new AlignmentException("Alignment contains classes for which no model has been defined");
+        }
+        if (!a.check(t))
+        {
+            throw new AlignmentException("Alignment contains classes for which no tree has been defined");
         }
     }
       
@@ -108,21 +143,24 @@ public class AncestralMarginal
         //add them from the tree.  The paramter / branch length interaction is a
         //bit counter-inutative and probably needs changing but in the mean time
         //this is here to make errors less likely.
-        for (Branch b: t)
-	{
-            if (!params.hasParam(b.getChild()))
+        for (Tree tt: t.values())
+        {
+            for (Branch b: tt)
             {
-                params.addParameter(Parameter.newFixedParameter(b.getChild(),
-                   b.getLength()));
+                if (!params.hasParam(b.getChild()))
+                {
+                    params.addParameter(Parameter.newFixedParameter(b.getChild(),
+                       b.getLength()));
 
+                }
             }
-	}
+        }
         
         //Calculate probabilities for this model, tree and set of parameters
         Map<String,Probabilities> P = new HashMap<>();
         for (Entry<String,Model> e: m.entrySet())
         {
-            P.put(e.getKey(), new Probabilities(e.getValue(),t,params));
+            P.put(e.getKey(), new Probabilities(e.getValue(),t.get(e.getKey()),params));
         }
 	
         //Get unqiue sites in the alignment and calculator a reconstuction for each
@@ -152,7 +190,7 @@ public class AncestralMarginal
     {
         //Calculalate the probability of each state for each node...
         Map<String,HashMap<String,Real>> nr = new HashMap<>();
-        for (String node: t.getInternal())
+        for (String node: t.get(s.getSiteClass()).getInternal())
         {
             nr.put(node,calculateNode(s,P,node));
         }
@@ -171,14 +209,14 @@ public class AncestralMarginal
         
         //Keep track of what branches are normal and which are going "backwards"
         List<Branch> reverse = new ArrayList<>();
-        List<Branch> normal = new ArrayList<>(t.getBranches());
+        List<Branch> normal = new ArrayList<>(t.get(s.getSiteClass()).getBranches());
 
         //Branches on the path between the current node and the root will be
         //going backwards
         String cur = node;
-        while (!(cur.equals(t.getRoot())))
+        while (!(cur.equals(t.get(s.getSiteClass()).getRoot())))
         {
-            Branch b = t.getBranchByChild(cur);
+            Branch b = t.get(s.getSiteClass()).getBranchByChild(cur);
             reverse.add(b);
             normal.remove(b);
             cur = b.getParent();            
@@ -192,12 +230,12 @@ public class AncestralMarginal
             //Initalise the nodes in the same manner as for a normal likelihood
             //caluclation
             Map<String,NodeLikelihood> l = new HashMap<>();
-            for (String n: t.getLeaves())
+            for (String n: t.get(s.getSiteClass()).getLeaves())
             {
                 l.put(n, new NodeLikelihood(P.getMap(), s.getCharacter(n)));
             }
 
-            for (String n: t.getInternal())
+            for (String n: t.get(s.getSiteClass()).getInternal())
             {
                 l.put(n, new NodeLikelihood(P.getMap()));
             }
@@ -231,7 +269,7 @@ public class AncestralMarginal
             for (String st: P.getAllStates())
             {
                 //l.get(t.getRoot()).multiply(st, P.getFreq(r, st));
-                l.get(t.getRoot()).multiply(st, P.getRoot(r).getFreq(st));
+                l.get(t.get(s.getSiteClass()).getRoot()).multiply(st, P.getRoot(r).getFreq(st));
             }
             
             //Now traverse the "backwards" branches in a similar manner to normal
@@ -304,7 +342,7 @@ public class AncestralMarginal
     
     private Alignment a;
     private Map<String,Model> m;
-    private Tree t;
+    private Map<String,Tree> t;
 
     /**
      * Returns an object of this class that can be used for marginal 
@@ -400,12 +438,12 @@ public class AncestralMarginal
             //Create the site by
             LinkedHashMap<String,String> s = new LinkedHashMap<>();
             //First copying the leave states from the original site
-            for (String l: t.getLeaves())
+            for (String l: t.get(os.getSiteClass()).getLeaves())
             {
                 s.put(l, os.getRawCharacter(l));
             }
             //And then adding the reconstrcuted results
-            for (String i: t.getInternal())
+            for (String i: t.get(os.getSiteClass()).getInternal())
             {
                 s.put(i, getMaxKey(nr.get(i)));
             }

@@ -60,7 +60,8 @@ public class AncestralJointBB extends AncestralJoint
 	this.a = a;
         this.m = new HashMap<>();
 	this.m.put(null,m);
-	this.t = t;
+        this.t = new HashMap<>();
+	this.t.put(null,t);
         //Create a dynamic programming ancestral reconstructir for each rate
         //category.  Saves creating one for each site.  Used to choose a sensible
         //starting state for branch and bound search.
@@ -84,7 +85,11 @@ public class AncestralJointBB extends AncestralJoint
     {
 	this.a = a;
         this.m = m;
-	this.t = t;
+        this.t = new HashMap<>();
+        for (String s: m.keySet())
+        {
+            this.t.put(s,t);
+        }
         //Create a dynamic programming ancestral reconstructir for each rate
         //category.  Saves creating one for each site.  Used to choose a sensible
         //starting state for branch and bound search.
@@ -111,27 +116,100 @@ public class AncestralJointBB extends AncestralJoint
         }
     }
 
+    AncestralJointBB(Model m, Alignment a, Map<String,Tree> t) throws AlignmentException
+    {
+	this.a = a;
+        this.t = t;
+        this.m = new HashMap<>();
+        for (String s: t.keySet())
+        {
+            this.m.put(s,m);
+        }
+        //Create a dynamic programming ancestral reconstructir for each rate
+        //category.  Saves creating one for each site.  Used to choose a sensible
+        //starting state for branch and bound search.
+        dps = new HashMap<>();
+        for (Model mo: this.m.values())
+        {
+            for (RateCategory r: mo)
+            {
+                try
+                {
+                    dps.put(r,new AncestralJointDP(new Model(r),a,t));
+                }
+                catch (MultipleRatesException ex)
+                {
+                    //Can't reach here as we know we only pass in models with a single
+                    //rate category but just in case...
+                    throw new UnexpectedError(ex);
+                }
+            }
+        }
+        if (!a.check(t))
+        {
+            throw new AlignmentException("Alignment contains classes for which no tree has been defined");
+        }
+    }
+    
+    AncestralJointBB(Map<String,Model> m, Alignment a, Map<String,Tree> t) throws AlignmentException
+    {
+	this.a = a;
+        this.m = m;
+        this.t = t;
+        //Create a dynamic programming ancestral reconstructir for each rate
+        //category.  Saves creating one for each site.  Used to choose a sensible
+        //starting state for branch and bound search.
+        dps = new HashMap<>();
+        for (Model mo: m.values())
+        {
+            for (RateCategory r: mo)
+            {
+                try
+                {
+                    dps.put(r,new AncestralJointDP(new Model(r),a,t));
+                }
+                catch (MultipleRatesException ex)
+                {
+                    //Can't reach here as we know we only pass in models with a single
+                    //rate category but just in case...
+                    throw new UnexpectedError(ex);
+                }
+            }
+        }
+        if (!a.check(m))
+        {
+            throw new AlignmentException("Alignment contains classes for which no model has been defined");
+        }
+        if (!a.check(t))
+        {
+            throw new AlignmentException("Alignment contains classes for which no tree has been defined");
+        }
+    }
+    
     public Alignment calculate(Parameters p) throws RateException, ModelException, AncestralException, TreeException, ParameterException, AlignmentException, LikelihoodException
     {
         //If the parameters setting doesn't include branch lengths parameters then
         //add them from the tree.  The paramter / branch length interaction is a
         //bit counter-inutative and probably needs changing but in the mean time
         //this is here to make errors less likely.
-        for (Branch b: t)
-	{
-            if (!p.hasParam(b.getChild()))
+        for (Tree tt: t.values())
+        {
+            for (Branch b: tt)
             {
-                p.addParameter(Parameter.newFixedParameter(b.getChild(),
-                   b.getLength()));
+                if (!p.hasParam(b.getChild()))
+                {
+                    p.addParameter(Parameter.newFixedParameter(b.getChild(),
+                       b.getLength()));
 
+                }
             }
-	}
+        }
         
         //Calculate probabilities for this model, tree and set of parameters
         Map<String,Probabilities> P = new HashMap<>();
         for (Entry<String,Model> e: m.entrySet())
         {
-            P.put(e.getKey(),new Probabilities(e.getValue(),t,p));
+            P.put(e.getKey(),new Probabilities(e.getValue(),t.get(e.getKey()),p));
         }
 
         //Get unqiue sites in the alignment and calculator a reconstuction for each
@@ -172,7 +250,7 @@ public class AncestralJointBB extends AncestralJoint
         
         //Calculate the site likelihood
         //SiteLikelihood sl = (new SiteCalculator(t,P,assignment.getInitialNodeLikelihoods(t, ca, P.getMap()))).calculate();
-        SiteLikelihood sl = calculateSite(t,P,assignment.getInitialNodeLikelihoods(t, ca, P.getMap()));
+        SiteLikelihood sl = calculateSite(t.get(ca.getSiteClass()),P,assignment.getInitialNodeLikelihoods(t.get(ca.getSiteClass()), ca, P.getMap()));
 	RateCategory br = null;
         //And then use this to find the rate category that contributes the most likelihood
 	Real brs = null;
@@ -227,7 +305,7 @@ public class AncestralJointBB extends AncestralJoint
             }
         }
         //And then adding the reconstruction
-        for (String in: t.getInternal())
+        for (String in: t.get(ca.getSiteClass()).getInternal())
         {
             ret.put(in, best.assign.getAssignment(in));
         }
@@ -240,11 +318,11 @@ public class AncestralJointBB extends AncestralJoint
         //Recursive depth first search of possible reconstructions
      
         //If we've made an assignment to every node then...
-	if (isFull(assign))
+	if (isFull(assign,t.get(site.getSiteClass())))
 	{
             //Calculate the likelihood of that reconstruction
             //Real s = (new SiteCalculator(t,P,assign.getInitialNodeLikelihoods(t, site, P.getMap()))).calculate().getLikelihood();
-            Real s = calculateSite(t,P,assign.getInitialNodeLikelihoods(t, site, P.getMap())).getLikelihood();
+            Real s = calculateSite(t.get(site.getSiteClass()),P,assign.getInitialNodeLikelihoods(t.get(site.getSiteClass()), site, P.getMap())).getLikelihood();
             //If it's better than the bext reconstruction we've encountered so far
             //update the best and return it
 	    if ((best.score == null) || s.greaterThan(best.score))
@@ -265,7 +343,7 @@ public class AncestralJointBB extends AncestralJoint
         //all possible states at unassigned nodes using the normal (quick) likelihood
         //calculation method.
         //Real bound = (new SiteCalculator(t,P,assign.getInitialNodeLikelihoods(t, site, P.getMap()))).calculate().getLikelihood();
-        Real bound = calculateSite(t,P,assign.getInitialNodeLikelihoods(t, site, P.getMap())).getLikelihood();
+        Real bound = calculateSite(t.get(site.getSiteClass()),P,assign.getInitialNodeLikelihoods(t.get(site.getSiteClass()), site, P.getMap())).getLikelihood();
 
 
         //If the bounded value is less the best econstruction we've aleady found
@@ -277,7 +355,7 @@ public class AncestralJointBB extends AncestralJoint
 	}
         
         //Get a currently unassigned node
-	String b = getFirst(assign);
+	String b = getFirst(assign,t.get(site.getSiteClass()));
         
         //Clone the current assignment
 	Assignment na = assign.clone();
@@ -322,11 +400,11 @@ public class AncestralJointBB extends AncestralJoint
     
 
 
-    private String getFirst(Assignment assign)
+    private String getFirst(Assignment assign, Tree tt)
     {
         //Gets the first unassigned node.  No attempt to be clever on choosing
         //an effecient node to do next.
-	for (String i: t.getInternal())
+	for (String i: tt.getInternal())
 	{
 	    if (!assign.nodeIsAssigned(i))
 	    {
@@ -336,9 +414,9 @@ public class AncestralJointBB extends AncestralJoint
 	return null;
     }
 
-    private boolean isFull(Assignment assign)
+    private boolean isFull(Assignment assign, Tree tt)
     {
-	for (String i : t.getInternal())
+	for (String i : tt.getInternal())
 	{
 	    if (!assign.nodeIsAssigned(i))
 	    {
@@ -435,7 +513,7 @@ public class AncestralJointBB extends AncestralJoint
 
     private Map<String,Model> m;
 
-    private Tree t;
+    private Map<String,Tree> t;
     
     private Map<RateCategory,AncestralJointDP> dps;
 }

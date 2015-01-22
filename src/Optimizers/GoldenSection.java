@@ -188,7 +188,16 @@ public class GoldenSection implements Optimizer
     {
         //Maximises a single parameter by golden section search
 	boolean progress = (progresslevel == ProgressLevel.CALCULATION);
+        if (progress)
+        {
+            out.println("\t\tStartParameter\t" + p.getName() + "\t" + p.getValue());
+        }
 	R bestML = l.calculate(pp);
+        if (progress)
+        {
+            cal.setTimeInMillis(System.currentTimeMillis());
+            out.println("\t\t" + sdf.format(cal.getTime()) + "\t" + p.getName() + "\t" + p.getValue() + "\t" + bestML.getLikelihood());
+        }
 	R origML = bestML;
 	R aML = bestML;
 	R bML = bestML;
@@ -219,7 +228,7 @@ public class GoldenSection implements Optimizer
                 pp.setValue(p,a);
                 if (progress)
                 {
-                    out.println("\t\t1 " + p.getName() + "\t" + p.getValue());
+                    out.println("\t\tGetLowerBound\t" + p.getName() + "\t" + p.getValue());
                 }
                 aML = l.calculate(pp);
                 if (progress)
@@ -236,7 +245,7 @@ public class GoldenSection implements Optimizer
                 pp.setValue(p,b);
                 if (progress)
                 {
-                    out.println("\t\t2 " + p.getName() + "\t" + p.getValue());
+                    out.println("\t\tGetUpperBound\t" + p.getName() + "\t" + p.getValue());
                 }
                 bML = l.calculate(pp);
                 if (progress)
@@ -256,9 +265,27 @@ public class GoldenSection implements Optimizer
 	double x2 = b - R * (b - a);
 
 	pp.setValue(p,x1);
+        if (progress)
+        {
+            out.println("\t\tGSStartLower\t" + p.getName() + "\t" + p.getValue());
+        }
 	R x1val = l.calculate(pp);
+        if (progress)
+        {
+            cal.setTimeInMillis(System.currentTimeMillis());
+            out.println("\t\t" + sdf.format(cal.getTime()) + "\t" + p.getName() + "\t" + p.getValue() + "\t" + x1val.getLikelihood());
+        }
 	pp.setValue(p,x2);
+        if (progress)
+        {
+            out.println("\t\tGSStartUpper\t" + p.getName() + "\t" + p.getValue());
+        }
 	R x2val = l.calculate(pp);
+        if (progress)
+        {
+            cal.setTimeInMillis(System.currentTimeMillis());
+            out.println("\t\t" + sdf.format(cal.getTime()) + "\t" + p.getName() + "\t" + p.getValue() + "\t" + x2val.getLikelihood());
+        }
         
         boolean awayL = false;
         boolean awayU = false;
@@ -274,7 +301,7 @@ public class GoldenSection implements Optimizer
 		pp.setValue(p,x1);
 		if (progress)
 		{
-		    out.println("\t\t3 " + p.getName() + "\t" + p.getValue());
+		    out.println("\t\tGoldenSectionA\t" + p.getName() + "\t" + p.getValue());
 		}
 		x1val = l.calculate(pp);
 		if (progress)
@@ -293,7 +320,7 @@ public class GoldenSection implements Optimizer
 		pp.setValue(p,x2);
 		if (progress)
 		{
-		    out.println("\t\t4 " + p.getName() + "\t" + p.getValue());
+		    out.println("\t\tGoldenSectionB\t" + p.getName() + "\t" + p.getValue());
 		}
 		x2val = l.calculate(pp);
 		if (progress)
@@ -311,7 +338,7 @@ public class GoldenSection implements Optimizer
 	    pp.setValue(p,p.getLowerBound());
 	    if (progress)
 	    {
-		out.println("\t\t5 " + p.getName() + "\t" + p.getValue());
+		out.println("\t\tBoundCheckLower\t" + p.getName() + "\t" + p.getValue());
 	    }
 	    R bval = l.calculate(pp);
 	    if (progress)
@@ -331,7 +358,7 @@ public class GoldenSection implements Optimizer
 	{
 	    if (progress)
 	    {
-		out.println("\t\t6 " + p.getName() + "\t" + p.getValue());
+		out.println("\t\tBoundCheckUpper\t" + p.getName() + "\t" + p.getValue());
 	    }
 	    pp.setValue(p,p.getUpperBound());
 	    R bval = l.calculate(pp);
@@ -353,6 +380,9 @@ public class GoldenSection implements Optimizer
 	if ((x1val.getLikelihood() < origML.getLikelihood()) && (x2val.getLikelihood() < origML.getLikelihood()))
 	{
 	    pp.setValue(p,origVal);
+            //System.out.println(pp);
+            //R rl = l.calculate(pp);
+            //return rl;
 	    return origML;
 	}
         //Else return the best value we've found.

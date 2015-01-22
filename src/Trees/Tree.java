@@ -206,8 +206,15 @@ public class Tree implements Iterable<Branch>
 	Parameters p = new Parameters();
 	for (Branch b: branches)
 	{
-            p.addParameter(Parameter.newFixedParameter(b.getChild(),
-		   b.getLength()));
+            try
+            {
+                p.addParameter(Parameter.newFixedParameter(b.getChild(),
+                       b.getLength()));
+            }
+            catch (ParameterException ex)
+            {
+                throw new UnexpectedError(ex);
+            }
 	}
 	return p;
     }
@@ -222,7 +229,14 @@ public class Tree implements Iterable<Branch>
 	Parameters p = new Parameters();
 	for (Branch b: branches)
 	{
-	    p.addParameter(Parameter.newEstimatedPositiveParameter(b.getChild()));
+            try
+            {
+                p.addParameter(Parameter.newEstimatedPositiveParameter(b.getChild()));
+            }
+            catch (ParameterException ex)
+            {
+                throw new UnexpectedError(ex);
+            }
 	}
 	return p;
     }

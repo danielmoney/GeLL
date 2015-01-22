@@ -91,7 +91,8 @@ public class Simulate
         P.put(null,new Probabilities(m,t,p));
         this.missing = unobserved;
         
-        this.t = t;
+        this.t = new HashMap<>();
+        this.t.put(null,t);
         
         random = new Random();
         
@@ -153,7 +154,11 @@ public class Simulate
         }
         this.missing = unobserved;
         
-        this.t = t;
+        this.t = new HashMap<>();
+        for (String s: m.keySet())
+        {
+            this.t.put(s,t);
+        }
         
         random = new Random();
         
@@ -170,7 +175,76 @@ public class Simulate
             }
 	}        
     }
- 
+
+    public Simulate(Model m, Map<String,Tree> t, Parameters p) throws RateException, ModelException, TreeException, ParameterException
+    {
+        this(m,t,p,null);
+    }
+
+    public Simulate(Model m, Map<String,Tree> t, Parameters p, Alignment unobserved) throws RateException, ModelException, TreeException, ParameterException
+    {
+        for (Entry<String,Tree> e: t.entrySet())
+        {
+            P.put(e.getKey(),new Probabilities(m,e.getValue(),p));
+        }
+        this.missing = unobserved;
+        
+        this.t = t;
+        
+        random = new Random();
+        
+        //If the parameters setting doesn't include branch lengths parameters then
+        //add them from the tree.  The paramter / branch length interaction is a
+        //bit counter-inutative and probably needs changing but in the mean time
+        //this is here to make errors less likely.
+        for (Tree tt: t.values())
+        {
+            for (Branch b: tt)
+            {
+                if (!p.hasParam(b.getChild()))
+                {
+                    p.addParameter(Parameter.newFixedParameter(b.getChild(),
+                       b.getLength()));
+                }
+            }
+        }
+    }
+    
+    public Simulate(Map<String,Model> m, Map<String,Tree> t, Parameters p) throws RateException, ModelException, TreeException, ParameterException
+    {
+        this(m,t,p,null);
+    }
+
+    public Simulate(Map<String,Model> m, Map<String,Tree> t, Parameters p, Alignment unobserved) throws RateException, ModelException, TreeException, ParameterException
+    {
+        for (Entry<String,Model> e: m.entrySet())
+        {
+            P.put(e.getKey(),new Probabilities(e.getValue(),t.get(e.getKey()),p));
+        }
+        this.missing = unobserved;
+        
+        this.t = t;
+        
+        random = new Random();
+        
+        //If the parameters setting doesn't include branch lengths parameters then
+        //add them from the tree.  The paramter / branch length interaction is a
+        //bit counter-inutative and probably needs changing but in the mean time
+        //this is here to make errors less likely.
+        for (Tree tt: t.values())
+        {
+            for (Branch b: tt)
+            {
+                if (!p.hasParam(b.getChild()))
+                {
+                    p.addParameter(Parameter.newFixedParameter(b.getChild(),
+                       b.getLength()));
+                }
+            }
+        }
+    }    
+
+    
     /**
      * Gets a simulated site without returning the state of the internal nodes
      * @return The simulated site
@@ -324,6 +398,10 @@ public class Simulate
         {
             throw new SimulationException("No model defined for requested class");
         }
+        if (!t.containsKey(siteClass))
+        {
+            throw new SimulationException("No tree defined for requested class");
+        }
 	Site site, loSite;
         do
         {
@@ -332,10 +410,10 @@ public class Simulate
             RateCategory r = getRandomRate(P.get(siteClass).getRateCategory(),siteClass);
 
             //Assign the root
-            assign.put(t.getRoot(), getRandomStart(r, siteClass));
+            assign.put(t.get(siteClass).getRoot(), getRandomStart(r, siteClass));
 
             //Traverse the tree, assign values to nodes
-            for (Branch b: t.getBranchesReversed())
+            for (Branch b: t.get(siteClass).getBranchesReversed())
             {
                 assign.put(b.getChild(), getRandomChar(
                         r,b,assign.get(b.getParent()),siteClass));
@@ -346,12 +424,12 @@ public class Simulate
             LinkedHashMap<String,String> all = new LinkedHashMap<>();
             LinkedHashMap<String,String> lo = new LinkedHashMap<>();
 
-            for (String l: t.getLeaves())
+            for (String l: t.get(siteClass).getLeaves())
             {
                 all.put(l, assign.get(l));
                 lo.put(l, assign.get(l));
             }
-            for (String i: t.getInternal())
+            for (String i: t.get(siteClass).getInternal())
             {
                 all.put(i, assign.get(i));
             }
@@ -690,7 +768,7 @@ public class Simulate
 	return ret;
     }
 
-    private Tree t;
+    private Map<String,Tree> t;
     private Random random;
     private Alignment missing;
     private Map<String,Probabilities> P;

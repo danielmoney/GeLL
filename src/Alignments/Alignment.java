@@ -316,6 +316,16 @@ public class Alignment implements Iterable<Site>
         }
     }
     
+    public List<String> getSiteClasses()
+    {
+        List<String> classes = new ArrayList<>(data.size());
+        for (Site s: data)
+        {
+            classes.add(s.getSiteClass());
+        }
+        return classes;
+    }
+    
     /**
      * Checks whether the sites in this alignment have classes
      * @return Whether the sites have clases

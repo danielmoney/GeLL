@@ -16,6 +16,6 @@
  */
 
 /**
- * Provides a general driver executable and an example executable
+ * Provides a general driver executable 
  */
 package Executable;

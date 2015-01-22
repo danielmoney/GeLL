@@ -20,6 +20,7 @@ package Parameters;
 import Exceptions.GeneralException;
 import Exceptions.InputException;
 import Exceptions.OutputException;
+import Exceptions.UnexpectedError;
 import Parameters.Parameter.FormatException;
 import java.io.BufferedReader;
 import java.io.File;
@@ -32,6 +33,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Represents a set of parameters
@@ -52,9 +54,13 @@ public class Parameters implements Iterable<Parameter>, Serializable
      * Creates a set of parameters containing the given parameters
      * @param params A list of parameters
      */
-    public Parameters(ArrayList<Parameter> params)
+    public Parameters(List<Parameter> params) throws ParameterException
     {
-	this.params = params;
+        this.params = new ArrayList<>();
+	for (Parameter p: params)
+        {
+            addParameter(p);
+        }
     }
     
     public Parameters clone()
@@ -62,7 +68,14 @@ public class Parameters implements Iterable<Parameter>, Serializable
         Parameters clone = new Parameters();
         for (Parameter p: params)
         {
-            clone.addParameter(p.clone());
+            try
+            {
+                clone.addParameter(p.clone());
+            }
+            catch (ParameterException ex)
+            {
+                throw new UnexpectedError(ex);
+            }
         }
         return clone;
     }
@@ -71,8 +84,13 @@ public class Parameters implements Iterable<Parameter>, Serializable
      * Add a parameter
      * @param p The parameter
      */
-    public void addParameter(Parameter p)
+    public final void addParameter(Parameter p) throws ParameterException
     {
+        if (hasParam(p.getName()))
+        {
+            throw new ParameterException("Parameter with name " + p.getName() +
+                    " already defined");
+        }
 	params.add(p);
     }
 
@@ -80,11 +98,11 @@ public class Parameters implements Iterable<Parameter>, Serializable
      * Adds the parameters from another set of parameters
      * @param pp The other set of parameters
      */
-    public void addParameters(Parameters pp)
+    public void addParameters(Parameters pp) throws ParameterException
     {
 	for (Parameter p : pp.params)
 	{
-	    params.add(p);
+	    addParameter(p);
 	}
     }
 
@@ -143,7 +161,7 @@ public class Parameters implements Iterable<Parameter>, Serializable
      * @param name The name of the parameter
      * @return Whether there is a parameter with that name
      */
-    public boolean hasParam(String name)
+    public final boolean hasParam(String name)
     {
 	for (Parameter p : params)
 	{
@@ -270,7 +288,7 @@ public class Parameters implements Iterable<Parameter>, Serializable
      * @return A Parameters instance
      * @throws InputException If there is an input error
      */
-    public static Parameters fromFile(File f) throws InputException
+    public static Parameters fromFile(File f) throws InputException, ParameterException
     {
 	ArrayList<Parameter> params = new ArrayList<>();
 	BufferedReader in;

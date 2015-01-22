@@ -142,6 +142,10 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
         {
             throw new AlignmentException("Alignment contains classes for which no model has been defined");
         }
+        if (!a.check(t))
+        {
+            throw new AlignmentException("Alignment contains classes for which no tree has been defined");
+        }
     }
     
 

@@ -114,4 +114,34 @@ public abstract class AncestralJoint
             return new AncestralJointBB(m,a,t);
         }
     }
+    
+    public static AncestralJoint newInstance(Model m, Alignment a, Map<String,Tree> t) throws AlignmentException
+    {
+        //First try Dynamic Programming method
+        try
+        {
+            return new AncestralJointDP(m,a,t);
+        }
+        //But if that can't work due to multiple rate categories use Branch
+        //and Bound method
+        catch (MultipleRatesException ex)
+        {
+            return new AncestralJointBB(m,a,t);
+        }
+    }
+        
+    public static AncestralJoint newInstance(Map<String,Model> m, Alignment a, Map<String,Tree> t) throws AlignmentException
+    {
+        //First try Dynamic Programming method
+        try
+        {
+            return new AncestralJointDP(m,a,t);
+        }
+        //But if that can't work due to multiple rate categories use Branch
+        //and Bound method
+        catch (MultipleRatesException ex)
+        {
+            return new AncestralJointBB(m,a,t);
+        }
+    }
 }

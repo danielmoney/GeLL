@@ -51,7 +51,7 @@ import static org.junit.Assert.*;
 public class JointBBTest
 {
     /**
-     * Compares the reconstructed alignment at each site tone computed by
+     * Compares the reconstructed alignment at each site to one computed by
      * exhaustively calculating the likelihood of all possible reconstructions
      * @throws Exception Thrown if something went wrong!
      */

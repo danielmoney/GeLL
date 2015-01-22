@@ -22,6 +22,7 @@ import Models.Model.ModelException;
 import Models.RateCategory.RateException;
 import Parameters.Parameter;
 import Parameters.Parameters;
+import Parameters.Parameters.ParameterException;
 import java.util.HashMap;
 
 /**
@@ -109,7 +110,7 @@ public class DNAModelFactory
      * @param numCats The number of gamma categories to use
      * @return The model
      */
-    public static Model JukesCantor_Gamma(Parameters p, int numCats)
+    public static Model JukesCantor_Gamma(Parameters p, int numCats) throws ParameterException
     {
         p.addParameters(JukesCantor_Gamma_Parameters());
         return JukesCantor_Gamma(numCats);
@@ -157,7 +158,14 @@ public class DNAModelFactory
     private static Parameters JukesCantor_Gamma_Parameters()
     {
         Parameters p = JukesCantor_Parameters();
-        p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        try
+        {
+            p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        }
+        catch (ParameterException ex)
+        {
+            throw new UnexpectedError(ex);
+        }
         return p;
     }
     
@@ -166,7 +174,7 @@ public class DNAModelFactory
      * @param p Parameters structure to add the model parameters to 
      * @return The model
      */
-    public static Model Kimura(Parameters p)
+    public static Model Kimura(Parameters p) throws ParameterException
     {
         p.addParameters(Kimura_Parameters());
         return Kimura();
@@ -211,7 +219,7 @@ public class DNAModelFactory
      * @param numCats The number of gamma categories to use
      * @return The model
      */
-    public static Model Kimura_Gamma(Parameters p, int numCats)
+    public static Model Kimura_Gamma(Parameters p, int numCats) throws ParameterException
     {
         p.addParameters(Kimura_Gamma_Parameters());
         return Kimura_Gamma(numCats);
@@ -254,14 +262,28 @@ public class DNAModelFactory
     private static Parameters Kimura_Parameters()
     {
         Parameters p = new Parameters();
-        p.addParameter(Parameter.newEstimatedPositiveParameter("k"));
+        try
+        {
+            p.addParameter(Parameter.newEstimatedPositiveParameter("k"));
+        }
+        catch (ParameterException ex)
+        {
+            throw new UnexpectedError(ex);
+        }
         return p;
     }
     
     private static Parameters Kimura_Gamma_Parameters()
     {
         Parameters p = Kimura_Parameters();
-        p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        try
+        {
+            p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        }
+        catch (ParameterException ex)
+        {
+            throw new UnexpectedError(ex);
+        }
         return p;
     }
     
@@ -270,7 +292,7 @@ public class DNAModelFactory
      * @param p Parameters structure to add the model parameters to 
      * @return The model
      */
-    public static Model Felsenstein81(Parameters p)
+    public static Model Felsenstein81(Parameters p) throws ParameterException
     {
         p.addParameters(Felsenstein81_Parameters());
         return Felsenstein81();
@@ -315,7 +337,7 @@ public class DNAModelFactory
      * @param numCats The number of gamma categories to use
      * @return The model
      */
-    public static Model Felsenstein81_Gamma(Parameters p, int numCats)
+    public static Model Felsenstein81_Gamma(Parameters p, int numCats) throws ParameterException
     {
         p.addParameters(Felsenstein81_Gamma_Parameters());
         return Felsenstein81_Gamma(numCats);
@@ -358,17 +380,31 @@ public class DNAModelFactory
     private static Parameters Felsenstein81_Parameters()
     {
         Parameters p = new Parameters();
-        p.addParameter(Parameter.newFixedParameter("pT",1.0));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pC"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pA"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pG"));
+        try
+        {
+            p.addParameter(Parameter.newFixedParameter("pT",1.0));
+            p.addParameter(Parameter.newEstimatedPositiveParameter("pC"));
+            p.addParameter(Parameter.newEstimatedPositiveParameter("pA"));
+            p.addParameter(Parameter.newEstimatedPositiveParameter("pG"));
+        }
+        catch (ParameterException ex)
+        {
+            throw new UnexpectedError(ex);
+        }
         return p;
     }
     
     private static Parameters Felsenstein81_Gamma_Parameters()
     {
         Parameters p = Felsenstein81_Parameters();
-        p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        try
+        {
+            p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        }
+        catch (ParameterException ex)
+        {
+            throw new UnexpectedError(ex);
+        }
         return p;
     }
     
@@ -377,7 +413,7 @@ public class DNAModelFactory
      * @param p Parameters structure to add the model parameters to 
      * @return The model
      */
-    public static Model HKY(Parameters p)
+    public static Model HKY(Parameters p) throws ParameterException
     {
         p.addParameters(HKY_Parameters());
         return HKY();
@@ -422,7 +458,7 @@ public class DNAModelFactory
      * @param numCats The number of gamma categories to use
      * @return The model
      */
-    public static Model HKY_Gamma(Parameters p, int numCats)
+    public static Model HKY_Gamma(Parameters p, int numCats) throws ParameterException
     {
         p.addParameters(HKY_Gamma_Parameters());
         return HKY_Gamma(numCats);
@@ -465,19 +501,33 @@ public class DNAModelFactory
     private static Parameters HKY_Parameters()
     {
         Parameters p = new Parameters();
-        p.addParameter(Parameter.newEstimatedPositiveParameter("k"));
-        
-        p.addParameter(Parameter.newFixedParameter("pT",1.0));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pC"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pA"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pG"));
+        try
+        {
+            p.addParameter(Parameter.newEstimatedPositiveParameter("k"));
+
+            p.addParameter(Parameter.newFixedParameter("pT",1.0));
+            p.addParameter(Parameter.newEstimatedPositiveParameter("pC"));
+            p.addParameter(Parameter.newEstimatedPositiveParameter("pA"));
+            p.addParameter(Parameter.newEstimatedPositiveParameter("pG"));
+        }
+        catch (ParameterException ex)
+        {
+            throw new UnexpectedError(ex);
+        }
         return p;
     }
     
     private static Parameters HKY_Gamma_Parameters()
     {
         Parameters p = HKY_Parameters();
-        p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        try
+        {
+            p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        }
+        catch (ParameterException ex)
+        {
+            throw new UnexpectedError(ex);
+        }
         return p;
     }
 
@@ -486,7 +536,7 @@ public class DNAModelFactory
      * @param p Parameters structure to add the model parameters to 
      * @return The model
      */
-    public static Model GTR(Parameters p)
+    public static Model GTR(Parameters p) throws ParameterException
     {
         p.addParameters(GTR_Parameters());
         return GTR();
@@ -531,7 +581,7 @@ public class DNAModelFactory
      * @param numCats The number of gamma categories to use
      * @return The model
      */
-    public static Model GTR_Gamma(Parameters p, int numCats)
+    public static Model GTR_Gamma(Parameters p, int numCats) throws ParameterException
     {
         p.addParameters(GTR_Gamma_Parameters());
         return GTR_Gamma(numCats);
@@ -574,23 +624,37 @@ public class DNAModelFactory
     private static Parameters GTR_Gamma_Parameters()
     {
         Parameters p = GTR_Parameters();
-        p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        try
+        {
+            p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        }
+        catch (ParameterException ex)
+        {
+            throw new UnexpectedError(ex);
+        }
         return p;
     }
     
     private static Parameters GTR_Parameters()
     {
         Parameters p = new Parameters();
-        p.addParameter(Parameter.newEstimatedPositiveParameter("a"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("b"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("c"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("d"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("e"));
-        
-        p.addParameter(Parameter.newFixedParameter("pT",1.0));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pC"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pA"));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pG"));
+        try
+        {
+            p.addParameter(Parameter.newEstimatedPositiveParameter("a"));
+            p.addParameter(Parameter.newEstimatedPositiveParameter("b"));
+            p.addParameter(Parameter.newEstimatedPositiveParameter("c"));
+            p.addParameter(Parameter.newEstimatedPositiveParameter("d"));
+            p.addParameter(Parameter.newEstimatedPositiveParameter("e"));
+
+            p.addParameter(Parameter.newFixedParameter("pT",1.0));
+            p.addParameter(Parameter.newEstimatedPositiveParameter("pC"));
+            p.addParameter(Parameter.newEstimatedPositiveParameter("pA"));
+            p.addParameter(Parameter.newEstimatedPositiveParameter("pG"));
+        }
+        catch (ParameterException ex)
+        {
+            throw new UnexpectedError(ex);
+        }
 
         return p;
     }

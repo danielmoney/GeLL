@@ -3,11 +3,12 @@ package Models;
 import Exceptions.UnexpectedError;
 import Parameters.Parameter;
 import Parameters.Parameters;
+import Parameters.Parameters.ParameterException;
 import java.util.HashMap;
 
 public class RYModelFactory
 {
-    public static Model RY(Parameters p)
+    public static Model RY(Parameters p) throws ParameterException
     {
         p.addParameters(RY_Parameters());
         return RY();
@@ -37,7 +38,7 @@ public class RYModelFactory
         }
     }
     
-    public static Model RY_Gamma(Parameters p, int numCats)
+    public static Model RY_Gamma(Parameters p, int numCats) throws ParameterException
     {
         p.addParameters(RY_Gamma_Parameters());
         return RY_Gamma(numCats);
@@ -70,15 +71,29 @@ public class RYModelFactory
     private static Parameters RY_Parameters()
     {
         Parameters p = new Parameters();
-        p.addParameter(Parameter.newFixedParameter("pR",1.0));
-        p.addParameter(Parameter.newEstimatedPositiveParameter("pY"));
+        try
+        {
+            p.addParameter(Parameter.newFixedParameter("pR",1.0));
+            p.addParameter(Parameter.newEstimatedPositiveParameter("pY"));
+        }
+        catch (ParameterException ex)
+        {
+            throw new UnexpectedError(ex);
+        }
         return p;
     }
     
     private static Parameters RY_Gamma_Parameters()
     {
         Parameters p = RY_Parameters();
-        p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        try
+        {
+            p.addParameter(Parameter.newEstimatedPositiveParameter("g"));
+        }
+        catch (ParameterException ex)
+        {
+            throw new UnexpectedError(ex);
+        }
         return p;
     }    
 }

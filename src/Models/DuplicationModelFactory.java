@@ -21,6 +21,7 @@ import Exceptions.UnexpectedError;
 import Models.RateCategory.RateException;
 import Parameters.Parameter;
 import Parameters.Parameters;
+import Parameters.Parameters.ParameterException;
 import java.util.HashMap;
 
 /**
@@ -45,7 +46,7 @@ public class DuplicationModelFactory
      * @param num The maximum family size
      * @return The model
      */
-    public static Model Parsimony(Parameters p, int num)
+    public static Model Parsimony(Parameters p, int num) throws ParameterException
     {
         return Parsimony(p,num,false);
     }
@@ -59,7 +60,7 @@ public class DuplicationModelFactory
      * or not one parameter should have a fixed value)
      * @return The model
      */
-    public static Model Parsimony(Parameters p, int num, boolean fixed)
+    public static Model Parsimony(Parameters p, int num, boolean fixed) throws ParameterException
     {
         String[][] matrix = new String[num+1][num+1];
         HashMap<String,Integer> map = new HashMap<>();
@@ -115,7 +116,7 @@ public class DuplicationModelFactory
      * @param numCats The number of gamma categories to use
      * @return The model
      */
-    public static Model Parsimony_Gamma(Parameters p, int num, int numCats)
+    public static Model Parsimony_Gamma(Parameters p, int num, int numCats) throws ParameterException
     {
         return Parsimony_Gamma(p,num,numCats,false);
     }
@@ -130,7 +131,7 @@ public class DuplicationModelFactory
      * or not one parameter should have a fixed value)
      * @return The model
      */
-    public static Model Parsimony_Gamma(Parameters p, int num, int numCats, boolean fixed)
+    public static Model Parsimony_Gamma(Parameters p, int num, int numCats, boolean fixed) throws ParameterException
     {
         String[][] matrix = new String[num+1][num+1];
         HashMap<String,Integer> map = new HashMap<>();
@@ -186,7 +187,7 @@ public class DuplicationModelFactory
      * @param num The maximum family size
      * @return The model
      */
-    public static Model BDI(Parameters p, int num)
+    public static Model BDI(Parameters p, int num)  throws ParameterException
     {
         return BDI(p,num,false);
     }
@@ -199,7 +200,7 @@ public class DuplicationModelFactory
      * or not one parameter should have a fixed value)
      * @return The model
      */
-    public static Model BDI(Parameters p, int num, boolean fixed)
+    public static Model BDI(Parameters p, int num, boolean fixed)  throws ParameterException
     {
         String[][] matrix = new String[num+1][num+1];
         HashMap<String,Integer> map = new HashMap<>();
@@ -269,7 +270,7 @@ public class DuplicationModelFactory
      * @param numCats The number of gamma categories to use
      * @return The model
      */
-    public static Model BDI_Gamma(Parameters p, int num, int numCats)
+    public static Model BDI_Gamma(Parameters p, int num, int numCats) throws ParameterException
     {
         return BDI_Gamma(p,num,numCats,false);
     }
@@ -284,7 +285,7 @@ public class DuplicationModelFactory
      * or not one parameter should have a fixed value)
      * @return The model
      */
-    public static Model BDI_Gamma(Parameters p, int num, int numCats, boolean fixed)
+    public static Model BDI_Gamma(Parameters p, int num, int numCats, boolean fixed) throws ParameterException
     {
         String[][] matrix = new String[num+1][num+1];
         HashMap<String,Integer> map = new HashMap<>();
@@ -354,7 +355,7 @@ public class DuplicationModelFactory
      * @param num The maximum family size
      * @return The model
      */
-    public static Model BD_NoZero(Parameters p, int num)
+    public static Model BD_NoZero(Parameters p, int num) throws ParameterException
     {
         return BD_NoZero(p,num,false);
     }
@@ -367,7 +368,7 @@ public class DuplicationModelFactory
      * or not one parameter should have a fixed value)
      * @return The model
      */    
-    public static Model BD_NoZero(Parameters p, int num, boolean fixed)
+    public static Model BD_NoZero(Parameters p, int num, boolean fixed) throws ParameterException
     {
         String[][] matrix = new String[num][num];
         HashMap<String,Integer> map = new HashMap<>();
@@ -427,7 +428,7 @@ public class DuplicationModelFactory
      * @param numCats The number of gamma categories to use
      * @return The model
      */    
-    public static Model BD_NoZero_Gamma(Parameters p, int num, int numCats)
+    public static Model BD_NoZero_Gamma(Parameters p, int num, int numCats) throws ParameterException
     {
         return BD_NoZero_Gamma(p,num,numCats,false);
     }
@@ -442,7 +443,7 @@ public class DuplicationModelFactory
      * or not one parameter should have a fixed value)
      * @return The model
      */ 
-    public static Model BD_NoZero_Gamma(Parameters p, int num, int numCats, boolean fixed)
+    public static Model BD_NoZero_Gamma(Parameters p, int num, int numCats, boolean fixed) throws ParameterException
     {
         String[][] matrix = new String[num][num];
         HashMap<String,Integer> map = new HashMap<>();
@@ -504,7 +505,7 @@ public class DuplicationModelFactory
      * or not one parameter should have a fixed value)
      * @return The model
      */
-    public static Model BDIE(Parameters p, int num, boolean fixed)
+    public static Model BDIE(Parameters p, int num, boolean fixed) throws ParameterException
     {
         String[][] matrix = new String[num+1][num+1];
         HashMap<String,Integer> map = new HashMap<>();
@@ -580,7 +581,7 @@ public class DuplicationModelFactory
      * @param numCats The number of gamma categories to use
      * @return The model
      */
-    public static Model BDIE_Gamma(Parameters p, int num, int numCats)
+    public static Model BDIE_Gamma(Parameters p, int num, int numCats) throws ParameterException
     {
         return BDI_Gamma(p,num,numCats,false);
     }
@@ -595,7 +596,7 @@ public class DuplicationModelFactory
      * or not one parameter should have a fixed value)
      * @return The model
      */
-    public static Model BDIE_Gamma(Parameters p, int num, int numCats, boolean fixed)
+    public static Model BDIE_Gamma(Parameters p, int num, int numCats, boolean fixed) throws ParameterException
     {
         String[][] matrix = new String[num+1][num+1];
         HashMap<String,Integer> map = new HashMap<>();

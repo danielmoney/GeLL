@@ -183,6 +183,7 @@ public class RateCategory implements Serializable
         
 	this.freqType = freqType;
         this.map = map;
+        this.scale = 1.0;
 	setNeeded();
     }
     
@@ -192,6 +193,7 @@ public class RateCategory implements Serializable
         this.freqType = freqType;
         this.freq = freq;
         this.map = map;
+        this.scale = 1.0;
         try
         {
             setNeeded();
@@ -342,6 +344,11 @@ public class RateCategory implements Serializable
      */
     void setScale(double scale)
     {
+        if (scale != this.scale)
+        {
+            cache = new HashMap<>();
+        }
+        this.scale = scale;
 	sm = m.scalarMultiply(scale);
     }
 
@@ -652,6 +659,7 @@ public class RateCategory implements Serializable
     private CompiledFunction[][] rates;
     private Map<String, Integer> map;
     private FrequencyType freqType;
+    private double scale;
     private static MathsParse mp = new MathsParse();    
     private String name = null;
     

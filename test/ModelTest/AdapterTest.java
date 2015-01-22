@@ -6,6 +6,7 @@ import Alignments.PhylipAlignment;
 import Likelihood.Calculator;
 import Likelihood.Likelihood;
 import Likelihood.StandardCalculator;
+import Likelihood.StandardLikelihood;
 import Models.Model;
 import Models.RYModelFactory;
 import Optimizers.GoldenSection;
@@ -58,7 +59,7 @@ public class AdapterTest
         Parameters p = t.getParametersForEstimation();
         Model ry = RYModelFactory.RY(p);
         
-        Calculator c = new StandardCalculator(ry,ra,t);
+        Calculator<StandardLikelihood> c = new StandardCalculator(ry,ra,t);
         
         Optimizer o = new GoldenSection();
         

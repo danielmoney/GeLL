@@ -1,6 +1,7 @@
 package ModelTest;
 
 import Alignments.Alignment;
+import Alignments.AlignmentException;
 import Exceptions.GeneralException;
 import Likelihood.StandardCalculator;
 import Likelihood.StandardLikelihood;
@@ -9,6 +10,8 @@ import Optimizers.Optimizer;
 import Parameters.Parameters;
 import Simulations.Simulate;
 import Trees.Tree;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,10 +31,40 @@ public class HypothesisTest
     public HypothesisTest(Model nullModel, Model altModel, 
             Optimizer o, int reps)
     {
+        this.nullModel = new HashMap<>();
+        this.nullModel.put(null,nullModel);
+        this.altModel = new HashMap<>(); 
+        this.altModel.put(null,altModel);
+        this.o = o;
+        this.reps = reps;
+    }
+    
+    public HypothesisTest(Map<String,Model> nullModel, Map<String,Model> altModel, 
+            Optimizer o, int reps)
+    {
         this.nullModel = nullModel;
         this.altModel = altModel;
         this.o = o;
         this.reps = reps;
+    }
+
+    public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams)
+            throws GeneralException
+    {
+        return test(t,a,unobserved,nullParams,altParams,null);
+    }
+
+    
+    public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams,
+            Map<String,String> recode)
+            throws GeneralException
+    {
+        Map<String,Tree> tm = new HashMap<>();
+        for (String s: nullModel.keySet())
+        {
+            tm.put(s,t);
+        }
+        return test(tm,a,unobserved,nullParams,altParams,null);
     }
     
     /**
@@ -44,7 +77,7 @@ public class HypothesisTest
      * @return A p-value
      * @throws GeneralException When there is a problem performing the hypothesis test
      */
-    public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams)
+    public double test(Map<String,Tree> t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams)
             throws GeneralException
     {
         return test(t,a,unobserved,nullParams,altParams,null);
@@ -52,7 +85,6 @@ public class HypothesisTest
     
     /**
      * Does a hypothesis test on the given data and gives a p-value
-     * @param t The tree
      * @param a The alignment
      * @param unobserved Any unobserved states
      * @param nullParams The parameters of the null model
@@ -62,10 +94,17 @@ public class HypothesisTest
      * @return A p-value
      * @throws GeneralException When there is a problem performing the hypothesis test
      */
-    public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams,
+    public double test(Map<String,Tree> t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams,
             Map<String,String> recode)
             throws GeneralException
     {
+        for (String c: t.keySet())
+        {
+            if (!altModel.containsKey(c))
+            {
+                throw new AlignmentException("Alignment contains class for which no tree is provided");
+            }    
+        }
         //Calculate the difference in likelihood between the two models for the given alignment
         StandardCalculator nullCalc = new StandardCalculator(nullModel, a, t, unobserved);
         StandardCalculator altCalc = new StandardCalculator(altModel, a, t, unobserved);
@@ -74,7 +113,7 @@ public class HypothesisTest
         double diff = altL.getLikelihood() - nullL.getLikelihood();
         
         //Get the null distribution
-        double[] dist = getDistribution(t,a.getLength(),unobserved,nullL.getParameters(),
+        double[] dist = getDistribution(t,a.getSiteClasses(),unobserved,nullL.getParameters(),
                 nullParams,altParams,recode);
         
         //Calculate and return the percentage point for our data
@@ -90,7 +129,7 @@ public class HypothesisTest
         return (double) c / (double) reps;
     }
     
-    private double[] getDistribution(Tree t, int alignLength, Alignment missing,
+    private double[] getDistribution(Map<String,Tree> t, List<String> siteClasses, Alignment missing,
             Parameters simParams, Parameters nullParams, Parameters altParams,
             Map<String,String> rec) 
             throws GeneralException
@@ -105,7 +144,7 @@ public class HypothesisTest
         for (int i=0; i < reps; i++)
         {
             //Simulate an alignment
-            Alignment a = s.getAlignment(alignLength, rec);
+            Alignment a = s.getAlignment(siteClasses, rec);
             
             //Then calculate and store the likelihood difference between the two models
             StandardCalculator nullCalc = new StandardCalculator(nullModel, a, t, missing);
@@ -120,8 +159,9 @@ public class HypothesisTest
         return dist;
     }
     
-    private Model nullModel;
-    private Model altModel;
+    private Map<String,Model> nullModel;
+    private Map<String,Model> altModel;
     private Optimizer o;
     private int reps;
+    //private boolean singleClass;
 }

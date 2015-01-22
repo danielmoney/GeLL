@@ -83,7 +83,7 @@ public class EmpericalAdapter implements Adapter
             double sp = 1.0;
             for (String t: distinct.getTaxa())
             {
-                Set<String> mappedTo = new HashSet();
+                Set<String> mappedTo = new HashSet<>();
                 double top = 0.0;
                 for (String c: s.getCharacter(t))
                 {

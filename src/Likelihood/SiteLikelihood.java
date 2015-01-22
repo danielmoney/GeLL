@@ -220,7 +220,7 @@ public class SiteLikelihood implements Serializable
     }
 
     /**
-     * Stores the results of a likelihood claculation for a single node in a tree.
+     * Stores the results of a likelihood calculation for a single node in a tree.
      * That is the partial likelihoods for each possible state.
      * @author Daniel Money
      * @version 2.0
