@@ -1,20 +1,42 @@
+/*
+ * This file is part of GeLL.
+ * 
+ * GeLL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GeLL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GeLL.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package ModelTest;
 
 import Alignments.Alignment;
-import Alignments.AlignmentException;
 import Alignments.Site;
-import Exceptions.UnexpectedError;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+/**
+ * The equal adapter.  See Whelan et al 2015 for more
+ * @author Daniel Money
+ * @version 2.0
+ */
 public class EqualAdapter implements Adapter
 {
-    //Codon: Distinct, AA: Compound
-    //Codon: Distinct, Nucelotide: Compound
    
+    /**
+     * Creates an instance
+     * @param mapping Map from compound state to distinct state
+     */
     public EqualAdapter(Map<String,String> mapping)
     {
         this.mapping = mapping;

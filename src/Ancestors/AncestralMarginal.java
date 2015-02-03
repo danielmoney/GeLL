@@ -65,7 +65,16 @@ public class AncestralMarginal
         this.t = new HashMap<>();
         this.t.put(null,t);
     }
-    
+
+    /**
+     * Creates an object to calculate an ancestral reconstruction for a given
+     * model, alignment and tree
+     * @param m The model
+     * @param a The alignment
+     * @param t Map from site class to tree
+     * @throws AlignmentException Thrown if a tree isn't given
+     * for each site class in the alignment  
+     */
     public AncestralMarginal(Model m, Alignment a, Map<String,Tree> t) throws AlignmentException
     {
 	this.a = a;
@@ -105,7 +114,17 @@ public class AncestralMarginal
             throw new AlignmentException("Alignment contains classes for which no model has been defined");
         }
     }
-    
+
+    /**
+     * Creates an object to calculate an ancestral reconstruction for a given
+     * set of models, an alignment and a tree.  There should be one model
+     * per site class in the alignment
+     * @param m Map from site class to model
+     * @param a The alignment
+     * @param t Map from site class to tree
+     * @throws AlignmentException Thrown if a model or tree isn't given
+     * for each site class in the alignment  
+     */
     public AncestralMarginal(Map<String,Model> m, Alignment a, Map<String,Tree> t) throws AlignmentException
     {
         this.a = a;

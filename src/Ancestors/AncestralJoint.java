@@ -115,6 +115,18 @@ public abstract class AncestralJoint
         }
     }
     
+    /**
+     * Returns an object of this class that can be used for joint reconstruction.
+     * If the model has a single rate category it returns an object that will do
+     * reconstruction using the dynamic programming method of Pupko 2000, else
+     * an object that will use the branch and bound method of Pupko 2002.      
+     * @param a The alignment
+     * @param m The model
+     * @param t Map from site class to tree
+     * @return An object that can be used for reconstruction
+     * @throws AlignmentException Thrown if a tree isn't given
+     * for each site class in the alignment  
+     */
     public static AncestralJoint newInstance(Model m, Alignment a, Map<String,Tree> t) throws AlignmentException
     {
         //First try Dynamic Programming method
@@ -129,7 +141,20 @@ public abstract class AncestralJoint
             return new AncestralJointBB(m,a,t);
         }
     }
-        
+
+    /**
+     * Returns an object of this class that can be used for joint reconstruction.
+     * Sites can belong to different classes and so use different models.
+     * If all models have a single rate category it returns an object that will do
+     * reconstruction using the dynamic programming method of Pupko 2000, else
+     * an object that will use the branch and bound method of Pupoko 2002. 
+     * @param a The alignment
+     * @param m Map from site class to model
+     * @param t Map from site class to tree
+     * @return An object that can be used for reconstruction
+     * @throws AlignmentException Thrown if a model or tree isn't given
+     * for each site class in the alignment  
+     */
     public static AncestralJoint newInstance(Map<String,Model> m, Alignment a, Map<String,Tree> t) throws AlignmentException
     {
         //First try Dynamic Programming method

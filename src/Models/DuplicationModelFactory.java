@@ -45,6 +45,8 @@ public class DuplicationModelFactory
      * are to be estimated.
      * @param num The maximum family size
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model Parsimony(Parameters p, int num) throws ParameterException
     {
@@ -59,6 +61,8 @@ public class DuplicationModelFactory
      * @param fixed Whether fixed branch lengths are being used (and so whether
      * or not one parameter should have a fixed value)
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model Parsimony(Parameters p, int num, boolean fixed) throws ParameterException
     {
@@ -115,6 +119,8 @@ public class DuplicationModelFactory
      * @param num The maximum family size
      * @param numCats The number of gamma categories to use
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model Parsimony_Gamma(Parameters p, int num, int numCats) throws ParameterException
     {
@@ -130,6 +136,8 @@ public class DuplicationModelFactory
      * @param fixed Whether fixed branch lengths are being used (and so whether
      * or not one parameter should have a fixed value)
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model Parsimony_Gamma(Parameters p, int num, int numCats, boolean fixed) throws ParameterException
     {
@@ -186,6 +194,8 @@ public class DuplicationModelFactory
      * @param p Parameters structure to add the model parameters to
      * @param num The maximum family size
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model BDI(Parameters p, int num)  throws ParameterException
     {
@@ -199,6 +209,8 @@ public class DuplicationModelFactory
      * @param fixed Whether fixed branch lengths are being used (and so whether
      * or not one parameter should have a fixed value)
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model BDI(Parameters p, int num, boolean fixed)  throws ParameterException
     {
@@ -269,6 +281,8 @@ public class DuplicationModelFactory
      * @param num The maximum family size
      * @param numCats The number of gamma categories to use
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model BDI_Gamma(Parameters p, int num, int numCats) throws ParameterException
     {
@@ -284,6 +298,8 @@ public class DuplicationModelFactory
      * @param fixed Whether fixed branch lengths are being used (and so whether
      * or not one parameter should have a fixed value)
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model BDI_Gamma(Parameters p, int num, int numCats, boolean fixed) throws ParameterException
     {
@@ -354,6 +370,8 @@ public class DuplicationModelFactory
      * @param p Parameters structure to add the model parameters to
      * @param num The maximum family size
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model BD_NoZero(Parameters p, int num) throws ParameterException
     {
@@ -367,6 +385,8 @@ public class DuplicationModelFactory
      * @param fixed Whether fixed branch lengths are being used (and so whether
      * or not one parameter should have a fixed value)
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */    
     public static Model BD_NoZero(Parameters p, int num, boolean fixed) throws ParameterException
     {
@@ -427,6 +447,8 @@ public class DuplicationModelFactory
      * @param num The maximum family size
      * @param numCats The number of gamma categories to use
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */    
     public static Model BD_NoZero_Gamma(Parameters p, int num, int numCats) throws ParameterException
     {
@@ -442,6 +464,8 @@ public class DuplicationModelFactory
      * @param fixed Whether fixed branch lengths are being used (and so whether
      * or not one parameter should have a fixed value)
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */ 
     public static Model BD_NoZero_Gamma(Parameters p, int num, int numCats, boolean fixed) throws ParameterException
     {
@@ -504,6 +528,8 @@ public class DuplicationModelFactory
      * @param fixed Whether fixed branch lengths are being used (and so whether
      * or not one parameter should have a fixed value)
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model BDIE(Parameters p, int num, boolean fixed) throws ParameterException
     {
@@ -580,6 +606,8 @@ public class DuplicationModelFactory
      * @param num The maximum family size
      * @param numCats The number of gamma categories to use
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model BDIE_Gamma(Parameters p, int num, int numCats) throws ParameterException
     {
@@ -595,6 +623,8 @@ public class DuplicationModelFactory
      * @param fixed Whether fixed branch lengths are being used (and so whether
      * or not one parameter should have a fixed value)
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model BDIE_Gamma(Parameters p, int num, int numCats, boolean fixed) throws ParameterException
     {

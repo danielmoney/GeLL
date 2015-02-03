@@ -10,17 +10,29 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-public class EmpericalAdapter implements Adapter
+/**
+ * The empirical adapter.  See Whelan et al 2015 for more
+ * @author Daniel Money
+ * @version 2.0
+ */
+public class EmpiricalAdapter implements Adapter
 {
-    public EmpericalAdapter(Map<String,String> mapping)
+    /**
+     * Creates an instance
+     * @param mapping Map from compound state to distinct state
+     */
+    public EmpiricalAdapter(Map<String,String> mapping)
     {
         this(mapping, new HashSet<String>());
     }
-        
-    //Codon: Distinct, AA: Compound
-    //Codon: Distinct, Nucelotide: Compound
-   
-    public EmpericalAdapter(Map<String,String> mapping, Set<String> ignore)
+
+    /**
+     * Creates an instance including a set of states to ignore in the calculation
+     * (such as the gap state)
+     * @param mapping Map from compound state to distinct state
+     * @param ignore States to ignore
+     */   
+    public EmpiricalAdapter(Map<String,String> mapping, Set<String> ignore)
     {
         this.mapping = mapping;
         this.ignore = ignore;

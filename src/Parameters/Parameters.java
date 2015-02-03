@@ -53,6 +53,8 @@ public class Parameters implements Iterable<Parameter>, Serializable
     /**
      * Creates a set of parameters containing the given parameters
      * @param params A list of parameters
+     * @throws Parameters.Parameters.ParameterException If there is already a
+     * parameter with the same name as one to be added.
      */
     public Parameters(List<Parameter> params) throws ParameterException
     {
@@ -83,6 +85,8 @@ public class Parameters implements Iterable<Parameter>, Serializable
     /**
      * Add a parameter
      * @param p The parameter
+     * @throws Parameters.Parameters.ParameterException If there is already a
+     * parameter with that name.
      */
     public final void addParameter(Parameter p) throws ParameterException
     {
@@ -97,6 +101,8 @@ public class Parameters implements Iterable<Parameter>, Serializable
     /**
      * Adds the parameters from another set of parameters
      * @param pp The other set of parameters
+     * @throws Parameters.Parameters.ParameterException If there is already a
+     * parameter with the same name as one to be added.
      */
     public void addParameters(Parameters pp) throws ParameterException
     {
@@ -287,6 +293,8 @@ public class Parameters implements Iterable<Parameter>, Serializable
      * @param f The input file
      * @return A Parameters instance
      * @throws InputException If there is an input error
+     * @throws Parameters.Parameters.ParameterException If the file contains
+     * two parameters with the same name.
      */
     public static Parameters fromFile(File f) throws InputException, ParameterException
     {

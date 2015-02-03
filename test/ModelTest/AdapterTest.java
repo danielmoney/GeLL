@@ -1,3 +1,20 @@
+/*
+ * This file is part of GeLL.
+ * 
+ * GeLL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GeLL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GeLL.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package ModelTest;
 
 import Alignments.Alignment;
@@ -21,8 +38,20 @@ import java.util.Set;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ * Test whether the adapters are working correctly by comparing to MOdelOMatic
+ * (empirical adapter) or the naively calculated likelihood (equal adapter).
+ * See Whelan et al 2015 for more on adapters
+ * @author Daniel Money
+ * @version 2.0
+ */
 public class AdapterTest
 {
+
+    /**
+     * Tests the adapters
+     * @throws Exception If something went wrong
+     */
     @Test
     public void adapterTest() throws Exception
     {
@@ -67,7 +96,7 @@ public class AdapterTest
         
         Set<String> ignore = new HashSet<>();
         ignore.add("-");
-        Adapter ema = new EmpericalAdapter(recode,ignore);        
+        Adapter ema = new EmpiricalAdapter(recode,ignore);        
         double emla = ema.likelihood(a);
         
         Adapter eqa = new EqualAdapter(recode);        

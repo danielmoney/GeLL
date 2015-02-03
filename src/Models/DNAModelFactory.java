@@ -109,6 +109,8 @@ public class DNAModelFactory
      * @param p Parameters structure to add the model parameters to 
      * @param numCats The number of gamma categories to use
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model JukesCantor_Gamma(Parameters p, int numCats) throws ParameterException
     {
@@ -173,6 +175,8 @@ public class DNAModelFactory
      * Creates an instance of a Kimura 2-paramter model
      * @param p Parameters structure to add the model parameters to 
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model Kimura(Parameters p) throws ParameterException
     {
@@ -218,6 +222,8 @@ public class DNAModelFactory
      * @param p Parameters structure to add the model parameters to 
      * @param numCats The number of gamma categories to use
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model Kimura_Gamma(Parameters p, int numCats) throws ParameterException
     {
@@ -291,6 +297,8 @@ public class DNAModelFactory
      * Creates an instance of a Felsenstein 81 model
      * @param p Parameters structure to add the model parameters to 
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model Felsenstein81(Parameters p) throws ParameterException
     {
@@ -336,6 +344,8 @@ public class DNAModelFactory
      * @param p Parameters structure to add the model parameters to 
      * @param numCats The number of gamma categories to use
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model Felsenstein81_Gamma(Parameters p, int numCats) throws ParameterException
     {
@@ -412,6 +422,8 @@ public class DNAModelFactory
      * Creates an instance of a HKY model
      * @param p Parameters structure to add the model parameters to 
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model HKY(Parameters p) throws ParameterException
     {
@@ -457,6 +469,8 @@ public class DNAModelFactory
      * @param p Parameters structure to add the model parameters to 
      * @param numCats The number of gamma categories to use
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model HKY_Gamma(Parameters p, int numCats) throws ParameterException
     {
@@ -535,6 +549,8 @@ public class DNAModelFactory
      * Creates an instance of a General Time Reversible model
      * @param p Parameters structure to add the model parameters to 
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model GTR(Parameters p) throws ParameterException
     {
@@ -580,6 +596,8 @@ public class DNAModelFactory
      * @param p Parameters structure to add the model parameters to 
      * @param numCats The number of gamma categories to use
      * @return The model
+     * @throws Parameters.Parameters.ParameterException Thrown if the name of one
+     * of the parameters to be added by this method is already in use.
      */
     public static Model GTR_Gamma(Parameters p, int numCats) throws ParameterException
     {

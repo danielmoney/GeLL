@@ -550,6 +550,8 @@ public class RateCategory implements Serializable
      * @param mult Value to be multiplied (as a string as it will be evaluated as
      * a equation)
      * @return The new RateClass
+     * @throws Models.RateCategory.RateException If the equation to multiply the
+     * rates by is invalid.
      */
     public RateCategory multiplyBy(String mult) throws RateException
     {
@@ -769,6 +771,10 @@ public class RateCategory implements Serializable
 		{
 		    freqType = FrequencyType.STATIONARY;
 		}
+                if (line.equals("**F"))
+                {
+                    freqType = FrequencyType.FITZJOHN;
+                }
 	    }
 	    else
 	    {

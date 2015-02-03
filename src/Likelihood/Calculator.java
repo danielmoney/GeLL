@@ -143,6 +143,8 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
      * quicker to clone them for each calculation than re-create them
      * @return An instance of {@link SiteLikelihood} given the likelihood and
      * any other information
+     * @throws Parameters.Parameters.ParameterException Thrown if there is a
+     * problem with a passed parameter
      */
     public abstract SiteLikelihood calculateSite(Site s, Tree t, Parameters p, Probabilities tp, Map<String,NodeLikelihood> nl) throws ParameterException;
     
@@ -231,6 +233,10 @@ public abstract class Calculator<R extends Likelihood> implements Optimizable<R>
         this.thread = thread;
     }
     
+    /**
+     * Get the length of the alignment the calculator is using
+     * @return The length of the alignment
+     */
     public abstract int getAlignmentLength();
 
     /**

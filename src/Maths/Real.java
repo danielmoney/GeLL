@@ -116,5 +116,39 @@ public interface Real
      * Returns this real as a SmallDouble
      * @return This Real as a SmallDouble
      */
-    public SmallDouble toSmallDouble();    
+    public SmallDouble toSmallDouble(); 
+    
+    /**
+     * Adds a Real to this Real in place.  I.e. it does not return a new object,
+     * instead the current object is modified.  Useful to stop more objects
+     * being allocated but should be used carefully.
+     * @param o The real to add.
+     */
+    public void addip(Real o);
+    
+    /**
+     * Adds the product of a Real and a double to this Real in place.  
+     * I.e. it does not return a new object, instead the current object is 
+     * modified.  Useful to stop more objects being allocated but should be used 
+     * carefully.
+     * @param o1 The real to be be used in the product.
+     * @param o2 The double to be used in the product.
+     */
+    public void addproductip(Real o1, double o2);
+    
+    /**
+     * Multiplies this Real by another Real in place.  I.e. it does not return
+     * a new object, instead the current object is modified.  Useful to stop
+     * more objects being allocated but should be used carefully.
+     * @param o The real to multiply by.
+     */
+    public void multiplyip(Real o);
+    
+    /**
+     * Multiplies this Real by a double in place.  I.e. it does not return
+     * a new object, instead the current object is modified.  Useful to stop
+     * more objects being allocated but should be used carefully.
+     * @param o The double to multiply by.
+     */
+    public void multiplyip(double o);
 }

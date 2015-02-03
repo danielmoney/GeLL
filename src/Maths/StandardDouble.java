@@ -128,6 +128,26 @@ public class StandardDouble implements Serializable, Real
         return new SmallDouble(d);
     }
     
+    public void addip(Real o)
+    {
+        d += o.toDouble();
+    }
+    
+    public void multiplyip(Real o)
+    {
+        d = d * o.toDouble();
+    }
+    
+    public void multiplyip(double o)
+    {
+        d = d * o;
+    }
+    
+    public void addproductip(Real o1, double o2)
+    {
+        d += (o1.toDouble() * o2);
+    }
+    
     public String toString()
     {
         return Double.toString(d);

@@ -329,12 +329,12 @@ public class Model implements Iterable<RateCategory>
      * <li>Second line should contain a file path to the RateCategory file that
      * describes the basic model.</li>
      * </ul></li>
-     * <li><i>Equally likely rate categories
+     * <li><i>Equally likely rate categories</i>
      * <ul>
      * <li>First line should contain "**E" (without the quotes)</li>
      * <li>Subsequent lines should each contain a file path to a RateCategory file
      * </ul></li>
-     * <li><i>Given frequency rate categories
+     * <li><i>Given frequency rate categories</i>
      * <ul>
      * <li>First line should contain "**F" (without the quotes)</li>
      * <li>Subsequent lines should each contain an equation describing the frequency

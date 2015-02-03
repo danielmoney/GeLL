@@ -316,6 +316,12 @@ public class Alignment implements Iterable<Site>
         }
     }
     
+    /**
+     * Returns a list of site classes in the same order as the sites in the
+     * alignment.  Used in confidence testing to simulate an alignment similar
+     * to this one.
+     * @return List of site classes
+     */
     public List<String> getSiteClasses()
     {
         List<String> classes = new ArrayList<>(data.size());

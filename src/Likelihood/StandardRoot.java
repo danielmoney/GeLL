@@ -42,7 +42,8 @@ public class StandardRoot implements Root
                 }
                 else
                 {
-                    total = total.add(root.getLikelihood(e.getKey()).multiply(freq[e.getValue()]));
+                    //total = total.add(root.getLikelihood(e.getKey()).multiply(freq[e.getValue()]));
+                    total.addip(root.getLikelihood(e.getKey()).multiply(freq[e.getValue()]));
                 }
             }
             catch (LikelihoodException ex)

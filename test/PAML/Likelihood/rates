@@ -1,9 +1,9 @@
 
 Estimated rates for sites from BASEML.
-(((Human: 0.057986, Chimpanzee: 0.074612): 0.035490, Gorilla: 0.074352): 0.131393, Orangutan: 0.350152, Gibbon: 0.544599);
+(((Human: 0.057986, Chimpanzee: 0.074612): 0.035489, Gorilla: 0.074352): 0.131391, Orangutan: 0.350150, Gibbon: 0.544594);
 
 Frequencies and rates for categories (K=4)
-rate:  0.00041  0.02956  0.36379  3.60625
+rate:  0.00041  0.02956  0.36379  3.60624
 freq:  0.25000  0.25000  0.25000  0.25000
 
    Site  Freq   Data    Rate (posterior mean & category)

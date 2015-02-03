@@ -84,7 +84,7 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
  
     /**
      * Creates a class to calculate the likelihood for a given set of models, an alignment,
-     * and a tree.  There should be one model per site class in the alignment
+     * and a tree.  There should be one model and tree per site class in the alignment
      * @param m Map from site class to model
      * @param a The alignment
      * @param t Map from site class to tree
@@ -98,22 +98,72 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
     {
         this(m,a,t,null);
     }
-    
+
+    /**
+     * Creates a class to calculate the likelihood for a given set of models, an alignment,
+     * and a tree.  There should be one model per site class in the alignment
+     * @param m Map from site class to model
+     * @param a The alignment
+     * @param t The tree
+     * @throws AlignmentException Thrown if a model isn't given for each site class
+     * in the alignment
+     * @throws TreeException If there is a problem with the tree
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initialised to every state having zero probability
+     *      (most probably due to the state at the node not being in the model). 
+     */
     public StandardCalculator(Map<String,Model> m, Alignment a, Tree t) throws AlignmentException, TreeException, LikelihoodException
     {
         this(m,a,makeTreeMap(t,m.keySet()),null);
     }
-    
+
+    /**
+     * Creates a class to calculate the likelihood for a given set of models, an alignment,
+     * and a tree.  There should be one tree per site class in the alignment
+     * @param m The model
+     * @param a The alignment
+     * @param t Map from site class to tree
+     * @param unobserved Unobserved data given as another alignment
+     * @throws AlignmentException Thrown if a model isn't given for each site class
+     * in the alignment
+     * @throws TreeException If there is a problem with the tree
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initialised to every state having zero probability
+     *      (most probably due to the state at the node not being in the model). 
+     */
     public StandardCalculator(Map<String,Model> m, Alignment a, Tree t, Alignment unobserved) throws AlignmentException, TreeException, LikelihoodException
     {
         this(m,a,makeTreeMap(t,m.keySet()),unobserved);
     }
-    
+
+    /**
+     * Creates a class to calculate the likelihood for a given set of models, an alignment,
+     * and a tree.  There should be one tree per site class in the alignment
+     * @param m The model
+     * @param a The alignment
+     * @param t Map from site class to tree
+     * @throws AlignmentException Thrown if a model isn't given for each site class
+     * in the alignment
+     * @throws TreeException If there is a problem with the tree
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initialised to every state having zero probability
+     *      (most probably due to the state at the node not being in the model). 
+     */
     public StandardCalculator(Model m, Alignment a, Map<String,Tree> t) throws AlignmentException, TreeException, LikelihoodException
     {
         this(makeModelMap(m,t.keySet()),a,t,null);
     }
-    
+
+    /**
+     * Creates a class to calculate the likelihood for a given set of models, an alignment,
+     * and a tree.  There should be one tree per site class in the alignment
+     * @param m The model
+     * @param a The alignment
+     * @param t Map from site class to tree
+     * @param unobserved Unobserved data given as another alignment
+     * @throws AlignmentException Thrown if a model isn't given for each site class
+     * in the alignment
+     * @throws TreeException If there is a problem with the tree
+     * @throws Likelihood.SiteLikelihood.LikelihoodException Thrown if a node is initialised to every state having zero probability
+     *      (most probably due to the state at the node not being in the model). 
+     */
     public StandardCalculator(Model m, Alignment a, Map<String,Tree> t, Alignment unobserved) throws AlignmentException, TreeException, LikelihoodException
     {
         this(makeModelMap(m,t.keySet()),a,t,unobserved);
@@ -261,7 +311,9 @@ public class StandardCalculator extends Calculator<StandardLikelihood>
                         {
                             //Add the likelihood of going from start state to
                             //end state along that branch in that ratecategory
-                            l = l.add(n[j].multiply(bp.getPosition(tp.getMap().get(endState), j)));
+                            //l = l.add(n[j].multiply(bp.getPosition(tp.getMap().get(endState), j)));
+                            //l.addip(n[j].multiply(bp.getPosition(tp.getMap().get(endState), j)));
+                            l.addproductip(n[j],bp.getPosition(tp.getMap().get(endState), j));
                         }
                         //Now multiply the likelihood of the parent by this total value.
                         //This will happen for each possible child as per standard techniques

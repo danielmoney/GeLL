@@ -74,120 +74,134 @@ public class GeLL
      */
     public static void main(String[] args)
     {
-	String debugFile = null;
-	try
-	{
-	    // SETTINGS
-	    PossibleSettings ps = getPossibleSettings();
-	    SetSettings ss = getSetSettings(args);
-	    Settings settings = new Settings(ps,ss);
+        //Provide a simple usage statement if no arguements are provided
+        if (args.length == 0)
+        {
+            System.out.println("Usage:");
+            System.out.println("\tjava -jar Gell.jar FILE [settings]");
+            System.out.println();
+            System.out.println("FILE is the name of the settings file.  See"
+                    + "the documenation for the format of this file.  Settings"
+                    + "is optional parameter.  See the documentation for more"
+                    + "details on these.");            
+        }
+        else
+        {
+            String debugFile = null;
+            try
+            {
+                // SETTINGS
+                PossibleSettings ps = getPossibleSettings();
+                SetSettings ss = getSetSettings(args);
+                Settings settings = new Settings(ps,ss);
 
-	    // CONTROL
-            setDebugLevel(settings.getSetting("Control", "DebugLevel"));
-	    debugFile = settings.getSetting("Control", "DebugFile");
-            
-            setMatrixExpMethod(settings.getSetting("Control", "MatrixExponentation"));
-            setMatrixForceSquare(settings.getSetting("Control", "ForceSquare"));
-            setDistributionMethod(settings.getSetting("Control", "Distributions"));
-            
-	    Alignment a = null;
-	    Tree t = null;
-	    Map<String,Model> m = null;
-	    Parameters p = null;
-	    Alignment missing = null;
+                // CONTROL
+                setDebugLevel(settings.getSetting("Control", "DebugLevel"));
+                debugFile = settings.getSetting("Control", "DebugFile");
 
-            // LIKELIHOOD
-	    if (settings.hasGroup("Likelihood"))
-	    {
-                a = getAlignment(settings.getSetting("Likelihood", "AlignmentType"),
-                        settings.getSetting("Likelihood", "Alignment"),
-                        settings.getSetting("Likelihood","Ambig"));
-                
-                if (settings.getSetting("Likelihood", "Missing") != null)
+                setMatrixExpMethod(settings.getSetting("Control", "MatrixExponentation"));
+                setMatrixForceSquare(settings.getSetting("Control", "ForceSquare"));
+                setDistributionMethod(settings.getSetting("Control", "Distributions"));
+
+                Alignment a = null;
+                Tree t = null;
+                Map<String,Model> m = null;
+                Parameters p = null;
+                Alignment missing = null;
+
+                // LIKELIHOOD
+                if (settings.hasGroup("Likelihood"))
                 {
-                    missing = getAlignment(settings.getSetting("Likelihood", "AlignmentType"),
-                            settings.getSetting("Likelihood", "Missing"),
-                            settings.getSetting("Likelihood","MissingAmbig"));
+                    a = getAlignment(settings.getSetting("Likelihood", "AlignmentType"),
+                            settings.getSetting("Likelihood", "Alignment"),
+                            settings.getSetting("Likelihood","Ambig"));
+
+                    if (settings.getSetting("Likelihood", "Missing") != null)
+                    {
+                        missing = getAlignment(settings.getSetting("Likelihood", "AlignmentType"),
+                                settings.getSetting("Likelihood", "Missing"),
+                                settings.getSetting("Likelihood","MissingAmbig"));
+                    }
+
+                    t = Tree.fromFile(new File(settings.getSetting("Likelihood", "TreeInput")));
+
+                    m = getModels(new File(settings.getSetting("Likelihood", "Model")));
+
+                    p = getParameters(settings.getSetting("Likelihood","ParameterInput"), t);
+
+                    StandardCalculator c = new StandardCalculator(m,a,t,missing);
+
+                    Optimizer o = getOptimizer(settings.getSetting("Likelihood", "Optimizer"));
+                    o.setCheckPointFile(new File(settings.getSetting("Likelihood", "Checkpoint")));
+                    o.setCheckPointFrequency(getCheckpointFreq(settings.getSetting("Likelihood", "Checkpoint")),
+                            TimeUnit.MINUTES);
+
+                    StandardLikelihood like = getLikelihoodResult(settings.getSetting("Likelihood","Restart"),o,c,p);
+
+                    //Update p to be the optimized value
+                    p = like.getParameters();
+                    t = new Tree(t,p);
+
+                    outputLikelihoodResults(settings.getSetting("Likelihood", "ParameterOutput"),
+                            settings.getSetting("Likelihood", "TreeOutput"),p,like.getLikelihood(),t);
                 }
 
-		t = Tree.fromFile(new File(settings.getSetting("Likelihood", "TreeInput")));
-
-		m = getModels(new File(settings.getSetting("Likelihood", "Model")));
-
-                p = getParameters(settings.getSetting("Likelihood","ParameterInput"), t);
-
-		StandardCalculator c = new StandardCalculator(m,a,t,missing);
-
-		Optimizer o = getOptimizer(settings.getSetting("Likelihood", "Optimizer"));
-                o.setCheckPointFile(new File(settings.getSetting("Likelihood", "Checkpoint")));
-                o.setCheckPointFrequency(getCheckpointFreq(settings.getSetting("Likelihood", "Checkpoint")),
-                        TimeUnit.MINUTES);
-
-		StandardLikelihood like = getLikelihoodResult(settings.getSetting("Likelihood","Restart"),o,c,p);
-                
-                //Update p to be the optimized value
-                p = like.getParameters();
-                t = new Tree(t,p);
-                
-                outputLikelihoodResults(settings.getSetting("Likelihood", "ParameterOutput"),
-                        settings.getSetting("Likelihood", "TreeOutput"),p,like.getLikelihood(),t);
-	    }
-	    
-	    //ANCESTRAL
-	    if (settings.hasGroup("Ancestral"))
-	    {
-                //All these sort of calls will ensure either the likelihood settings or
-                //the specific settings are used.  If both or neither are set an exception is thrown
-		Tree at = getTree(settings.getSetting("Ancestral", "Tree"), t);
-
-		Alignment aa = getAlignment(settings.getSetting("Ancestral", "AlignmentType"),
-                        settings.getSetting("Ancestral", "Alignment"), a);
-
-		Map<String,Model> am = getModel(settings.getSetting("Ancestral", "Model"),m);
-
-                Parameters ap = getParameters(settings.getSetting("Ancestral","Parameters"),p,at);
-		
-                Alignment anc = getAncestral(settings.getSetting("Ancestral", "Type"),am,aa,at,ap);
-                
-                String alignmentType = getAlignmentType(settings.getSetting("Ancestral", "AlignmentType"),
-                        settings.getSetting("Likelihood", "AlignmentType"));
-                outputAlignment(settings.getSetting("Ancestral", "Output"),
-                        alignmentType, anc);
-	    }
-            
-	    //SIMULATION
-	    if (settings.hasGroup("Simulation"))
-	    {
-		Tree st = getTree(settings.getSetting("Simulation", "Tree"), t);
-
-		Map<String,Model> sm = getModel(settings.getSetting("Simulation", "Model"),m);
-
-                Parameters sp = getParameters(settings.getSetting("Simulation","Parameters"),p,st);
-                
-                Alignment smissing = null;
-                if (!((missing == null) && settings.getSetting("Simulation","Missing") == null))
+                //ANCESTRAL
+                if (settings.hasGroup("Ancestral"))
                 {
-                    smissing = getAlignment(settings.getSetting("Simulation","AlignmentType"),
-                            settings.getSetting("Simulation","Missing"), missing);
-                }
-		
-		Simulate sim = new Simulate(sm,st,sp,smissing);
-		Alignment simAlign = sim.getAlignment(getLength(settings.getSetting("Simulation","Parameters")));
+                    //All these sort of calls will ensure either the likelihood settings or
+                    //the specific settings are used.  If both or neither are set an exception is thrown
+                    Tree at = getTree(settings.getSetting("Ancestral", "Tree"), t);
 
-                String alignmentType = getAlignmentType(settings.getSetting("Simulation", "AlignmentType"),
-                        settings.getSetting("Likelihood", "AlignmentType"));
-                outputAlignment(settings.getSetting("Simulation", "Output"),
-                        alignmentType, simAlign);
-	    }
-      	}
-	catch (GeneralException e)
-	{
-	    exceptionHandler(e,debugFile);
-	}
-	catch (SettingException e)
-	{
-	    exceptionHandler(e,debugFile);
-	}
+                    Alignment aa = getAlignment(settings.getSetting("Ancestral", "AlignmentType"),
+                            settings.getSetting("Ancestral", "Alignment"), a);
+
+                    Map<String,Model> am = getModel(settings.getSetting("Ancestral", "Model"),m);
+
+                    Parameters ap = getParameters(settings.getSetting("Ancestral","Parameters"),p,at);
+
+                    Alignment anc = getAncestral(settings.getSetting("Ancestral", "Type"),am,aa,at,ap);
+
+                    String alignmentType = getAlignmentType(settings.getSetting("Ancestral", "AlignmentType"),
+                            settings.getSetting("Likelihood", "AlignmentType"));
+                    outputAlignment(settings.getSetting("Ancestral", "Output"),
+                            alignmentType, anc);
+                }
+
+                //SIMULATION
+                if (settings.hasGroup("Simulation"))
+                {
+                    Tree st = getTree(settings.getSetting("Simulation", "Tree"), t);
+
+                    Map<String,Model> sm = getModel(settings.getSetting("Simulation", "Model"),m);
+
+                    Parameters sp = getParameters(settings.getSetting("Simulation","Parameters"),p,st);
+
+                    Alignment smissing = null;
+                    if (!((missing == null) && settings.getSetting("Simulation","Missing") == null))
+                    {
+                        smissing = getAlignment(settings.getSetting("Simulation","AlignmentType"),
+                                settings.getSetting("Simulation","Missing"), missing);
+                    }
+
+                    Simulate sim = new Simulate(sm,st,sp,smissing);
+                    Alignment simAlign = sim.getAlignment(getLength(settings.getSetting("Simulation","Parameters")));
+
+                    String alignmentType = getAlignmentType(settings.getSetting("Simulation", "AlignmentType"),
+                            settings.getSetting("Likelihood", "AlignmentType"));
+                    outputAlignment(settings.getSetting("Simulation", "Output"),
+                            alignmentType, simAlign);
+                }
+            }
+            catch (GeneralException e)
+            {
+                exceptionHandler(e,debugFile);
+            }
+            catch (SettingException e)
+            {
+                exceptionHandler(e,debugFile);
+            }
+        }
     }
 
     private static void exceptionHandler(Exception e, String debugFile)

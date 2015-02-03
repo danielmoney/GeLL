@@ -1,3 +1,20 @@
+/*
+ * This file is part of GeLL.
+ * 
+ * GeLL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GeLL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with GeLL.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package ModelTest;
 
 import Alignments.Alignment;
@@ -38,7 +55,14 @@ public class HypothesisTest
         this.o = o;
         this.reps = reps;
     }
-    
+
+    /**
+     * Constructor
+     * @param nullModel Map from site class to null model for that site class
+     * @param altModel Map from site class to the alternate model for that site class
+     * @param o The optimiser to be used
+     * @param reps The number of samples of the null distribution to generate
+     */
     public HypothesisTest(Map<String,Model> nullModel, Map<String,Model> altModel, 
             Optimizer o, int reps)
     {
@@ -48,13 +72,34 @@ public class HypothesisTest
         this.reps = reps;
     }
 
+    /**
+     * Does a hypothesis test on the given data and gives a p-value
+     * @param t The tree
+     * @param a The alignment
+     * @param unobserved Any unobserved states
+     * @param nullParams The parameters of the null model
+     * @param altParams The parameters of the alternative model
+     * @return A p-value
+     * @throws GeneralException When there is a problem performing the hypothesis test
+     */
     public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams)
             throws GeneralException
     {
         return test(t,a,unobserved,nullParams,altParams,null);
     }
 
-    
+    /**
+     * Does a hypothesis test on the given data and gives a p-value
+     * @param t The tree
+     * @param a The alignment
+     * @param unobserved Any unobserved states
+     * @param nullParams The parameters of the null model
+     * @param altParams The parameters of the alternative model
+     * @param recode The recoding to be passed to the simulator.  See 
+     * {@link Simulate#getAlignment(int, java.util.Map)} for while this is necessary.
+     * @return A p-value
+     * @throws GeneralException When there is a problem performing the hypothesis test
+     */    
     public double test(Tree t, Alignment a, Alignment unobserved, Parameters nullParams, Parameters altParams,
             Map<String,String> recode)
             throws GeneralException
@@ -69,7 +114,7 @@ public class HypothesisTest
     
     /**
      * Does a hypothesis test on the given data and gives a p-value
-     * @param t The tree
+     * @param t Map from site class to tree
      * @param a The alignment
      * @param unobserved Any unobserved states
      * @param nullParams The parameters of the null model
@@ -85,6 +130,7 @@ public class HypothesisTest
     
     /**
      * Does a hypothesis test on the given data and gives a p-value
+     * @param t Map from site class to tree
      * @param a The alignment
      * @param unobserved Any unobserved states
      * @param nullParams The parameters of the null model

@@ -176,11 +176,42 @@ public class Simulate
 	}        
     }
 
+    /**
+     * Creates an object to simulate data for a given model, set of trees, parameters
+     * and unobserved states. A different model can be given
+     * for each rate class.
+     * @param m The model
+     * @param t Map from site class to tree
+     * @param p The parameters
+     * @throws Models.RateCategory.RateException Thrown if there is an issue with
+     * a rate category in the model (e.g. a badly formatted rate).
+     * @throws Models.Model.ModelException Thrown if there is a problem with the
+     * model (e.g. the rate categories differ in their states)
+     * @throws TreeException Thrown if there is a problem with the tree.
+     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
+     * with the parameters (e.g. a required parameter is not present) 
+     */    
     public Simulate(Model m, Map<String,Tree> t, Parameters p) throws RateException, ModelException, TreeException, ParameterException
     {
         this(m,t,p,null);
     }
 
+    /**
+     * Creates an object to simulate data for a given model, set of trees, parameters
+     * and unobserved states. A different model can be given
+     * for each rate class.
+     * @param m The model
+     * @param t Map from site class to tree
+     * @param p The parameters
+     * @param unobserved The unobserved states
+     * @throws Models.RateCategory.RateException Thrown if there is an issue with
+     * a rate category in the model (e.g. a badly formatted rate).
+     * @throws Models.Model.ModelException Thrown if there is a problem with the
+     * model (e.g. the rate categories differ in their states)
+     * @throws TreeException Thrown if there is a problem with the tree.
+     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
+     * with the parameters (e.g. a required parameter is not present) 
+     */   
     public Simulate(Model m, Map<String,Tree> t, Parameters p, Alignment unobserved) throws RateException, ModelException, TreeException, ParameterException
     {
         for (Entry<String,Tree> e: t.entrySet())
@@ -210,11 +241,42 @@ public class Simulate
         }
     }
     
+    /**
+     * Creates an object to simulate data for a given set of models and trees,
+     * parameters and unobserved states. A different model can be given
+     * for each rate class.
+     * @param m Map from site class to model
+     * @param t Map from site class to tree
+     * @param p The parameters
+     * @throws Models.RateCategory.RateException Thrown if there is an issue with
+     * a rate category in the model (e.g. a badly formatted rate).
+     * @throws Models.Model.ModelException Thrown if there is a problem with the
+     * model (e.g. the rate categories differ in their states)
+     * @throws TreeException Thrown if there is a problem with the tree.
+     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
+     * with the parameters (e.g. a required parameter is not present) 
+     */      
     public Simulate(Map<String,Model> m, Map<String,Tree> t, Parameters p) throws RateException, ModelException, TreeException, ParameterException
     {
         this(m,t,p,null);
     }
 
+    /**
+     * Creates an object to simulate data for a given set of models and trees,
+     * parameters and unobserved states. A different model can be given
+     * for each rate class.
+     * @param m Map from site class to model
+     * @param t Map from site class to tree
+     * @param p The parameters
+     * @param unobserved The unobserved states
+     * @throws Models.RateCategory.RateException Thrown if there is an issue with
+     * a rate category in the model (e.g. a badly formatted rate).
+     * @throws Models.Model.ModelException Thrown if there is a problem with the
+     * model (e.g. the rate categories differ in their states)
+     * @throws TreeException Thrown if there is a problem with the tree.
+     * @throws Parameters.Parameters.ParameterException Thrown if there is a problem
+     * with the parameters (e.g. a required parameter is not present) 
+     */ 
     public Simulate(Map<String,Model> m, Map<String,Tree> t, Parameters p, Alignment unobserved) throws RateException, ModelException, TreeException, ParameterException
     {
         for (Entry<String,Model> e: m.entrySet())

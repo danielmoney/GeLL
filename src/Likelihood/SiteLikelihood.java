@@ -324,7 +324,9 @@ public class SiteLikelihood implements Serializable
         public void multiply(String state, Real by)
         {
             int i = states.get(state);
-            likelihoods[i] = likelihoods[i].multiply(by);
+            //likelihoods[i] = likelihoods[i].multiply(by);
+            by.multiplyip(likelihoods[i]);
+            likelihoods[i] = by;
         }
         
         /**

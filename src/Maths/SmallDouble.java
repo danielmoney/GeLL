@@ -180,6 +180,42 @@ public class SmallDouble implements Serializable, Real
         return this;
     }
     
+    public void addip(Real o)
+    {
+        //At the moment this is a quick fix that resorts to the old more memory
+        //ineffecient way.
+        SmallDouble res = this.add(o);
+        this.e = res.e;
+        this.m = res.m;
+    }
+    
+    public void multiplyip(Real o)
+    {
+        //At the moment this is a quick fix that resorts to the old more memory
+        //ineffecient way.
+        SmallDouble res = this.multiply(o);
+        this.e = res.e;
+        this.m = res.m;
+    }
+    
+    public void multiplyip(double d)
+    {
+        //At the moment this is a quick fix that resorts to the old more memory
+        //ineffecient way.
+        SmallDouble res = this.multiply(d);
+        this.e = res.e;
+        this.m = res.m;
+    }
+    
+    public void addproductip(Real o1, double o2)
+    {
+        //At the moment this is a quick fix that resorts to the old more memory
+        //ineffecient way.
+        SmallDouble res = this.add(o1.multiply(o2));
+        this.e = res.e;
+        this.m = res.m;       
+    }
+    
     public boolean equals(Object o)
     {
         if (o instanceof SmallDouble)
