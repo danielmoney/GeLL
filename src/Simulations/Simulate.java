@@ -148,6 +148,7 @@ public class Simulate
      */     
     public Simulate(Map<String,Model> m, Tree t, Parameters p, Alignment unobserved) throws RateException, ModelException, TreeException, ParameterException
     {
+        P = new HashMap<>();
         for (Entry<String,Model> e: m.entrySet())
         {
             P.put(e.getKey(),new Probabilities(e.getValue(),t,p));

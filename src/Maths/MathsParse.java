@@ -128,7 +128,7 @@ public class MathsParse
         //otherwise the 'e' will cause problems later
 	Pattern p = Pattern.compile("\\d+\\.\\d+[eE]-?\\d+");
 	Matcher m = p.matcher(equation);
-	while (m.matches())
+	while (m.find())
 	{
             results.put("{" + id + "}", new Constant(Double.parseDouble(m.group())));
 	    equation = equation.substring(0,m.start()) + "{" + id + "}" + equation.substring(m.end());

@@ -20,6 +20,7 @@ package Executable;
 import Alignments.Alignment;
 import Alignments.Ambiguous;
 import Alignments.DuplicationAlignment;
+import Alignments.GenericAlignment;
 import Alignments.PhylipAlignment;
 import Ancestors.AncestralJoint;
 import Ancestors.AncestralMarginal;
@@ -126,15 +127,27 @@ public class GeLL
                     t = Tree.fromFile(new File(settings.getSetting("Likelihood", "TreeInput")));
 
                     m = getModels(new File(settings.getSetting("Likelihood", "Model")));
+                    
+                    if (settings.getSetting("Likelihood", "Rescale").toLowerCase().startsWith("f"))
+                    {
+                        for (Model mm: m.values())
+                        {
+                            mm.setRescale(false);
+                        }
+                    }
 
-                    p = getParameters(settings.getSetting("Likelihood","ParameterInput"), t);
+                    p = getParameters(settings.getSetting("Likelihood","ParameterInput"), t,
+                            settings.getSetting("Likelihood","OptimizeTree"));
 
                     StandardCalculator c = new StandardCalculator(m,a,t,missing);
 
                     Optimizer o = getOptimizer(settings.getSetting("Likelihood", "Optimizer"));
-                    o.setCheckPointFile(new File(settings.getSetting("Likelihood", "Checkpoint")));
-                    o.setCheckPointFrequency(getCheckpointFreq(settings.getSetting("Likelihood", "Checkpoint")),
-                            TimeUnit.MINUTES);
+                    if (settings.getSetting("Likelihood", "Checkpoint") != null)
+                    {
+                        o.setCheckPointFile(new File(settings.getSetting("Likelihood", "Checkpoint")));
+                        o.setCheckPointFrequency(getCheckpointFreq(settings.getSetting("Likelihood", "Checkpoint")),
+                                TimeUnit.MINUTES);
+                    }
 
                     StandardLikelihood like = getLikelihoodResult(settings.getSetting("Likelihood","Restart"),o,c,p);
 
@@ -169,27 +182,27 @@ public class GeLL
                 }
 
                 //SIMULATION
-                if (settings.hasGroup("Simulation"))
+                if (settings.hasGroup("Simulate"))
                 {
-                    Tree st = getTree(settings.getSetting("Simulation", "Tree"), t);
+                    Tree st = getTree(settings.getSetting("Simulate", "Tree"), t);
 
-                    Map<String,Model> sm = getModel(settings.getSetting("Simulation", "Model"),m);
+                    Map<String,Model> sm = getModel(settings.getSetting("Simulate", "Model"),m);
 
-                    Parameters sp = getParameters(settings.getSetting("Simulation","Parameters"),p,st);
+                    Parameters sp = getParameters(settings.getSetting("Simulate","Parameters"),p,st);
 
                     Alignment smissing = null;
-                    if (!((missing == null) && settings.getSetting("Simulation","Missing") == null))
+                    if (!((missing == null) && settings.getSetting("Simulate","Missing") == null))
                     {
-                        smissing = getAlignment(settings.getSetting("Simulation","AlignmentType"),
-                                settings.getSetting("Simulation","Missing"), missing);
+                        smissing = getAlignment(settings.getSetting("Simulate","AlignmentType"),
+                                settings.getSetting("Simulate","Missing"), missing);
                     }
 
                     Simulate sim = new Simulate(sm,st,sp,smissing);
-                    Alignment simAlign = sim.getAlignment(getLength(settings.getSetting("Simulation","Parameters")));
+                    Alignment simAlign = sim.getAlignment(getLength(settings.getSetting("Simulate","Length")));
 
-                    String alignmentType = getAlignmentType(settings.getSetting("Simulation", "AlignmentType"),
+                    String alignmentType = getAlignmentType(settings.getSetting("Simulate", "AlignmentType"),
                             settings.getSetting("Likelihood", "AlignmentType"));
-                    outputAlignment(settings.getSetting("Simulation", "Output"),
+                    outputAlignment(settings.getSetting("Simulate", "Output"),
                             alignmentType, simAlign);
                 }
             }
@@ -250,6 +263,8 @@ public class GeLL
             ps.addOptionalSetting("Likelihood", "Ambig", null);
             ps.addOptionalSetting("Likelihood", "Missing", null);
             ps.addOptionalSetting("Likelihood", "MissingAmbig", null);
+            ps.addOptionalSetting("Likelihood", "OptimizeTree", "True");
+            ps.addOptionalSetting("Likelihood", "Rescale", "True");
 
             ps.addGroup("Ancestral", false);
             ps.addOptionalSetting("Ancestral", "Tree", null);
@@ -395,6 +410,10 @@ public class GeLL
         {
             a = PhylipAlignment.fromFile(new File(file));
         }
+        if (type.equals("Generic"))
+        {
+            a = GenericAlignment.fromFile(new File(file));
+        }
         if (a == null)
         {
             throw new SettingException("Invalid AlignmentType Setting");
@@ -407,12 +426,39 @@ public class GeLL
         Alignment missing = null;
         if (type.equals("Duplication"))
         {
-            missing = DuplicationAlignment.fromFile(new File(file),
-                    Ambiguous.fromFile(new File(ambig)));
+            if (ambig != null)
+            {
+                missing = DuplicationAlignment.fromFile(new File(file),
+                        Ambiguous.fromFile(new File(ambig)));
+            }
+            else
+            {
+                missing = DuplicationAlignment.fromFile(new File(file));                
+            }
         }
         if (type.equals("Sequence"))
         {
-            missing = PhylipAlignment.fromFile(new File(file));
+            if (ambig != null)
+            {
+                missing = PhylipAlignment.fromFile(new File(file),
+                        Ambiguous.fromFile(new File(ambig)));
+            }
+            else
+            {
+                missing = PhylipAlignment.fromFile(new File(file));
+            }
+        }
+        if (type.equals("Generic"))
+        {
+            if (ambig != null)
+            {
+                missing = GenericAlignment.fromFile(new File(file),
+                        Ambiguous.fromFile(new File(ambig)));
+            }
+            else
+            {
+                missing = GenericAlignment.fromFile(new File(file));
+            }
         }
         if (missing == null)
         {
@@ -426,11 +472,11 @@ public class GeLL
         Optimizer o = null;
         if (setting.equals("GoldenSection"))
         {
-            o = new GoldenSection(1);
+            o = new GoldenSection(GoldenSection.ProgressLevel.PARAMETER);
         }
         if (setting.equals("NelderMead"))
         {
-            o = new NelderMead();
+            o = new NelderMead(NelderMead.DebugLevel.ON);
         }
         if (o == null)
         {
@@ -610,8 +656,10 @@ public class GeLL
         {
             if (file != null)
             {
-                Parameters np = Parameters.fromFile(new File(file));
-                np.addParameters(t.getParameters());
+                //Parameters np = Parameters.fromFile(new File(file));
+                //np.addParameters(t.getParameters());
+                Parameters np = t.getParameters();
+                np.addParameters(Parameters.fromFile(new File(file)));
                 return np;
             }
             else
@@ -628,13 +676,13 @@ public class GeLL
             int l = Integer.parseInt(setting);
             if (l <= 0)
             {
-                throw new SettingException("Simulated alignment length must be  apositive integer");
+                throw new SettingException("Simulated alignment length must be a positive integer");
             }
             return l;
         }
         catch (NumberFormatException ex)
         {
-            throw new SettingException("Simulated alignment length must be  apositive integer");
+            throw new SettingException("Simulated alignment length must be a positive integer");
         }
     }
     
@@ -663,7 +711,7 @@ public class GeLL
                 throw new SettingException("No alignment type to use");
             }
         }
-        if (type.equals("Duplication") || type.equals("Sequence"))
+        if (type.equals("Duplication") || type.equals("Sequence") || type.equals("Generic"))
         {
             return type;
         }
@@ -686,13 +734,23 @@ public class GeLL
         }
     }
     
-    private static Parameters getParameters(String pi, Tree t) throws GeneralException
+    private static Parameters getParameters(String pi, Tree t, String optimize) throws GeneralException
     {
         Parameters p;
         if (pi != null)
         {
-            p = Parameters.fromFile(new File(pi));
-            p.addParameters(t.getParametersForEstimation());
+            //p = Parameters.fromFile(new File(pi));
+            //p.addParameters(t.getParametersForEstimation());
+            if (!optimize.toLowerCase().startsWith("f"))
+            {
+                p = t.getParametersForEstimation();
+            }
+            else
+            {
+                p = t.getParameters();
+            }
+            p.addParameters(Parameters.fromFile(new File(pi)));
+            
         }
         else
         {

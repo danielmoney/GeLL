@@ -141,11 +141,19 @@ public class ConjugateGradient implements Optimizer
     
     public <R extends Likelihood> R  maximise(Optimizable<R> c, Parameters p) throws GeneralException
     {
+        if (p.numberEstimate() == 0)
+        {
+            return c.calculate(p);
+        }
         return maximise(c,System.out,new Data(c,p));
     }
 
     public <R extends Likelihood> R maximise(Optimizable<R> c, Parameters p, File log) throws GeneralException
     {
+        if (p.numberEstimate() == 0)
+        {
+            return c.calculate(p);
+        }
         try
         {
             PrintStream ps = new PrintStream(new FileOutputStream(log));

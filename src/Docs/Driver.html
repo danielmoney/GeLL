@@ -187,6 +187,20 @@
                         <td>File to output the estimated parameters to.  If this option
                         is not given then no output is written.</td>
                     </tr>
+                    <tr>
+                        <th>Rescale</th>
+                        <td>Whether to rescale the matrix to one event pet time unit.
+                            Any value beginning with f is false, all other values are
+                            true. Defaults to true.
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>OptimizeTree</th>
+                        <td>Whether to optimize the tree branch lengths or use those
+                            provided. Any value beginning with f is false, all other
+                            values are true. Defaults to true.
+                        </td>
+                    </tr>
                 </table>
                 <p><i>Ancestral section</i></p>
                 <table class="options">
@@ -231,7 +245,7 @@
                         <td>File to write the reconstructed alignment to.</td>
                     </tr>
                 </table>
-                <p><i>Simulation section</i></p>
+                <p><i>Simulate section</i></p>
                 <table class="options">
                     <tr>
                         <th>AlignmentType</th>
@@ -323,8 +337,9 @@
                 <li><i>Gamma distributed rate categories</i>
                     <ul>
                     <li>First line should start <code>**G</code> followed by a tab,
-                    followed by the parameter name the alpha value is to be called by.
-                    This should be followed a tab and the number of categories desired.</li>
+                    followed by the number of categories desired.
+                    This should be followed a tab and the parameter name the
+                    alpha value is to be called by.</li>
                     <li>Second line should contain a file path to the RateCategory file that
                     describes the basic model.</li>
                     </ul>                    

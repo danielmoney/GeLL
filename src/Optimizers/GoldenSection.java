@@ -95,11 +95,19 @@ public class GoldenSection implements Optimizer
 
     public <R extends Likelihood> R maximise(Optimizable<R> l, Parameters params) throws GeneralException
     {
+        if (params.numberEstimate() == 0)
+        {
+            return l.calculate(params);
+        }
 	return maximise(l,System.out,new Data(params));
     }
 
     public <R extends Likelihood> R maximise(Optimizable<R> l, Parameters params, File log) throws GeneralException
     {
+        if (params.numberEstimate() == 0)
+        {
+            return l.calculate(params);
+        }
         try
         {
             PrintStream ps = new PrintStream(new FileOutputStream(log));
