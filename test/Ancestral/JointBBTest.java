@@ -59,7 +59,7 @@ public class JointBBTest
     public void testReconstruction() throws Exception
     {
         Tree t = Tree.fromNewickString("(((Human: 0.057987, Chimpanzee: 0.074612)A: 0.035490, Gorilla: 0.074352)B: 0.131394, Orangutan: 0.350156, Gibbon: 0.544601)C;");
-        Alignment a = PhylipAlignment.fromFile(new File("test\\PAML\\Likelihood\\brown.nuc"));
+        Alignment a = PhylipAlignment.fromFile(new File("test/PAML/Likelihood/brown.nuc"));
 
         String[][] ma = new String[4][4];
 

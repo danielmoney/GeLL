@@ -55,7 +55,7 @@ public class JointDPTest
         SquareMatrix.setExpMethod(Calculation.EIGEN);
         
         Tree t = Tree.fromNewickString("(((Human: 0.041755, Chimpanzee: 0.053312)A: 0.016472, Gorilla: 0.058177)B: 0.052919, Orangutan: 0.100079, Gibbon: 0.139397)C;");
-        Alignment a = PhylipAlignment.fromFile(new File("test\\PAML\\JointReconstruction\\brown.nuc"));
+        Alignment a = PhylipAlignment.fromFile(new File("test/PAML/JointReconstruction/brown.nuc"));
 
         String[][] ma = new String[4][4];
 
@@ -85,7 +85,7 @@ public class JointDPTest
         String re = "([ACTG]{5}): ([ACTG]{3})";
         Pattern pattern = Pattern.compile(re);
         
-        BufferedReader in = new BufferedReader(new FileReader("test\\PAML\\JointReconstruction\\rst"));
+        BufferedReader in = new BufferedReader(new FileReader("test/PAML/JointReconstruction/rst"));
         
         String line;
         boolean good = true;

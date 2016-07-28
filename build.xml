@@ -81,7 +81,6 @@
         <tar destfile="${basedir}/zips/GeLL.tar">
             <tarfileset dir="${dist.dir}" />
             <tarfileset dir="${src.dir}/Docs" excludes="overview.html,Tests.html" />
-            <tarfileset file="C:/Users/Daniel/Documents/GeLL/QuickStart/QuickStart.pdf" fullpath="" />
         </tar>
         <gzip src="${basedir}/zips/GeLL.tar" destfile="${basedir}/zips/GeLL-${GeLLVer}.tar.gz" />
         <delete file="${basedir}/zips/GeLL.tar" />
@@ -91,7 +90,6 @@
             <tarfileset dir="${dist.dir}" />
             <tarfileset dir="${src.dir}/Docs" excludes="overview.html,Tests.html" />
             <tarfileset dir="${src.dir}" excludes="Docs/" prefix="src/" />
-            <tarfileset file="C:/Users/Daniel/Documents/GeLL/QuickStart/QuickStart.pdf" fullpath="" />
         </tar>
         <gzip src="${basedir}/zips/GeLL-src.tar" destfile="${basedir}/zips/GeLL-${GeLLVer}-src.tar.gz" />
         <delete file="${basedir}/zips/GeLL-src.tar" />
@@ -103,7 +101,6 @@
             <tarfileset dir="${src.dir}/Docs" excludes="overview.html" />
             <tarfileset dir="${src.dir}" excludes="Docs/" prefix="src/" />
             <tarfileset dir="${test.src.dir}" prefix="test/" />
-            <tarfileset file="C:/Users/Daniel/Documents/GeLL/QuickStart/QuickStart.pdf" fullpath="" />
         </tar>
         <gzip src="${basedir}/zips/GeLL-tests.tar" destfile="${basedir}/zips/GeLL-${GeLLVer}-tests.tar.gz" />
         <delete file="${basedir}/zips/GeLL-tests.tar" />

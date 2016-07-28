@@ -55,7 +55,7 @@ public class AdapterTest
     @Test
     public void adapterTest() throws Exception
     {
-        Tree t = Tree.fromFile(new File("C:\\Users\\Daniel\\Documents\\GeLL\\Modelomatic\\my_output.trim.tree"));
+        Tree t = Tree.fromFile(new File("test/Modelomatic/my_output.trim.tree"));
         
         Set<String> any = new HashSet<>();
         any.add("A");
@@ -67,7 +67,7 @@ public class AdapterTest
         am.put("N",any);
         Ambiguous ambig = new Ambiguous(am);
         
-        Alignment a = PhylipAlignment.fromFile(new File("C:\\Users\\Daniel\\Documents\\GeLL\\Modelomatic\\my_output.trim.data"),ambig);
+        Alignment a = PhylipAlignment.fromFile(new File("test/Modelomatic/my_output.trim.data"),ambig);
         
         Map<String,String> recode = new HashMap<>();
         recode.put("C","Y");

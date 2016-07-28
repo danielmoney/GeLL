@@ -47,7 +47,7 @@ public class GoldenSectionTest
     public void SimpleTest() throws Exception
     {
         Tree t = Tree.fromNewickString("(((Human, Chimpanzee)A, Gorilla)B, Orangutan, Gibbon)C;");
-        Alignment a = PhylipAlignment.fromFile(new File("test\\PAML\\Likelihood\\brown.nuc"));
+        Alignment a = PhylipAlignment.fromFile(new File("test/PAML/Likelihood/brown.nuc"));
 
         String[][] ma = new String[4][4];
 
